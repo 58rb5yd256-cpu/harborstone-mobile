@@ -29,7 +29,9 @@ body.auth #view{padding-bottom:calc(var(--sa-b) + 16px)}
 /* nav */
 #nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:560px;z-index:40;display:flex;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + var(--sa-b));transition:transform .2s}
 body.auth #nav{display:none}
-body.kbd #nav,body.sheet-open #nav{transform:translate(-50%,110%)}
+body.sheet-open #nav{transform:translate(-50%,110%)}
+/* Keep the primary navigation visible if iOS leaves an input-focus class behind. */
+body.kbd:not(.sheet-open) #nav{display:flex;transform:translateX(-50%);bottom:0;z-index:60}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 5px;border-radius:14px;color:#7B8890;font-size:11px;font-weight:600;letter-spacing:.01em;transition:color .15s,background .15s,transform .1s}
 .tab:active{transform:scale(.94);background:var(--soft)}
 .tab.active{color:var(--navy);background:linear-gradient(180deg,#F3EBDA,#EBDFC4)}
