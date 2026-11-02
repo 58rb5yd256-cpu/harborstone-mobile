@@ -1,0 +1,15 @@
+{
+  "name": "harborstone-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Harborstone Mobile \u2014 fictional educational mobile banking app (static front end + Vercel email-OTP functions)",
+  "scripts": {
+    "start": "node dev-server.mjs",
+    "test": "node tests/run.cjs",
+    "test:auth": "node tests/api-server.mjs & sleep 2 && node tests/auth-api.cjs; kill %1"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}
