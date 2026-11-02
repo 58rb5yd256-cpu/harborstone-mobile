@@ -999,7 +999,7 @@
       ${sec('Alerts & notifications', ui.link('See all', '/notifications'), S.notifications.length ? `<div class="group">${S.notifications.slice(0, 3).map((n) => notifRow(n)).join('')}</div>` : ui.card(ui.empty('bell', 'You’re all caught up', 'New alerts will appear here.')))}
 
       ${sec('Shortcuts', '', `<div class="group">${[['users', 'Saved beneficiaries', '/payments/beneficiaries'], ['file', 'Account statements', '/accounts/statements'], ['receipt', 'Transaction history', '/transactions'], ['help', 'Help and support', '/more/support']].map((r) => ui.row({ icon: r[0], title: r[1], go: r[2] })).join('')}</div>`)}
-      <p class="footnote">Balances and transactions shown are <b>simulated sample data</b> for an educational project.</p>`
+      `
     };
   });
 
