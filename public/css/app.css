@@ -9,7 +9,7 @@
   --r:18px;--sh:0 1px 2px rgba(10,51,64,.05),0 6px 20px rgba(10,51,64,.07);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#D9E0E1;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+html,body{margin:0;height:100%;background:#082F3A;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
 body{overflow:hidden}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;text-align:left}
 input,select,textarea{font:inherit;font-size:16px;color:var(--ink)}
@@ -319,6 +319,14 @@ input,select,textarea{max-width:100%;min-width:0}
 .login-intro{margin-top:5px;line-height:1.5}
 .login-submit{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;font-size:16px;letter-spacing:.01em}
 .login-submit span{display:flex;align-items:center}
+.btn-biometric{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;margin-top:12px;border:1.5px solid #D8C28D;border-radius:15px;background:#F8F5EC;color:#174653;font-weight:750;font-size:15px}
+.btn-biometric svg{color:#A98543}.biometric-hint{font-size:11px;line-height:1.45;color:var(--mute);text-align:center;margin:8px 4px 0}
+.biometric-overlay{position:fixed;inset:0;z-index:9999;background:rgba(2,13,18,.68);display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(5px)}
+.biometric-island{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:132px;height:38px;border-radius:24px;background:#020609;display:grid;place-items:center;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.biometric-ring{width:19px;height:19px;border:2px solid rgba(255,255,255,.22);border-top-color:#DCC58E;border-right-color:#DCC58E;border-radius:50%;animation:biometricSpin .75s linear infinite}
+.biometric-dialog{width:min(100%,320px);min-height:220px;border-radius:28px;background:#fff;color:#142A31;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:28px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
+.biometric-mark{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;color:#1B6D79;background:#EDF5F3;margin-bottom:5px}.biometric-dialog b{font-size:19px}.biometric-dialog span{font-size:14px;color:#53636A}.biometric-dialog small{font-size:12px;color:#8A969B}
+@keyframes biometricSpin{to{transform:rotate(360deg)}}
 .login-divider{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:12px;margin:21px 0 12px}
 .login-divider:before,.login-divider:after{content:"";height:1px;background:var(--line);flex:1}
 .login-enroll{min-height:50px;font-weight:650}
@@ -332,3 +340,28 @@ input,select,textarea{max-width:100%;min-width:0}
 
 @media(min-width:600px){.auth-wrap{max-width:560px;margin:0 auto}.auth-card{margin-left:28px;margin-right:28px}}
 @media(max-height:700px){.auth-hero{padding-top:calc(var(--sa-t) + 16px);padding-bottom:42px}.auth-hero .logo{width:64px;height:64px}.auth-hero h1{font-size:29px}.auth-wrap .footnote{padding-top:18px}}
+
+/* iPhone polish: deep-teal system canvas, safe-area coverage, and reliable touch scrolling. */
+html{background:#082F3A;overscroll-behavior:none;touch-action:pan-y;}
+body{background:#082F3A;overscroll-behavior:none;touch-action:pan-y;}
+#app{min-height:100svh;height:100dvh;background:var(--bg);}
+#view{overscroll-behavior-y:contain;touch-action:pan-y;scrollbar-width:none;}
+#view::-webkit-scrollbar{display:none;}
+button,a{touch-action:manipulation;}
+input,select,textarea{font-size:16px!important;}
+.auth-wrap{min-height:100%;padding-top:0;}
+.auth-hero{padding-top:calc(var(--sa-t) + 30px);}
+.hdr{background:rgba(8,47,58,.96);color:#fff;}
+.hdr-t h1{color:#fff;}
+.hdr-t p{color:rgba(255,255,255,.76);}
+
+
+/* Prominent center Payments navigation action */
+#nav{align-items:flex-end;overflow:visible;padding-top:8px}
+#nav .tab{min-width:0}
+#nav .tab-primary{position:relative;z-index:2;flex:1.18;min-height:70px;margin:-17px 3px 0;padding:10px 4px 8px;border-radius:20px 20px 16px 16px;background:linear-gradient(150deg,#145B68,#082F3A);color:#F4DFAE;box-shadow:0 7px 18px rgba(8,47,58,.28);transform:translateY(-3px);font-size:12px;font-weight:800}
+#nav .tab-primary svg{color:#F4DFAE;width:29px;height:29px}
+#nav .tab-primary.active{background:linear-gradient(150deg,#1A6875,#0A3945);color:#FFE7B2;box-shadow:0 8px 20px rgba(8,47,58,.34)}
+#nav .tab-primary:active{transform:translateY(-1px) scale(.97)}
+#nav .tab:not(.tab-primary){flex:.955}
+@media(max-width:380px){#nav .tab-primary{min-height:66px;font-size:11px;margin-left:1px;margin-right:1px}#nav .tab:not(.tab-primary){font-size:10px}}
