@@ -730,7 +730,7 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const notice = () => { try { const n = sessionStorage.getItem('hm_notice'); sessionStorage.removeItem('hm_notice'); return n; } catch (e) { return null; } };
 
-  const authShell = (inner, o) => `<div class="auth-wrap"><div class="auth-hero">${ui.logo(60)}<h1>Harborstone</h1><span class="auth-app">MOBILE BANKING</span><p>${HM.BANK.tagline}</p></div><div class="auth-card">${inner}</div><p class="footnote">${o && o.foot ? o.foot : 'Harborstone Bank is a <b>fictional bank</b> created for an educational project. No real money, accounts or customer data are used.'}</p></div>`;
+  const authShell = (inner, o) => `<div class="auth-wrap"><div class="auth-hero">${ui.logo(54)}<h1>Harborstone</h1><span class="auth-app">MOBILE BANKING</span></div><div class="auth-card">${inner}</div></div>`;
 
   /* ---------- API with local-only development fallback ---------- */
   async function api(path, body) {
@@ -760,7 +760,6 @@
     return {
       title: 'Sign in',
       html: authShell(`
-        <div class="login-security">${icon('shield', 17)} <span>Secure online banking</span><span class="security-dot"></span><span>Protected sign-in</span></div>
         <h2>Welcome back</h2><p class="mute sm login-intro">Sign in to access your Harborstone account.</p>
         ${n ? `<div class="note warn">${icon('info', 18)}<span>${esc(n)}</span></div>` : ''}
         <form data-form="login" novalidate>
@@ -774,7 +773,7 @@
         <div class="login-divider"><span>New to Harborstone?</span></div>
         <button class="btn btn-ghost login-enroll" data-go="/register">Open an account</button>
         <button class="login-help" data-go="/login-help">Need help signing in?</button>
-        <div class="login-assurance">${icon('lock', 16)} <span>Your sign-in is protected with email verification.</span></div>`)
+`)
 
     };
   }, { pub: true });
@@ -985,14 +984,12 @@
     return {
       title: 'Home',
       html: `
-      <div class="hero"><div class="home-brand">${ui.logo(34)}<span>HARBORSTONE <small>BANK</small></span></div><div class="hero-top"><button class="avatar-btn" data-go="/more/profile" aria-label="Profile">${HM.avatar ? HM.avatar() : ''}</button><div class="hero-hi"><small>${greeting()}</small><b>${esc(name)}</b></div>
-        <button class="iconbtn" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div>
-        <div class="chips-h"><span class="pill ok">${icon('shield', 14)} Secure session</span>${S.security.biometric ? `<span class="pill">${icon('face', 14)} Face ID ready</span>` : ''}${frozen.length ? `<button class="pill warn" data-go="/accounts">${icon('snow', 14)} ${frozen.length} account${frozen.length > 1 ? 's' : ''} frozen</button>` : ''}${unread ? `<button class="pill" data-go="/notifications">${icon('bell', 14)} ${unread} new alert${unread > 1 ? 's' : ''}</button>` : ''}</div></div>
+      <div class="hero home-hero-compact"><div class="hero-top"><div class="home-context"><span>Account overview</span><small>Harborstone Bank</small></div><div class="home-actions"><button class="avatar-btn" data-go="/more/profile" aria-label="Profile">${HM.avatar ? HM.avatar() : ''}</button><button class="iconbtn" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div></div>
 
-      <div class="float"><div class="bal-card">
+      <div class="float"><div class="bal-card balance-premium">
         <div class="bal-h"><span class="lbl">Total balance</span><button class="eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 18)} ${hidden ? 'Show' : 'Hide'}</button></div>
-        <div class="big">${hideable(money(T.current), hidden)}</div><div class="sm mute">USD · All accounts</div>
-        <div class="kv3"><div><small>Available balance</small><b>${hideable(money(T.available), hidden)}</b></div><div><small>Current balance</small><b>${hideable(money(T.current), hidden)}</b></div></div>
+        <div class="big">${hideable(money(T.current), hidden)}</div><div class="balance-caption">USD <span>•</span> Total across accounts</div>
+        <div class="kv3 balance-metrics"><div><small>Available</small><b>${hideable(money(T.available), hidden)}</b></div><div><small>Current</small><b>${hideable(money(T.current), hidden)}</b></div></div>
         ${hidden ? '' : `<div class="split">${S.accounts.map((a, i) => `<i style="width:${(a.current / T.current) * 100}%;background:${colors[i % 4]}"></i>`).join('')}</div><div class="legend">${S.accounts.map((a, i) => `<span><i style="background:${colors[i % 4]}"></i>${esc(a.nickname)} ${money(a.current).replace('.00', '')}</span>`).join('')}</div>`}
       </div></div>
 
@@ -1992,7 +1989,7 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const np = '<span class="np">Not provided</span>';
   const val = (v) => (v ? esc(v) : np);
-  const avatar = (cls) => { const p = S().profile; return p.photo ? `<img class="avatar-img ${cls || ''}" src="${p.photo}" alt="Profile photo">` : `<span class="avatar ${cls || ''}">${esc(((p.preferred || p.first || 'S')[0] || 'S').toUpperCase())}</span>`; };
+  const avatar = (cls) => { const p = S().profile; const src = p.photo || '/images/profile-photo.jpg'; return `<img class="avatar-img ${cls || ''}" src="${esc(src)}" alt="Profile photo">`; };
   HM.avatar = avatar;
 
   /* ---------- landing ---------- */
