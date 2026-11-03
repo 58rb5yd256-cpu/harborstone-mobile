@@ -369,7 +369,7 @@
     if (a.status === 'frozen') {
       const tx = baseTx(req, 'blocked', { fee: 0, reason: 'Account frozen — outgoing transactions are blocked.' });
       state.txs.push(tx); if (req.idem) state.idem[req.idem] = tx.id;
-      HM.notify('account', 'Blocked demo attempt', `${R.label} of ${HM.money(req.amount)} from ${a.nickname} was blocked because the account is frozen.`);
+      HM.notify('account', 'Payment blocked', `${R.label} of ${HM.money(req.amount)} from ${a.nickname} was blocked because the account is frozen.`);
       persist();
       return { ok: false, blocked: true, code: 'frozen', tx, error: `${a.nickname} is frozen. Outgoing ACH, wire, check, bill, transfer and withdrawal activity is blocked. No money was moved.` };
     }
@@ -469,7 +469,7 @@
   HM.cardTxn = function (o) { // {cardId, merchant, amount, mode: pos|online|intl|contactless|atm}
     const c = state.cards.find((x) => x.id === o.cardId), a = HM.acct(c.acct); const amt = r2(o.amount);
     const rec = (status, reason) => { const tx = { id: HM.uid('tx'), acct: a.id, date: new Date().toISOString(), desc: o.merchant, cat: o.mode === 'atm' ? 'Cash' : (o.cat || 'Shopping'), amount: -amt, fee: 0, rail: o.mode === 'atm' ? 'withdrawal' : 'card', status, ref: HM.ref(o.mode === 'atm' ? 'withdrawal' : 'card'), reason, meta: { merchant: o.merchant, mode: o.mode, card: c.last4 } }; state.txs.push(tx); persist(); return tx; };
-    const decline = (why, status) => { const tx = rec(status || 'declined', why); HM.notify('payment', status === 'blocked' ? 'Blocked demo attempt' : 'Card transaction declined', `${HM.money(amt)} at ${o.merchant}: ${why}`); persist(); return { ok: false, tx, error: why }; };
+    const decline = (why, status) => { const tx = rec(status || 'declined', why); HM.notify('payment', status === 'blocked' ? 'Payment blocked' : 'Card transaction declined', `${HM.money(amt)} at ${o.merchant}: ${why}`); persist(); return { ok: false, tx, error: why }; };
     if (!(amt > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
     if (c.status === 'locked') return decline('Card is locked.');
     if (c.status !== 'active') return decline('Card is not active.');
@@ -560,7 +560,7 @@
     { id: 'more', label: 'More', icon: 'grid', path: '/more' }
   ];
   function buildNav() {
-    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, 24)}<span>${t.label}</span></button>`).join('');
+    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab${t.id === 'payments' ? ' tab-primary' : ''}" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, t.id === 'payments' ? 28 : 24)}<span>${t.label}</span></button>`).join('');
   }
   function setTab(id) { document.querySelectorAll('#nav .tab').forEach((b) => { const on = b.dataset.tab === id; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
 
@@ -764,11 +764,13 @@
         <h2>Welcome back</h2><p class="mute sm login-intro">Sign in to access your Harborstone account.</p>
         ${n ? `<div class="note warn">${icon('info', 18)}<span>${esc(n)}</span></div>` : ''}
         <form data-form="login" novalidate>
-          ${ui.field({ name: 'email', label: 'Email address', type: 'email', inputmode: 'email', autocomplete: 'username', value: rem ? rem.email : 'jessicabrownn088@gmail.com', placeholder: 'Email address' })}
+          ${ui.field({ name: 'email', label: 'Email address', type: 'email', inputmode: 'email', autocomplete: 'username', value: '', placeholder: 'Email address' })}
           <div class="fld" data-fld="password"><label for="f_password">Password</label><div class="pw"><input id="f_password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" class="pwt" data-act="togglePw" aria-label="Show password">${icon('eye', 20)}</button></div><p class="ferr" role="alert"></p></div>
           <div class="opts"><label class="chk"><input type="checkbox" name="remember" ${rem ? 'checked' : ''}><span></span>Remember this device</label><button type="button" class="lnk" data-go="/forgot">Forgot password?</button></div>
           <button class="btn btn-primary login-submit" type="submit" data-busy="Signing in…">Sign In <span aria-hidden="true">${icon('chevR', 18)}</span></button>
         </form>
+        <button class="btn btn-biometric" type="button" data-act="faceLogin">${icon('fingerprint', 22)} <span>Sign in with Face ID</span></button>
+        <p class="biometric-hint" id="biometricHint" aria-live="polite">Biometric sign-in is available after this device is securely enrolled.</p>
         <div class="login-divider"><span>New to Harborstone?</span></div>
         <button class="btn btn-ghost login-enroll" data-go="/register">Open an account</button>
         <button class="login-help" data-go="/login-help">Need help signing in?</button>
@@ -777,6 +779,24 @@
     };
   }, { pub: true });
   HM.acts.togglePw = (b) => { const i = b.parentElement.querySelector('input'); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.innerHTML = icon(show ? 'eyeoff' : 'eye', 20); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); };
+  HM.acts.faceLogin = async (button) => {
+    if (button.dataset.busy === '1') return;
+    button.dataset.busy = '1'; button.disabled = true;
+    const overlay = document.createElement('div');
+    overlay.className = 'biometric-overlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'assertive');
+    overlay.innerHTML = `<div class="biometric-island"><span class="biometric-ring"></span></div><div class="biometric-dialog"><div class="biometric-mark">${icon('fingerprint', 54)}</div><b>Face ID</b><span>Checking this device…</span><small>Please wait</small></div>`;
+    document.body.appendChild(overlay);
+    await new Promise((resolve) => setTimeout(resolve, 1800));
+    overlay.remove(); button.disabled = false; delete button.dataset.busy;
+    const hint = document.getElementById('biometricHint');
+    if (hint) hint.textContent = 'Face ID is not enrolled on this device yet. Sign in with your email and password, then complete email verification.';
+    const email = document.querySelector('form[data-form="login"] input[name="email"]');
+    const password = document.querySelector('form[data-form="login"] input[name="password"]');
+    if (password && !password.value) password.focus();
+    else if (email && !email.value) email.focus();
+  };
   HM.forms.login = async (f, d, btn) => {
     const email = d.email.trim().toLowerCase();
     if (!email) return ui.fail(f, 'Enter your email address.', 'email');
@@ -1449,7 +1469,7 @@
   const buildReq = (d) => {
     const a = d.rail, b = d.benef ? S().beneficiaries.find((x) => x.id === d.benef) : null;
     if (a === 'ach_instant' || a === 'ach_standard') return { rail: a, from: d.from, amount: d.amount, desc: (a === 'ach_instant' ? 'Instant ACH to ' : 'ACH to ') + b.name, cat: 'Payments', meta: { benef: { name: b.name, bank: b.bank, routing: b.routing, account: b.account, type: b.type }, purpose: d.desc, sec: 'PPD' } };
-    if (a === 'wire') return { rail: a, from: d.from, amount: d.amount, desc: 'Wire to ' + d.name, cat: 'Payments', meta: { benef: { name: d.name, bank: d.bank, routing: d.routing, account: d.account, type: 'checking' }, purpose: d.purpose, fedRef: 'FW' + HM.dayKey(new Date()).replace(/-/g, '') + String(Math.floor(Math.random() * 1e8)).padStart(8, '0') } };
+    if (a === 'wire') return { rail: a, from: d.from, amount: d.amount, desc: 'Wire to ' + d.name, cat: 'Payments', meta: { benef: { name: d.name, bank: d.bank, routing: d.routing, account: d.account, type: 'checking' }, purpose: d.purpose } };
     if (a === 'check') { const no = S().seq.check + 1; return { rail: a, from: d.from, amount: d.amount, desc: `Check #${no} · ${d.payee}`, cat: 'Payments', meta: { payee: d.payee, checkNo: no, memo: d.memo, issueDate: d.issueDate } }; }
     if (a === 'internal') return { rail: a, from: d.from, to: d.to, amount: d.amount, desc: 'Transfer', cat: 'Transfer', meta: { memo: d.desc } };
   };
@@ -1705,13 +1725,27 @@
   const digitsOf = (ref) => String(ref).replace(/\D/g, '');
 
   const head = (t, title, sub, cls) => `<div class="rc-head ${cls || ''}"><div class="rc-brand">${ui.logo(40)}<div><b>HARBORSTONE BANK</b><span>${esc(sub || 'Your finances. Your direction.')}</span></div></div><div class="rc-type">${esc(title)}</div></div>`;
-  const notDone = (t) => ['blocked', 'failed', 'declined'].includes(t.status);
+  const notDone = (t) => ['blocked', 'failed', 'declined', 'rejected', 'cancelled', 'returned'].includes(t.status);
+  const railStatus = (t) => {
+    if (!notDone(t)) return null;
+    const labels = {
+      zelle: 'FAILED — ACCOUNT RESTRICTED',
+      ach_instant: 'DECLINED — ACCOUNT RESTRICTED',
+      ach_standard: 'REJECTED — NOT SUBMITTED',
+      wire: 'CANCELLED — NOT RELEASED',
+      check: 'ACCOUNT FROZEN — NOT ISSUED',
+      internal: 'RESTRICTED — NOT PROCESSED',
+      bill: 'DECLINED — NOT SUBMITTED'
+    };
+    return labels[t.rail] || 'BLOCKED — NOT PROCESSED';
+  };
   const statusBand = (t) => {
-    const m = { completed: ['ok', 'check', 'COMPLETED'], pending: ['wait', 'clock', 'PENDING'], blocked: ['bad', 'snow', 'BLOCKED — NOT PROCESSED'], failed: ['bad', 'x', 'FAILED — NOT PROCESSED'], declined: ['bad', 'x', 'DECLINED'] }[t.status] || ['ok', 'check', t.status.toUpperCase()];
-    return `<div class="rc-status ${m[0]}">${icon(m[1], 20)}<span>${m[2]}</span></div>${notDone(t) ? `<div class="rc-reason"><b>Why:</b> ${esc(t.reason || 'The transaction could not be processed.')} <b>No funds were transferred.</b> This is recorded as a ${t.status === 'blocked' ? 'blocked demo attempt' : 'failed attempt'}.</div>` : ''}`;
+    const specific = railStatus(t);
+    const m = specific ? ['bad', 'snow', specific] : ({ completed: ['ok', 'check', 'COMPLETED'], pending: ['wait', 'clock', 'PENDING'], blocked: ['bad', 'snow', 'BLOCKED — NOT PROCESSED'], failed: ['bad', 'x', 'FAILED — NOT PROCESSED'], declined: ['bad', 'x', 'DECLINED'] }[t.status] || ['bad', 'x', String(t.status || 'UNAVAILABLE').toUpperCase()]);
+    return `<div class="rc-status ${m[0]}">${icon(m[1], 20)}<span>${m[2]}</span></div>${notDone(t) ? `<div class="rc-reason"><b>Account result:</b> ${esc(t.reason || 'The account restriction prevented this request from being processed.')} <b>No funds were sent, deducted, or credited.</b></div>` : ''}`;
   };
   const row = (k, v, cls) => (v === '' || v == null ? '' : `<div class="rk ${cls || ''}"><span>${k}</span><b>${v}</b></div>`);
-  const foot = (t) => `<div class="rc-foot"><div>Ref <b>${esc(t.ref)}</b> · Printed ${HM.fmtDT(new Date())}</div><p class="rc-fine">Harborstone Bank is a fictional bank (school project).</p></div>`;
+  const foot = (t) => `<div class="rc-foot"><div>Ref <b>${esc(t.ref)}</b> · Printed ${HM.fmtDT(new Date())}</div><p class="rc-fine">Sample transaction record · Educational project</p></div>`;
   const acctLine = (a) => `${esc(a.nickname)} · ${esc(a.type === 'savings' ? 'Savings' : 'Checking')} ${HM.mask(a.number)}`;
   const timeline = (items) => `<ul class="tlist">${items.map((i) => `<li class="${i[0]}"><i>${i[0] === 'no' ? '✕' : i[0] === 'off' ? '' : i[0] === 'now' ? '●' : '✓'}</i><div><b>${esc(i[1])}</b><small>${esc(i[2])}</small></div></li>`).join('')}</ul>`;
 
@@ -1731,16 +1765,16 @@
         const b = m.benef || {}; const eff = new Date(when); eff.setDate(eff.getDate() + 1); const trace = (HM.BANK.routing.slice(0, 8) + digitsOf(t.ref).slice(-7).padStart(7, '0'));
         return `<article class="receipt r-ach" id="rcpt">${head(t, 'ACH Credit Transfer', 'Standard ACH notice', 'white')}<div class="rc-body">${statusBand(t)}<div class="rc-amt">${money(amt)}</div><div class="rc-date">Initiated ${HM.fmtDT(when)}</div>
           <div class="rc-flow"><div><small>ORIGINATOR</small><b>${esc(holder)}</b><span>${acctLine(a)}</span></div><div class="arr">${icon('chevR', 22)}</div><div><small>RECEIVER</small><b>${esc(b.name)}</b><span>${esc(b.type || 'checking')} ${HM.mask(b.account || '')}</span></div></div>
-          ${row('Receiving bank', esc(b.bank))}${row('Receiving routing (ABA)', esc(b.routing))}${row('Entry description', esc(m.purpose))}${row('SEC code', esc(m.sec || 'PPD'))}${row('Trace number', trace)}${row('Effective entry date', HM.fmtDate(eff))}${row('Settlement', bad ? 'Not applicable' : 'Typically 1–2 business days (demo: ~' + Math.round(HM.PENDING_MS / 1000) + ' s)')}${row('Fee', money(t.fee || 0))}
+          ${row('Receiving bank', esc(b.bank))}${row('Receiving routing (ABA)', esc(b.routing))}${row('Entry description', esc(m.purpose))}${row('SEC code', esc(m.sec || 'PPD'))}${row('Effective entry date', HM.fmtDate(eff))}${row('Settlement', bad ? 'Not applicable' : 'Typically 1–2 business days (demo: ~' + Math.round(HM.PENDING_MS / 1000) + ' s)')}${row('Fee', money(t.fee || 0))}
           <div class="rc-sub">Processing</div>${bad ? timeline([['', 'Request received', HM.fmtTime(when)], ['no', 'Declined at account review', HM.fmtTime(addS(when, 2))], ['off', 'Not submitted to ACH network', '—']]) : timeline([['', 'Request received', HM.fmtTime(when)], ['', 'Submitted to ACH network', HM.fmtTime(addS(when, 3))], [t.status === 'completed' ? '' : 'now', t.status === 'completed' ? 'Settled — funds posted' : 'In transit — pending', t.status === 'completed' ? HM.fmtDT(t.settledAt || when) : 'Expected shortly'], ...(t.status === 'completed' ? [] : [['off', 'Settled at receiving bank', '—']])])}
           </div>${foot(t)}</article>`;
       }
       case 'wire': {
         const b = m.benef || {};
-        return `<article class="receipt r-wire" id="rcpt">${head(t, 'WIRE TRANSFER ADVICE', 'Domestic wire · Fedwire (simulated)', 'navy')}<div class="rc-body">${statusBand(t)}
+        return `<article class="receipt r-wire" id="rcpt">${head(t, 'WIRE TRANSFER ADVICE', 'Domestic wire request', 'navy')}<div class="rc-body">${statusBand(t)}
           <div class="wgrid"><div class="c full amt"><small>WIRE AMOUNT (USD)</small><b>${money(amt)}</b></div>
           <div class="c"><small>VALUE DATE</small><b>${HM.fmtDate(when)}</b></div><div class="c"><small>TIME ENTERED</small><b>${HM.fmtTime(when)}</b></div>
-          <div class="c full"><small>WIRE REFERENCE</small><b>${esc(t.ref)}</b></div><div class="c full"><small>FED REFERENCE (IMAD)</small><b>${esc(m.fedRef || '—')}</b></div>
+          <div class="c full"><small>WIRE REFERENCE</small><b>${esc(t.ref)}</b></div><div class="c full"><small>HARBORSTONE APP RECORD</small><b>${esc(t.ref)}</b></div>
           <div class="c full"><small>ORIGINATOR</small><b>${esc(holder)}</b></div><div class="c"><small>ORIGINATING BANK</small><b>Harborstone Bank</b></div><div class="c"><small>ORIGINATING ABA</small><b>${HM.BANK.routing}</b></div><div class="c full"><small>ORIGINATOR ACCOUNT</small><b>${acctLine(a)}</b></div>
           <div class="c full"><small>BENEFICIARY</small><b>${esc(b.name)}</b></div><div class="c"><small>BENEFICIARY BANK</small><b>${esc(b.bank)}</b></div><div class="c"><small>BENEFICIARY ABA</small><b>${esc(b.routing)}</b></div><div class="c full"><small>BENEFICIARY ACCOUNT</small><b>${HM.mask(b.account || '')}</b></div>
           <div class="c full"><small>PURPOSE OF PAYMENT</small><b>${esc(m.purpose)}</b></div><div class="c"><small>WIRE FEE</small><b>${money(t.fee || 0)}</b></div><div class="c"><small>TOTAL DEBITED</small><b>${bad ? money(0) : money(amt + (t.fee || 0))}</b></div><div class="c full"><small>STATUS</small><b>${esc(t.status.toUpperCase())}</b></div></div>
@@ -1751,7 +1785,7 @@
           <div class="chkface"><div class="chk-top"><div><b>${esc(holder)}</b><span>${esc(HM.acct(t.acct).nickname)}</span></div><div class="chk-no">${m.checkNo ? '№ ' + m.checkNo : ''}<br><small>DATE ${m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate), { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</small></div></div>
           <div class="chk-pay"><small>PAY TO THE<br>ORDER OF</small><b>${esc(m.payee)}</b><div class="box">${money(amt)}</div></div><div class="chk-w">${amountWords(amt)}</div>
           <div class="chk-bot"><div><small>MEMO</small> ${esc(m.memo || '')}</div><div class="sig">${esc(holder)}</div></div><div class="micr">⑆${HM.BANK.routing}⑆ ${HM.mask(a.number)}⑈ ${String(m.checkNo || '').padStart(4, '0')}</div><div class="chk-spec">SPECIMEN</div></div>
-          ${row('Payee', esc(m.payee))}${row('Check number', m.checkNo ? '#' + m.checkNo : '')}${row('Issue date', m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate)) : '')}${row('Source account', acctLine(a))}${row('Memo', esc(m.memo))}${row('Confirmation', esc(t.ref))}${row('Clearing', bad ? 'Not issued' : t.status === 'completed' ? 'Cleared ' + HM.fmtDT(t.settledAt || when) : 'Pending — clears in about ' + Math.round(HM.PENDING_MS / 1000) + ' seconds (demo)')}</div>${foot(t)}</article>`;
+          ${row('Payee', esc(m.payee))}${row('Check number', m.checkNo ? '#' + m.checkNo : '')}${row('Issue date', m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate)) : '')}${row('Source account', acctLine(a))}${row('Memo', esc(m.memo))}${row('Confirmation', esc(t.ref))}${row('Check status', bad ? 'Not issued — account frozen' : 'Sample check record')}</div>${foot(t)}</article>`;
       }
       case 'internal': {
         const pair = HM.txByRef(t.ref); const deb = pair.find((x) => x.amount < 0) || t, cr = pair.find((x) => x.amount > 0); const hh = h.filter((x) => x.ref === t.ref);
@@ -1770,7 +1804,7 @@
         const front = HM.checkImage ? HM.checkImage('front', { payer: m.payer || 'Payer', amount: amt, checkDate: m.checkDate || HM.dayKey(when), memo: m.memo || '' }) : '', back = HM.checkImage ? HM.checkImage('back', {}) : '';
         return `<article class="receipt r-deposit" id="rcpt">${head(t, 'Mobile Check Deposit', 'Deposit receipt', 'teal')}<div class="rc-body">${statusBand(t)}<div class="rc-amt">${money(amt)}</div><div class="rc-date">${HM.fmtDT(when)}</div>
           <div class="imgs"><div><small>Front</small><img src="${front}" alt="Check front (demo image)"></div><div><small>Back</small><img src="${back}" alt="Check back (demo image)"></div></div>
-          ${row('Deposited to', acctLine(a))}${row('Payer', esc(m.payer))}${row('Check date', m.checkDate ? HM.fmtDate(HM.parseDay(m.checkDate)) : '')}${row('Memo', esc(m.memo))}${row('Deposit reference', esc(t.ref))}${row('Availability', t.status === 'completed' ? 'Available — posted ' + HM.fmtDT(t.settledAt || when) : 'Pending review — funds available in about ' + Math.round(HM.PENDING_MS / 1000) + ' seconds (demo)')}${row('Status', esc(t.status))}
+          ${row('Deposited to', acctLine(a))}${row('Payer', esc(m.payer))}${row('Check date', m.checkDate ? HM.fmtDate(HM.parseDay(m.checkDate)) : '')}${row('Memo', esc(m.memo))}${row('Deposit reference', esc(t.ref))}${row('Deposit outcome', bad ? 'Rejected — no deposit credited' : 'Sample deposit record')}${row('Status', esc(t.status))}
           <p class="hint">Keep the original check until the deposit posts, then mark it “deposited” and destroy it securely.</p></div>${foot(t)}</article>`;
       }
       default: return `<article class="receipt" id="rcpt">${head(t, HM.RAILS[t.rail] ? HM.RAILS[t.rail].label : 'Transaction')}<div class="rc-body">${statusBand(t)}<div class="rc-amt">${money(amt)}</div>${row('Description', esc(t.desc))}${row('Reference', esc(t.ref))}${row('Account', acctLine(a))}${row('Date', HM.fmtDT(when))}</div>${foot(t)}</article>`;
@@ -1790,7 +1824,7 @@
   HM.acts.rcDownload = (b, ref) => {
     const el = document.getElementById('rcpt'); if (!el) return; const all = HM.txByRef(ref);
     const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Harborstone receipt ${esc(ref)}</title><style>${ui.pageCss()}html,body{height:auto;overflow:auto}body{padding:16px;background:#E9ECEC}.receipt{max-width:520px;margin:0 auto}</style></head><body>${el.outerHTML}</body></html>`;
-    ui.download('Harborstone-Receipt-' + ref + '.html', html); ui.toast('Demo receipt downloaded');
+    ui.download('Harborstone-Receipt-' + ref + '.html', html); ui.toast('Sample receipt downloaded');
   };
 })();
 
@@ -1829,8 +1863,8 @@
       ${fr ? `<div class="note warn">${icon('snow', 18)}<span>The linked account is frozen. Card purchases and ATM withdrawals will be declined.</span></div>` : ''}
       ${c.status === 'pending' ? `<div class="note">${icon('info', 18)}<span>Your new card is on its way. When it arrives, activate it to start using it.</span></div><button class="btn btn-gold mt" data-go="/cards/activate/${c.id}">${icon('check', 18)} Activate card</button>` : c.status === 'cancelled' ? '' : `<div class="btns two"><button class="btn ${c.status === 'locked' ? 'btn-gold' : 'btn-primary'}" data-act="toggleLock" data-arg="${c.id}">${icon(c.status === 'locked' ? 'unlock' : 'lock', 18)} ${c.status === 'locked' ? 'Unlock card' : 'Lock card'}</button><button class="btn btn-ghost" data-go="/cards/activity">${icon('receipt', 18)} Activity</button></div>`}</div>
       ${ui.section('Card controls', '', `<div class="group">${[['lock', 'Lock & unlock', 'Instantly pause the card', '/cards/controls/' + c.id], ['shield', 'Card security', 'Online, international, ATM, contactless', '/cards/security/' + c.id], ['sliders', 'Spending limits', 'Purchase & ATM limits', '/cards/security/' + c.id + '#limits'], ['key', 'Change PIN', 'Demo only — PIN is never stored', '/cards/pin/' + c.id], ['refresh', 'Replace card', 'Damaged or worn', '/cards/controls/' + c.id + '#replace'], ['alert', 'Report lost or stolen', 'Cancel and order a new card', '/cards/controls/' + c.id + '#lost']].map((r) => ui.row({ icon: r[0], tone: r[0] === 'alert' ? 'red' : '', title: r[1], sub: r[2], go: r[3] })).join('')}</div>`)}
-      ${ui.section('More', '', `<div class="group">${ui.row({ icon: 'receipt', title: 'Card activity', sub: 'Transactions, merchants & status', go: '/cards/activity' })}${ui.row({ icon: 'device', title: 'Virtual card', sub: 'For safer online shopping', go: '/cards/virtual' })}${ui.row({ icon: 'zap', tone: 'gold', title: 'Try a demo purchase', sub: 'See your controls decide the outcome', act: 'simOpen' })}</div>`)}
-      <p class="footnote">Cards are simulated. No real card numbers, CVVs or PINs are collected or stored.</p>`
+      ${ui.section('More', '', `<div class="group">${ui.row({ icon: 'receipt', title: 'Card activity', sub: 'Transactions, merchants & status', go: '/cards/activity' })}${ui.row({ icon: 'device', title: 'Virtual card', sub: 'For online shopping', go: '/cards/virtual' })}</div>`)}
+      <p class="footnote">Card details are protected. Never share your PIN or security code.</p>`
     };
   });
   HM.acts.pickCard = (b, id) => { sel = id; HM.refresh(true); };
@@ -2137,7 +2171,7 @@
     title: 'App preferences',
     html: `${ui.header('App preferences', { back: '/more' })}<div class="pad"><div class="group">${ui.toggle({ title: 'Hide balances', sub: 'Mask balances on Home and Accounts', on: S().prefs.hideBalance, act: 'toggleHide2' })}${ui.row({ icon: 'globe', title: 'Currency', right: 'USD ($)', noChev: true })}${ui.row({ icon: 'bell', title: 'Notification preferences', go: '/more/notifications' })}</div>
     ${ui.section('Add to Home Screen', '', `<div class="card">${installSteps}</div>`)}
-    ${ui.section('Demo data', '', `<div class="card"><p class="sm mute">Everything in this app is sample data stored in your browser.${HM.isMemoryOnly() ? ' <b>Browser storage is unavailable, so changes will be lost on refresh.</b>' : ''}</p><div class="btns"><button class="btn btn-ghost" data-act="forgetDevice">Forget remembered device</button><button class="btn btn-ghost danger-t" data-act="resetDemo">${icon('refresh', 18)} Reset demo data</button></div></div>`)}</div>`
+    ${ui.section('Device', '', `<div class="card"><p class="sm mute">Manage this device's saved sign-in preference.</p><button class="btn btn-ghost mt" data-act="forgetDevice">Forget remembered device</button></div>`)}</div>`
   }));
   HM.acts.toggleHide2 = () => { S().prefs.hideBalance = !S().prefs.hideBalance; HM.save(); HM.refresh(true); };
   HM.acts.forgetDevice = () => { try { localStorage.removeItem('hm_remember'); } catch (e) { /* ignore */ } ui.toast('This device will no longer pre-fill your email'); };
@@ -2145,7 +2179,7 @@
   HM.route('/more/about', 'more', () => ({
     title: 'About',
     html: `${ui.header('About Harborstone Bank', { back: '/more' })}<div class="pad"><div class="card center">${ui.logo(72)}<h2 class="mt">Harborstone Mobile</h2><p class="mute">${HM.BANK.tagline}</p><span class="disc mt">Version 1.0.0</span></div>
-    <div class="note warn">${icon('alert', 18)}<span><b>Harborstone Bank is fictional.</b> This app was created for an educational project. It is not a real bank, is not FDIC-insured, and handles no real money or customer data. All balances, payments, receipts and statements are simulated.</span></div>
+    <div class="note"><span>Educational project: Harborstone is a fictional banking interface. Account information and transaction activity are illustrative and do not represent real funds or bank processing.</span></div>
     ${ui.section('Add to Home Screen', '', `<div class="card">${installSteps}</div>`)}
     <div class="group mt">${ui.row({ icon: 'book', title: 'Privacy policy', go: '/more/privacy' })}${ui.row({ icon: 'file', title: 'Terms & conditions', go: '/more/terms' })}${ui.row({ icon: 'help', title: 'Customer support', go: '/more/support' })}</div></div>`
   }));
