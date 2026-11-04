@@ -555,14 +555,14 @@
 
   /* ---------- tabs ---------- */
   HM.TABS = [
-    { id: 'home', label: 'Home', icon: 'home', path: '/home' }, { id: 'accounts', label: 'Accounts', icon: 'bank', path: '/accounts' },
-    { id: 'payments', label: 'Payments', icon: 'send', path: '/payments' }, { id: 'cards', label: 'Cards', icon: 'card', path: '/cards' },
+    { id: 'home', label: 'Home', icon: 'home', path: '/home' }, { id: 'activity', label: 'Activity', icon: 'receipt', path: '/payments/history' },
+    { id: 'transfer', label: 'Transfer', icon: 'send', path: '/payments' }, { id: 'cards', label: 'Cards', icon: 'card', path: '/cards' },
     { id: 'more', label: 'More', icon: 'grid', path: '/more' }
   ];
   function buildNav() {
-    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab${t.id === 'payments' ? ' tab-primary' : ''}" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, t.id === 'payments' ? 28 : 24)}<span>${t.label}</span></button>`).join('');
+    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, 23)}<span>${t.label}</span></button>`).join('') + `<button class="support-fab" data-go="/more/support" aria-label="Customer support">${icon('msg', 23)}</button>`;
   }
-  function setTab(id) { document.querySelectorAll('#nav .tab').forEach((b) => { const on = b.dataset.tab === id; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
+  function setTab(id) { const activeId = id === 'payments' ? 'transfer' : id; document.querySelectorAll('#nav .tab').forEach((b) => { const on = b.dataset.tab === activeId; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
 
   /* ---------- toast / sheet / confirm ---------- */
   let toastT;
@@ -1675,16 +1675,22 @@
   const ph = { rail: 'all' }; let phF = { q: '', type: 'all', status: 'all', from: '', to: '', min: '', max: '' };
   HM.acts.phf = (b, arg) => { const i = arg.indexOf(':'); phF[arg.slice(0, i)] = arg.slice(i + 1); HM.refresh(true); };
   HM.acts.phRail = (b, r) => { ph.rail = r; HM.refresh(true); };
-  HM.route('/payments/history', 'payments', () => {
+  HM.route('/payments/history', 'activity', () => {
     const q = fromQ(); if (q.get('rail')) { ph.rail = q.get('rail'); }
     const groups = { all: PAY_RAILS, ach: ['ach_instant', 'ach_standard'], ach_instant: ['ach_instant'], ach_standard: ['ach_standard'], wire: ['wire'], check: ['check'], bill: ['bill'], internal: ['internal'] };
-    const base = HM.history().filter((t) => (groups[ph.rail] || PAY_RAILS).includes(t.rail) && (t.amount < 0 || t.status === 'blocked')); const list = ui.applyFilter(base, phF);
+    const base = HM.history().filter((t) => (groups[ph.rail] || PAY_RAILS).includes(t.rail)); const list = ui.applyFilter(base, phF);
     return {
       title: 'Payment history',
-      html: `${ui.header('Payment history', { back: '/payments', sub: 'Receipts & details' })}<div class="pad"><div class="chips">${[['all', 'All payments'], ['ach', 'ACH'], ['wire', 'Wires'], ['check', 'Checks'], ['bill', 'Bills'], ['internal', 'Transfers']].map((c) => `<button class="chip ${ph.rail === c[0] ? 'on' : ''}" data-act="phRail" data-arg="${c[0]}">${c[1]}</button>`).join('')}</div>
+      html: `${ui.header('Activity', { back: false, sub: 'Account activity & transaction records', right: `<button class="iconbtn" data-go="/payments/analytics" aria-label="Spending analytics">${icon('chart', 20)}</button>` })}<div class="pad"><div class="chips">${[['all', 'All payments'], ['ach', 'ACH'], ['wire', 'Wires'], ['check', 'Checks'], ['bill', 'Bills'], ['internal', 'Transfers']].map((c) => `<button class="chip ${ph.rail === c[0] ? 'on' : ''}" data-act="phRail" data-arg="${c[0]}">${c[1]}</button>`).join('')}</div>
       <details class="filters"><summary>${icon('filter', 16)} Search &amp; filters</summary>${ui.txFilterUI(phF, 'phf')}</details>
       <div class="sm mute" style="margin:2px 0 8px">${list.length} payment${list.length === 1 ? '' : 's'}</div>${list.length ? `<div class="group">${ui.groupByDay(list.slice(0, 80), { acct: true })}</div>` : ui.card(ui.empty('receipt', 'No payments found', 'Try a different filter.'))}</div>`
     };
+  });
+
+  HM.route('/payments/analytics', 'activity', () => {
+    const now = new Date(), start = new Date(now.getFullYear(), now.getMonth(), 1), end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const spend = ui.spendBy(start.getTime(), end.getTime()); const monthly = ui.monthly(6);
+    return { title: 'Spending analytics', html: `${ui.header('Spending analytics', { back: '/payments/history', sub: 'Monthly overview' })}<div class="pad">${ui.section('Spending by category', '', `<div class="card center">${spend.length ? ui.donut(spend, { label: 'Spent' }) : ui.empty('chart', 'No spending data', 'Category totals will appear when transactions are available.')}</div>`)}${ui.section('Monthly comparison', '', `<div class="card">${monthly.length ? ui.bars(monthly) : '<p class="sm mute">No monthly activity available.</p>'}<div class="legend"><span><i style="background:var(--teal)"></i>Credits</span><span><i style="background:var(--gold)"></i>Debits</span></div></div>`)}<div class="note">${icon('info', 18)}<span>Charts summarize the account activity currently displayed in this app.</span></div></div>` };
   });
 
   /* ---------- limits ---------- */
@@ -2051,7 +2057,7 @@
     return {
       title: 'Security',
       html: `${ui.header('Security settings', { back: '/more' })}<div class="pad"><div class="card sec-score"><span class="row-i green">${icon('shield', 22)}</span><span class="row-m"><b>Your account is protected</b><small>Email verification code on every sign-in</small></span></div></div>
-      ${ui.section('Sign-in', '', `<div class="group">${ui.row({ icon: 'key', title: 'Change password', sub: pw, go: '/more/security/password' })}${ui.toggle({ title: 'Biometric login', sub: 'Use Face ID to unlock (simulated)', on: sc.biometric, act: 'secToggle', arg: 'biometric' })}${ui.row({ icon: 'face', title: 'Face ID demonstration', sub: sc.faceId ? 'Enrolled (demo)' : 'Try the Face ID experience', go: '/more/security/faceid' })}</div>`)}
+      ${ui.section('Sign-in', '', `<div class="group">${ui.row({ icon: 'key', title: 'Change password', sub: pw, go: '/more/security/password' })}${ui.row({ icon: 'face', title: 'Biometric sign-in', sub: 'Available when securely enrolled on a supported device', noChev: true })}</div>`)}
       ${ui.section('Devices & sessions', '', `<div class="group">${ui.row({ icon: 'device', title: 'Trusted devices', sub: sc.devices.length + ' devices', go: '/more/security/devices' })}${ui.row({ icon: 'clock', title: 'Login history', sub: 'Recent sign-ins', go: '/more/security/history' })}${ui.row({ icon: 'users', title: 'Session management', sub: 'Auto sign-out: ' + sc.sessionTimeout + ' min', go: '/more/security/sessions' })}</div>`)}
       ${ui.section('Alerts', '', `<div class="group">${ui.row({ icon: 'bell', title: 'Security alerts', sub: 'New devices, password changes, large payments', go: '/more/security/alerts' })}</div>`)}`
     };
