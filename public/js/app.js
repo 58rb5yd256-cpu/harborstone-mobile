@@ -1,10 +1,10 @@
-/* Harborstone Mobile — core: utilities, icons, state store, seed data, transaction rules engine.
-   All data is SIMULATED sample data stored in this browser only (localStorage). */
+/* Harborstone Mobile — interactive financial-safety training interface.
+   Account figures and historical ledger entries are illustrative; no bank rails are connected. */
 (function () {
   'use strict';
   const HM = (window.HM = window.HM || {});
   const KEY = 'hm_state_v1';
-  const PENDING_MS = 90 * 1000; // DEMO PROCESSING RULE: pending items settle 90 seconds after submission
+  const PENDING_MS = 0; // No payment or deposit is allowed to enter a pending settlement state.
   HM.PENDING_MS = PENDING_MS;
   HM.BANK = { name: 'Harborstone Bank', app: 'Harborstone Mobile', tagline: 'Your finances. Your direction.', routing: '072004128' };
 
@@ -263,9 +263,9 @@
     const each = Math.floor((needIn / payDays.length) * 100) / 100; let rest = r2(needIn - each * payDays.length);
     payDays.forEach((d, i) => T({ acct: 'chk1', date: at(d, 6, 0), desc: 'Northwind Payroll Deposit', cat: 'Income', amount: r2(each + (i === payDays.length - 1 ? rest : 0)), rail: 'ach_in', meta: { source: 'Northwind Payroll' } }));
     S.accounts[0].open = openP;
-    // one pending card hold (reduces available only)
-    S.txs.push({ id: HM.uid('tx'), acct: 'chk1', date: at(0, Math.max(0, new Date().getHours() - 1), 5).toISOString(), desc: 'Fresh Market', cat: 'Groceries', amount: -42.18, fee: 0, rail: 'card', status: 'pending', settleAt: Date.now() + 6 * 3600e3, meta: { merchant: 'Fresh Market', mode: 'pos' }, ref: HM.ref('card') });
-    S.accounts[0].available = r2(500000 - 42.18);
+    // Illustrative declined card attempt; no hold or balance change is created.
+    S.txs.push({ id: HM.uid('tx'), acct: 'chk1', date: at(0, Math.max(0, new Date().getHours() - 1), 5).toISOString(), desc: 'Fresh Market', cat: 'Groceries', amount: -42.18, fee: 0, rail: 'card', status: 'blocked', reason: 'Account restriction — card purchases are unavailable. No funds were deducted.', meta: { merchant: 'Fresh Market', mode: 'pos', illustrative: true }, ref: HM.ref('card') });
+    S.accounts[0].available = S.accounts[0].current;
 
     S.beneficiaries = [
       { id: HM.uid('b'), name: 'Jordan Ellis', nick: 'Jordan', bank: 'Lakeview Federal Credit Union', routing: '044100885', account: '5503120984', type: 'checking', email: '', created: at(60).toISOString(), lastUsed: at(7).toISOString(), sample: true },
@@ -302,9 +302,9 @@
       { id: HM.uid('dv'), name: 'Home tablet', model: 'Sample device', added: at(200).toISOString(), last: at(26).toISOString(), current: false }
     ];
     S.security.logins = [
-      { id: HM.uid('l'), date: at(1, 9, 28).toISOString(), device: 'This device', loc: 'Demo location', ok: true },
-      { id: HM.uid('l'), date: at(4, 18, 41).toISOString(), device: 'This device', loc: 'Demo location', ok: true },
-      { id: HM.uid('l'), date: at(9, 7, 13).toISOString(), device: 'Home tablet', loc: 'Demo location', ok: true }
+      { id: HM.uid('l'), date: at(1, 9, 28).toISOString(), device: 'This device', loc: 'Not available', ok: true },
+      { id: HM.uid('l'), date: at(4, 18, 41).toISOString(), device: 'This device', loc: 'Not available', ok: true },
+      { id: HM.uid('l'), date: at(9, 7, 13).toISOString(), device: 'Home tablet', loc: 'Not available', ok: true }
     ];
     S.support = [{ id: HM.uid('sr'), date: at(18).toISOString(), subject: 'Question about statement delivery', category: 'Statements', message: 'Sample request.', status: 'Resolved', ref: 'SR-' + digits(6) }];
     return S;
@@ -313,10 +313,19 @@
   HM.init = function () {
     try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && s.accounts) { state = s; if (HM.migrateProfile(state)) persist(); } } } catch (e) { memoryOnly = true; }
     if (!state) { state = seed(); persist(); }
-    // Harborstone's project scenario is a restricted account: no in-app unfreeze control.
-    state.accounts.forEach((a) => { a.status = 'frozen'; });
+    // Restricted-account training scenario: no in-app unfreeze control.
+    // Normalize older browser data so no legacy pending item can later settle or change balances.
+    state.accounts.forEach((a) => { a.status = 'frozen'; a.available = a.current; });
+    (state.txs || []).forEach((t) => {
+      if (t.status === 'pending') {
+        t.status = 'blocked';
+        t.reason = 'Account restriction — this activity was not processed. No funds moved.';
+        delete t.settleAt;
+      }
+    });
+    (state.deposits || []).forEach((d) => { if (d.status === 'pending') d.status = 'rejected'; });
+    (state.scheduled || []).forEach((item) => { if (item.status === 'active') item.status = 'paused'; });
     persist();
-    HM.processDue();
   };
   HM.reset = () => { state = seed(); persist(); };
 
@@ -364,77 +373,31 @@
     const R = HM.RAILS[req.rail]; const a = HM.acct(req.from);
     if (!R || !a) return { ok: false, error: 'Invalid payment request.' };
     if (!(req.amount > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
-    const fee = R.fee || 0; const total = r2(req.amount + fee);
-    // 1. account status
-    if (a.status === 'frozen') {
-      const tx = baseTx(req, 'blocked', { fee: 0, reason: 'Account frozen — outgoing transactions are blocked.' });
-      state.txs.push(tx); if (req.idem) state.idem[req.idem] = tx.id;
-      HM.notify('account', 'Payment blocked', `${R.label} of ${HM.money(req.amount)} from ${a.nickname} was blocked because the account is frozen.`);
-      persist();
-      return { ok: false, blocked: true, code: 'frozen', tx, error: `${a.nickname} is frozen. Outgoing ACH, wire, check, bill, transfer and withdrawal activity is blocked. No money was moved.` };
-    }
-    // 2. daily limits
-    if (R.limit) { const L = HM.limitInfo(R.limit); if (r2(L.used + req.amount) > L.limit) return { ok: false, code: 'limit', error: `This would exceed your daily ${HM.LIMIT_LABELS[R.limit]} limit of ${HM.money(L.limit)}. Remaining today: ${HM.money(L.left)}.` }; }
-    if (R.agg) { const L = HM.limitInfo('payments'); if (r2(L.used + req.amount) > L.limit) return { ok: false, code: 'limit', error: `This would exceed your combined daily payment limit of ${HM.money(L.limit)}. Remaining today: ${HM.money(L.left)}.` }; }
-    // 3. funds
-    if (total > a.available) return { ok: false, code: 'funds', error: `Insufficient available balance. ${a.nickname} has ${HM.money(a.available)} available; this needs ${HM.money(total)}${fee ? ' including the ' + HM.money(fee) + ' fee' : ''}.` };
-    // 4. success paths
-    let tx, tx2 = null;
-    if (R.settle === 'pending') {
-      tx = baseTx(req, 'pending', { fee, settleAt: Date.now() + PENDING_MS });
-      a.available = r2(a.available - total);
-    } else {
-      tx = baseTx(req, 'completed', { fee });
-      a.current = r2(a.current - total); a.available = r2(a.available - total);
-    }
+    // Hard restriction: every outbound rail is rejected before limits, funds or settlement are evaluated.
+    const railStatus = ({ ach_instant: 'declined', ach_standard: 'rejected', wire: 'cancelled', check: 'rejected', internal: 'blocked', bill: 'blocked', withdrawal: 'declined', card: 'declined' })[req.rail] || 'blocked';
+    const statusText = railStatus === 'cancelled' ? 'cancelled' : railStatus;
+    const tx = baseTx(req, railStatus, { fee: 0, reason: `Account restriction — ${R.label} was ${statusText}. The request was not processed and no funds moved.` });
     state.txs.push(tx);
-    if (req.rail === 'internal') {
-      const b = HM.acct(req.to);
-      tx2 = Object.assign({}, tx, { id: HM.uid('tx'), acct: b.id, amount: req.amount, desc: 'Transfer from ' + a.nickname, meta: Object.assign({}, tx.meta, { counter: a.id }) });
-      tx.meta.counter = b.id; tx.desc = 'Transfer to ' + b.nickname; tx.cat = 'Transfer'; tx2.cat = 'Transfer';
-      b.current = r2(b.current + req.amount); b.available = r2(b.available + req.amount);
-      state.txs.push(tx2);
-    }
     if (req.idem) state.idem[req.idem] = tx.id;
-    const keys = Object.keys(state.idem); if (keys.length > 300) keys.slice(0, 100).forEach((k) => delete state.idem[k]);
-    if (tx.status === 'pending') HM.notify('payment', `${R.label} pending`, `${HM.money(req.amount)} from ${a.nickname} is pending and will post after processing.`);
-    else HM.notify('payment', `${R.label} completed`, `${HM.money(req.amount)} from ${a.nickname} · Ref ${tx.ref}`);
+    HM.notify('account', `${R.label} ${statusText}`, `${HM.money(req.amount)} was not processed because the account is restricted. No funds moved.`);
     persist();
-    return { ok: true, tx, tx2 };
+    return { ok: false, blocked: true, code: 'frozen', tx, error: `${a.nickname} is restricted. ${R.label} was not processed; no funds were deducted or transferred.` };
   };
 
   HM.recordFailed = (req, reason) => { const tx = baseTx(req, 'failed', { fee: 0, reason }); state.txs.push(tx); HM.notify('payment', 'Payment failed', `${HM.RAILS[req.rail].label} of ${HM.money(req.amount)} failed: ${reason}`); persist(); return tx; };
 
   HM.executeDeposit = function (req) {
-    // req: {to, amount, payer, memo, checkDate, idem}
+    // Incoming check deposits are rejected for every account in this restricted scenario.
     if (req.idem && state.idem[req.idem]) return { ok: false, duplicate: true, error: 'This deposit was already submitted.' };
     const a = HM.acct(req.to); req.amount = r2(req.amount);
     if (!a || !(req.amount > 0)) return { ok: false, error: 'Enter a valid deposit amount and account.' };
-    if (a.status === 'frozen') {
-      const date = new Date().toISOString(), ref = HM.ref('deposit');
-      const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'blocked', reason: 'Account restriction — check deposits are unavailable.', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, noCredit: true } };
-      state.txs.unshift(tx); if (req.idem) state.idem[req.idem] = tx.id;
-      HM.notify('account', 'Check deposit not accepted', `${HM.money(req.amount)} check deposit was not accepted because of an account restriction. No funds were credited.`);
-      persist(); return { ok: false, blocked: true, code: 'restricted', tx, error: 'This account is restricted. The check deposit was not accepted and no funds were credited.' };
-    }
-    const L = HM.limitInfo('deposit');
-    if (r2(L.used + req.amount) > L.limit) return { ok: false, code: 'limit', error: `This exceeds your daily mobile deposit limit of ${HM.money(L.limit)}. Remaining today: ${HM.money(L.left)}.` };
-    const ref = HM.ref('deposit'); const dep = { id: HM.uid('d'), acct: a.id, amount: req.amount, checkDate: req.checkDate, payer: req.payer, memo: req.memo, date: new Date().toISOString(), status: 'pending', ref };
-    const tx = { id: HM.uid('tx'), acct: a.id, date: dep.date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'pending', settleAt: Date.now() + PENDING_MS, ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, depositId: dep.id } };
-    state.deposits.unshift(dep); state.txs.push(tx);
-    if (req.idem) state.idem[req.idem] = tx.id;
-    HM.notify('deposit', 'Deposit received', `${HM.money(req.amount)} check deposit to ${a.nickname} is pending review.`);
-    persist(); return { ok: true, tx, dep };
+    const date = new Date().toISOString(), ref = HM.ref('deposit');
+    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'rejected', reason: 'Account restriction — the check was not accepted. No funds were credited.', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, noCredit: true } };
+    state.txs.unshift(tx); if (req.idem) state.idem[req.idem] = tx.id;
+    HM.notify('account', 'Check deposit rejected', `${HM.money(req.amount)} check deposit was not accepted. No funds were credited.`);
+    persist(); return { ok: false, blocked: true, code: 'restricted', tx, error: 'The check deposit was rejected because the account is restricted. No funds were credited.' };
   };
 
-  function settle(tx) {
-    const a = HM.acct(tx.acct); if (!a) return;
-    if (tx.amount < 0) a.current = r2(a.current + tx.amount - (tx.fee || 0));
-    else { a.current = r2(a.current + tx.amount); a.available = r2(a.available + tx.amount); }
-    tx.status = 'completed'; tx.settledAt = new Date().toISOString(); delete tx.settleAt;
-    if (tx.rail === 'deposit') { const d = state.deposits.find((x) => x.id === (tx.meta || {}).depositId); if (d) d.status = 'completed'; HM.notify('deposit', 'Deposit posted', `${HM.money(tx.amount)} is now available in ${a.nickname}.`); }
-    else if (tx.rail !== 'card') HM.notify('payment', `${HM.RAILS[tx.rail].label} posted`, `${HM.money(Math.abs(tx.amount))} from ${a.nickname} has posted. Ref ${tx.ref}`);
-  }
   HM.nextDate = (s, freq) => {
     const d = HM.parseDay(s);
     if (freq === 'weekly') d.setDate(d.getDate() + 7); else if (freq === 'biweekly') d.setDate(d.getDate() + 14);
@@ -442,23 +405,17 @@
     return HM.dayKey(d);
   };
   function runScheduled(s) {
-    const idem = 'sch:' + s.id + ':' + s.next; let req;
-    if (s.kind === 'bill') req = { rail: 'bill', from: s.from, amount: s.amount, desc: 'Bill payment · ' + s.payee, cat: s.cat || 'Utilities', meta: { biller: s.payee, memo: s.memo, scheduledId: s.id } };
-    else if (s.kind === 'internal') req = { rail: 'internal', from: s.from, to: s.to, amount: s.amount, desc: 'Transfer', cat: 'Transfer', meta: { memo: s.memo, scheduledId: s.id } };
-    else req = { rail: 'ach_standard', from: s.from, amount: s.amount, desc: 'ACH to ' + s.payee, cat: 'Payments', meta: { benef: s.benef, purpose: s.memo, sec: 'PPD', scheduledId: s.id } };
-    req.idem = idem;
-    const res = HM.execute(req);
-    if (!res.ok && !res.blocked && !res.duplicate) HM.recordFailed(req, res.error);
-    s.lastRun = new Date().toISOString();
-    if (s.freq === 'once') s.status = 'completed'; else s.next = HM.nextDate(s.next, s.freq);
+    if (!s) return;
+    s.status = 'paused';
+    s.lastRun = null;
   }
-  HM.runScheduledNow = (id) => { const s = state.scheduled.find((x) => x.id === id); if (s) { runScheduled(s); persist(); } };
+  HM.runScheduledNow = (id) => { const item = state.scheduled.find((x) => x.id === id); if (item) { item.status = 'paused'; persist(); if (HM.ui && HM.ui.toast) HM.ui.toast('Scheduled payment remains paused while the account is restricted.'); } };
   HM.processDue = function () {
-    if (!state) return false; let changed = false; const now = Date.now();
-    state.txs.forEach((t) => { if (t.status === 'pending' && t.settleAt && t.settleAt <= now) { settle(t); changed = true; } });
-    const today = HM.dayKey(new Date());
-    state.scheduled.forEach((s) => { let guard = 0; while (s.status === 'active' && s.next <= today && guard++ < 12) { runScheduled(s); changed = true; } });
-    if (changed) persist(); return changed;
+    if (!state) return false;
+    let changed = false;
+    state.scheduled.forEach((item) => { if (item.status === 'active') { item.status = 'paused'; changed = true; } });
+    if (changed) persist();
+    return changed;
   };
   HM.verifyBalances = () => state.accounts.map((a) => {
     const holds = r2(state.txs.filter((t) => t.acct === a.id && t.status === 'pending' && t.amount < 0).reduce((s, t) => s + Math.abs(t.amount) + (t.fee || 0), 0));
@@ -466,28 +423,17 @@
   });
 
   /* ---------- card & ATM simulation (rules decide the outcome) ---------- */
-  HM.cardTxn = function (o) { // {cardId, merchant, amount, mode: pos|online|intl|contactless|atm}
-    const c = state.cards.find((x) => x.id === o.cardId), a = HM.acct(c.acct); const amt = r2(o.amount);
-    const rec = (status, reason) => { const tx = { id: HM.uid('tx'), acct: a.id, date: new Date().toISOString(), desc: o.merchant, cat: o.mode === 'atm' ? 'Cash' : (o.cat || 'Shopping'), amount: -amt, fee: 0, rail: o.mode === 'atm' ? 'withdrawal' : 'card', status, ref: HM.ref(o.mode === 'atm' ? 'withdrawal' : 'card'), reason, meta: { merchant: o.merchant, mode: o.mode, card: c.last4 } }; state.txs.push(tx); persist(); return tx; };
-    const decline = (why, status) => { const tx = rec(status || 'declined', why); HM.notify('payment', status === 'blocked' ? 'Payment blocked' : 'Card transaction declined', `${HM.money(amt)} at ${o.merchant}: ${why}`); persist(); return { ok: false, tx, error: why }; };
+  HM.cardTxn = function (o) {
+    const c = state.cards.find((x) => x.id === o.cardId);
+    const a = c ? HM.acct(c.acct) : null;
+    const amt = r2(o.amount);
+    if (!c || !a) return { ok: false, error: 'Card or linked account not found.' };
     if (!(amt > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
-    if (c.status === 'locked') return decline('Card is locked.');
-    if (c.status !== 'active') return decline('Card is not active.');
-    if (a.status === 'frozen') return decline('Linked account is frozen. Withdrawals and purchases are blocked.', 'blocked');
-    if (o.mode === 'online' && !c.controls.online) return decline('Online purchases are turned off for this card.');
-    if (o.mode === 'intl' && !c.controls.intl) return decline('International transactions are turned off for this card.');
-    if (o.mode === 'contactless' && !c.controls.contactless) return decline('Contactless payments are turned off for this card.');
-    if (o.mode === 'atm') {
-      if (!c.controls.atm) return decline('ATM withdrawals are turned off for this card.');
-      if (amt > c.limits.atm) return decline(`Above this card's ATM limit of ${HM.money(c.limits.atm)}.`);
-      const L = HM.limitInfo('withdrawal'); if (r2(L.used + amt) > L.limit) return decline(`Exceeds the daily withdrawal limit of ${HM.money(L.limit)}.`);
-    } else if (amt > c.limits.pos) return decline(`Above this card's purchase limit of ${HM.money(c.limits.pos)}.`);
-    if (amt > a.available) return decline('Insufficient available balance.');
-    const tx = rec(o.mode === 'atm' ? 'completed' : 'pending', null);
-    if (o.mode === 'atm') { a.current = r2(a.current - amt); a.available = r2(a.available - amt); }
-    else { tx.settleAt = Date.now() + PENDING_MS; a.available = r2(a.available - amt); }
-    HM.notify('payment', o.mode === 'atm' ? 'ATM withdrawal' : 'Card purchase pending', `${HM.money(amt)} at ${o.merchant} on card •••• ${c.last4}.`);
-    persist(); return { ok: true, tx };
+    const tx = { id: HM.uid('tx'), acct: a.id, date: new Date().toISOString(), desc: o.merchant || 'Card transaction', cat: o.mode === 'atm' ? 'Cash' : (o.cat || 'Shopping'), amount: -amt, fee: 0, rail: o.mode === 'atm' ? 'withdrawal' : 'card', status: 'blocked', ref: HM.ref(o.mode === 'atm' ? 'withdrawal' : 'card'), reason: 'Account restriction — card purchases and ATM withdrawals are unavailable. No funds were deducted.', meta: { merchant: o.merchant, mode: o.mode, card: c.last4, illustrative: true } };
+    state.txs.push(tx);
+    HM.notify('account', 'Card activity blocked', `${HM.money(amt)} at ${o.merchant || 'merchant'} was not processed. No funds were deducted.`);
+    persist();
+    return { ok: false, blocked: true, tx, error: tx.reason };
   };
 
   /* ---------- session ---------- */
@@ -548,6 +494,7 @@
     view.scrollTop = keepScroll === true ? prevScroll : 0;
     setTab(m.r.tab);
     if (res.after) res.after(view);
+    document.body.classList.toggle('has-fab', !PUBLIC_LOOK(path) && !view.querySelector('input:not([type=hidden]):not([type=search]),select,textarea,.proc,.cam,[data-nofab]'));
     lastRender = Date.now();
     document.title = (res.title ? res.title + ' · ' : '') + 'Harborstone Mobile';
   }
@@ -560,7 +507,18 @@
     { id: 'more', label: 'More', icon: 'grid', path: '/more' }
   ];
   function buildNav() {
-    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, 23)}<span>${t.label}</span></button>`).join('') + `<button class="support-fab" data-go="/more/support" aria-label="Customer support">${icon('msg', 23)}</button>`;
+    document.getElementById('nav').innerHTML = HM.TABS.map((t) => `<button class="tab" data-tab="${t.id}" aria-label="${t.label}">${icon(t.icon, 23)}<span>${t.label}</span></button>`).join('');
+    if (!document.getElementById('supportFab')) { const b = document.createElement('button'); b.id = 'supportFab'; b.className = 'support-fab'; b.dataset.go = '/more/support'; b.setAttribute('aria-label', 'Customer support chat'); b.innerHTML = icon('msg', 22); document.getElementById('app').appendChild(b); }
+  }
+  /* Keep --nav-bottom equal to the real nav height so the support button / toast always sit just above it. */
+  function watchLayout() {
+    const nav = document.getElementById('nav'); const set = () => document.documentElement.style.setProperty('--nav-bottom', (nav.offsetHeight || 0) + 'px');
+    set(); if (window.ResizeObserver) new ResizeObserver(set).observe(nav); window.addEventListener('resize', set); window.addEventListener('orientationchange', () => setTimeout(set, 250));
+    /* Keyboard detection from the visual viewport (reliable on iOS/Android; no stuck focus classes). */
+    const vv = window.visualViewport; const kb = () => { const open = !!vv && (window.innerHeight - vv.height > 120) && document.activeElement && document.activeElement.matches('input,textarea,select'); document.body.classList.toggle('kbd-open', !!open); };
+    if (vv) { vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb); } document.addEventListener('focusout', () => setTimeout(kb, 120));
+    /* iOS ignores user-scalable=no for pinch; block it explicitly. */
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach((n) => document.addEventListener(n, (e) => e.preventDefault()));
   }
   function setTab(id) { const activeId = id === 'payments' ? 'transfer' : id; document.querySelectorAll('#nav .tab').forEach((b) => { const on = b.dataset.tab === activeId; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
 
@@ -601,7 +559,7 @@
   ui.card = (inner, cls) => `<div class="card ${cls || ''}">${inner}</div>`;
   ui.group = (rows) => `<div class="group">${rows.join('')}</div>`;
   ui.empty = (ic, title, body, cta) => `<div class="empty"><div class="empty-i">${icon(ic, 30)}</div><h3>${esc(title)}</h3><p>${esc(body)}</p>${cta || ''}</div>`;
-  ui.badge = (status) => { const m = { completed: ['Completed', 'ok'], pending: ['Pending', 'wait'], scheduled: ['Scheduled', 'info'], blocked: ['Blocked', 'bad'], declined: ['Declined', 'bad'], failed: ['Failed', 'bad'], active: ['Active', 'ok'], frozen: ['Frozen', 'frz'], locked: ['Locked', 'frz'], cancelled: ['Cancelled', 'mute'], resolved: ['Resolved', 'ok'], open: ['Open', 'wait'], 'pending activation': ['Pending activation', 'wait'] }; const x = m[String(status).toLowerCase()] || [status, 'mute']; return `<span class="badge ${x[1]}">${esc(x[0])}</span>`; };
+  ui.badge = (status) => { const m = { completed: ['Completed', 'ok'], pending: ['Pending', 'wait'], scheduled: ['Scheduled', 'info'], blocked: ['Blocked', 'bad'], declined: ['Declined', 'bad'], rejected: ['Rejected', 'bad'], returned: ['Returned', 'bad'], cancelled: ['Cancelled', 'mute'], failed: ['Failed', 'bad'], active: ['Active', 'ok'], frozen: ['Frozen', 'frz'], locked: ['Locked', 'frz'], cancelled: ['Cancelled', 'mute'], resolved: ['Resolved', 'ok'], open: ['Open', 'wait'], 'pending activation': ['Pending activation', 'wait'] }; const x = m[String(status).toLowerCase()] || [status, 'mute']; return `<span class="badge ${x[1]}">${esc(x[0])}</span>`; };
   ui.catIcon = (cat) => { const c = HM.CATS[cat] || HM.CATS.Other; return `<span class="cat" style="--c:${c.c}">${icon(c.i, 18)}</span>`; };
   ui.txRow = (t, o) => {
     o = o || {}; const credit = t.amount > 0; const bad = ['blocked', 'declined', 'failed'].includes(t.status);
@@ -710,7 +668,7 @@
   document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('input,textarea,select')) document.body.classList.remove('kbd'); }, 60));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ui.closeSheet(); });
 
-  HM.start = () => { buildNav(); render(false); };
+  HM.start = () => { buildNav(); watchLayout(); render(false); };
 })();
 
 
@@ -868,7 +826,7 @@
     if (p.remember) { try { localStorage.setItem(RKEY, JSON.stringify({ email: p.email })); } catch (e) { /* ignore */ } } else { try { localStorage.removeItem(RKEY); } catch (e) { /* ignore */ } }
     HM.session.set({ email: p.email, at: Date.now() }); clearPending(); creds = null; clearTimers();
     const S = HM.state(); if (!S.profile.email) S.profile.email = p.email;
-    S.security.logins.unshift({ id: HM.uid('l'), date: new Date().toISOString(), device: 'This device', loc: 'Demo location', ok: true });
+    S.security.logins.unshift({ id: HM.uid('l'), date: new Date().toISOString(), device: 'This device', loc: 'Not available', ok: true });
     S.security.logins.length = Math.min(S.security.logins.length, 25);
     const dv = S.security.devices.find((x) => x.current); if (dv) dv.last = new Date().toISOString();
     if (p.remember && S.security.alerts.newDevice) HM.notify('security', 'This device was remembered', 'This device was marked as trusted for sign-in.');
@@ -984,18 +942,18 @@
     return {
       title: 'Home',
       html: `
-      <div class="hero home-hero-compact"><div class="hero-top"><div class="home-context"><span>Account overview</span><small>Harborstone Bank</small></div><div class="home-actions"><button class="avatar-btn" data-go="/more/profile" aria-label="Profile">${HM.avatar ? HM.avatar() : ''}</button><button class="iconbtn" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div></div>
+      <div class="hero home-hero"><div class="home-bar"><div class="home-hi"><small>${greeting()}</small><b>${esc(name)}</b></div><div class="home-actions"><button class="avatar-btn" data-go="/more/profile" aria-label="Profile">${HM.avatar ? HM.avatar() : ''}</button><button class="iconbtn" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div>
+      <form class="home-search" data-form="gsearch" role="search">${icon('search', 18)}<input type="search" name="q" placeholder="Search Harborstone" aria-label="Search" enterkeyhint="search" autocomplete="off" maxlength="60"><button type="submit" aria-label="Search">${icon('chevR', 18)}</button></form></div>
 
       <div class="float"><div class="bal-card balance-premium">
-        <div class="bal-h"><span class="lbl">Total balance</span><button class="eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 18)} ${hidden ? 'Show' : 'Hide'}</button></div>
-        <div class="big">${hideable(money(T.current), hidden)}</div><div class="balance-caption">USD <span>•</span> Total across accounts</div>
+        <div class="bal-h"><span class="lbl">Total balance</span><button class="eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 16)} ${hidden ? 'Show' : 'Hide'}</button></div>
+        <div class="big">${hideable(money(T.current), hidden)}</div><div class="balance-caption">USD · across all accounts</div>
         <div class="kv3 balance-metrics"><div><small>Available</small><b>${hideable(money(T.available), hidden)}</b></div><div><small>Current</small><b>${hideable(money(T.current), hidden)}</b></div></div>
-        ${hidden ? '' : `<div class="split">${S.accounts.map((a, i) => `<i style="width:${(a.current / T.current) * 100}%;background:${colors[i % 4]}"></i>`).join('')}</div><div class="legend">${S.accounts.map((a, i) => `<span><i style="background:${colors[i % 4]}"></i>${esc(a.nickname)} ${money(a.current).replace('.00', '')}</span>`).join('')}</div>`}
       </div></div>
 
       ${sec('Your accounts', ui.link('All accounts', '/accounts'), `<div class="hscroll">${S.accounts.map((a) => acctCard(a, hidden)).join('')}</div>`)}
 
-      ${sec('Quick actions', '', `<div class="qa">${[['send', 'Send Money', '/payments/ach_instant/new'], ['swap', 'Transfer Between Accounts', '/payments/internal/new'], ['bill', 'Pay Bills', '/payments/bills'], ['camera', 'Deposit Check', '/accounts/deposit'], ['file', 'View Statements', '/accounts/statements'], ['card', 'Manage Cards', '/cards']].map((q) => `<button data-go="${q[2]}"><span class="qi">${icon(q[0], 22)}</span>${q[1]}</button>`).join('')}</div>`)}
+      ${sec('Quick actions', '', `<div class="qa">${[['send', 'Send Money', '/payments/ach_instant/new'], ['swap', 'Transfer', '/payments/internal/new'], ['bill', 'Pay Bills', '/payments/bills'], ['camera', 'Deposit Check', '/accounts/deposit'], ['file', 'Statements', '/accounts/statements'], ['card', 'Cards', '/cards']].map((q) => `<button data-go="${q[2]}"><span class="qi">${icon(q[0], 22)}</span>${q[1]}</button>`).join('')}</div>`)}
 
       ${sec('Recent transactions', ui.link('View All', '/transactions'), recent.length ? `<div class="group">${recent.map((t) => ui.txRow(t, { acct: true })).join('')}</div>` : ui.card(ui.empty('receipt', 'No transactions yet', 'Your activity will show up here.')))}
 
@@ -1006,8 +964,8 @@
         ${upcoming.length ? upcoming.slice(0, 3).map((s) => `<button class="row slim" data-go="/payments/scheduled"><span class="row-i gold">${icon(s.kind === 'internal' ? 'swap' : 'calendar', 18)}</span><span class="row-m"><b>${esc(s.payee)}</b><small>${HM.relDay(HM.parseDay(s.next))} · ${s.freq === 'once' ? 'One time' : 'Repeats ' + s.freq}</small></span><span class="row-r">${money(s.amount)}</span></button>`).join('') : '<p class="sm mute pad2">Nothing scheduled.</p>'}
         <div class="mini-h">Scheduled transfers &amp; recurring</div>
         <button class="row slim" data-go="/payments/scheduled"><span class="row-i">${icon('repeat', 18)}</span><span class="row-m"><b>${upcoming.filter((s) => s.kind === 'internal').length} scheduled transfer${upcoming.filter((s) => s.kind === 'internal').length === 1 ? '' : 's'}</b><small>${upcoming.filter((s) => s.freq !== 'once').length} recurring payment${upcoming.filter((s) => s.freq !== 'once').length === 1 ? '' : 's'} active</small></span><span class="row-c">${icon('chevR', 18)}</span></button>
-        <div class="mini-h">Pending simulated transactions</div>
-        ${pending.length ? pending.slice(0, 3).map((t) => ui.txRow(t, { acct: true })).join('') : '<p class="sm mute pad2">No pending transactions. Pending items post automatically ~90 seconds after submission in this demo.</p>'}
+        <div class="mini-h">Restricted activity</div>
+        ${pending.length ? pending.slice(0, 3).map((t) => ui.txRow(t, { acct: true })).join('') : '<p class="sm mute pad2">No payments are awaiting processing. Outgoing activity is currently restricted.</p>'}
         <div class="mini-h">Recent payment activity</div>
         ${payAct.length ? payAct.map((t) => ui.txRow(t)).join('') : '<p class="sm mute pad2">No payments yet.</p>'}</div>`)}
 
@@ -1018,6 +976,27 @@
       ${sec('Shortcuts', '', `<div class="group">${[['users', 'Saved beneficiaries', '/payments/beneficiaries'], ['file', 'Account statements', '/accounts/statements'], ['receipt', 'Transaction history', '/transactions'], ['help', 'Help and support', '/more/support']].map((r) => ui.row({ icon: r[0], title: r[1], go: r[2] })).join('')}</div>`)}
       `
     };
+  });
+
+
+  /* ---------- global search (transactions, accounts, beneficiaries, pages) ---------- */
+  HM.forms.gsearch = (f, d) => { const q = (d.q || '').trim(); if (!q) return; HM.go('/search?q=' + encodeURIComponent(q)); };
+  const PAGES = [['Send money (Instant ACH)', '/payments/ach_instant/new', 'send ach instant zelle'], ['Standard ACH transfer', '/payments/ach_standard/new', 'ach standard'], ['Domestic wire', '/payments/wire/new', 'wire'], ['Check payment', '/payments/check/new', 'check payment'], ['Transfer between accounts', '/payments/internal/new', 'transfer internal'], ['Pay bills', '/payments/bills', 'bill biller pay'], ['Deposit a check', '/accounts/deposit', 'deposit check mobile'], ['Statements', '/accounts/statements', 'statement'], ['Documents', '/accounts/documents', 'document tax agreement'], ['Cards', '/cards', 'card debit virtual lock pin'], ['Daily limits', '/payments/limits', 'limit'], ['Beneficiaries', '/payments/beneficiaries', 'beneficiary payee recipient'], ['Scheduled payments', '/payments/scheduled', 'scheduled recurring'], ['Customer profile', '/more/profile', 'profile name address phone'], ['Security settings', '/more/security', 'security password face id'], ['Notifications', '/notifications', 'alert notification'], ['Help and support', '/more/support', 'help support chat contact']];
+  HM.route('/search', 'home', (params, qs) => {
+    const q = (qs.get('q') || '').trim(), ql = q.toLowerCase(), S = HM.state();
+    const tx = q ? HM.history().filter((t) => [t.desc, t.ref, t.cat, String(Math.abs(t.amount).toFixed(2))].some((v) => String(v || '').toLowerCase().includes(ql))).slice(0, 15) : [];
+    const ac = q ? S.accounts.filter((a) => [a.nickname, a.name, a.type, a.number.slice(-4)].some((v) => String(v).toLowerCase().includes(ql))) : [];
+    const be = q ? S.beneficiaries.filter((b) => [b.name, b.nick, b.bank].some((v) => String(v || '').toLowerCase().includes(ql))) : [];
+    const pg = q ? PAGES.filter((p) => (p[0] + ' ' + p[2]).toLowerCase().includes(ql)) : [];
+    const none = !tx.length && !ac.length && !be.length && !pg.length;
+    return { title: 'Search', html: `${ui.header('Search', { back: '/home' })}<div class="pad">
+      <form class="searchbar" data-form="gsearch" role="search">${icon('search', 18)}<input type="search" name="q" value="${esc(q)}" placeholder="Search transactions, accounts, payments" aria-label="Search" maxlength="60" autocomplete="off"></form>
+      ${!q ? ui.card(ui.empty('search', 'Search Harborstone', 'Find a transaction, account, beneficiary or page.')) : none ? ui.card(ui.empty('search', 'No results', 'Nothing matched “' + esc(q) + '”.')) : ''}
+      ${ac.length ? ui.section('Accounts', '', `<div class="group">${ac.map((a) => ui.row({ icon: 'bank', title: a.nickname, sub: a.type + ' ' + HM.mask(a.number), go: '/accounts/' + a.id })).join('')}</div>`) : ''}
+      ${pg.length ? ui.section('Pages', '', `<div class="group">${pg.map((p) => ui.row({ icon: 'chevR', title: p[0], go: p[1] })).join('')}</div>`) : ''}
+      ${be.length ? ui.section('Beneficiaries', '', `<div class="group">${be.map((b) => ui.row({ icon: 'users', title: b.name, sub: b.bank, go: '/payments/beneficiaries' })).join('')}</div>`) : ''}
+      ${tx.length ? ui.section('Transactions', '', `<div class="group">${tx.map((t) => ui.txRow(t, { acct: true })).join('')}</div>`) : ''}
+    </div>` };
   });
 
   function acctCard(a, hidden) {
@@ -1075,6 +1054,100 @@
       ${ui.section('Manage', '', `<div class="tiles">${[['camera', 'Deposit Check', 'Mobile deposit', '/accounts/deposit'], ['receipt', 'Transactions', 'Search & filter', '/transactions'], ['file', 'Statements', 'Monthly & history', '/accounts/statements'], ['book', 'Documents', 'Agreements & forms', '/accounts/documents'], ['target', 'Savings goals', 'Track targets', '/accounts/goals'], ['chart', 'Spending insights', 'By category', '/accounts/spending'], ['clock', 'Deposit history', 'Past deposits', '/accounts/deposit/history']].map((t) => `<button class="tile" data-go="${t[3]}"><span class="row-i navy">${icon(t[0], 20)}</span><b>${t[1]}</b><small>${t[2]}</small></button>`).join('')}</div>`)}`
     };
   });
+
+
+  /* ---------- account controls: read-only restriction status (this project scenario has no in-app unfreeze) ---------- */
+  HM.route('/accounts/:id/controls', 'accounts', ({ id }) => {
+    const a = HM.acct(id), fr = a.status === 'frozen';
+    return {
+      title: 'Account controls',
+      html: `${ui.header('Account controls', { back: '/accounts/' + id, sub: a.nickname })}<div class="pad">
+      <div class="card center ctl ${fr ? 'is-frozen' : ''}"><div class="ctl-i">${icon(fr ? 'snow' : 'shield', 34)}</div><h2>${fr ? 'Account is frozen' : 'Account is active'}</h2><p class="mute sm">${fr ? 'Money cannot leave this account. Deposits are not accepted while the restriction is in place. Contact support to ask about this restriction.' : 'This account is active.'}</p>
+        <button class="btn btn-ghost mt" data-go="/more/support">${icon('msg', 20)} Contact support</button></div>
+      ${ui.section('While an account is frozen', '', `<div class="card">${['Outgoing instant & standard ACH', 'Domestic wire transfers', 'Check payments', 'Bill payments & scheduled payments', 'Transfers out to your other accounts', 'ATM withdrawals & card purchases', 'Check deposits (rejected, nothing credited)'].map((x) => `<div class="kv"><span>${x}</span><b class="neg">Blocked</b></div>`).join('')}</div>`)}
+      ${ui.section('More', '', `<div class="group">${ui.row({ icon: 'sliders', title: 'Account preferences', go: '/accounts/' + id + '/prefs' })}${ui.row({ icon: 'bell', title: 'Account alerts', go: '/accounts/' + id + '/alerts' })}${ui.row({ icon: 'info', title: 'Account information', go: '/accounts/' + id + '/info' })}</div>`)}</div>`
+    };
+  });
+
+  HM.route('/accounts/controls', 'accounts', () => ({
+    title: 'Account controls',
+    html: `${ui.header('Account controls', { back: '/accounts' })}<div class="pad"><p class="mute sm">Choose an account to view its restriction status and settings.</p><div class="group mt">${HM.state().accounts.map((a) => ui.row({ icon: a.status === 'frozen' ? 'snow' : 'bank', tone: a.status === 'frozen' ? 'navy' : '', title: a.nickname, sub: a.type + ' ' + HM.mask(a.number), right: ui.badge(a.status), go: '/accounts/' + a.id + '/controls' })).join('')}</div></div>`
+  }));
+
+  /* ---------- transactions (shared list) ---------- */
+  const filters = {}, shown = {};
+  const F = (k) => (filters[k] = filters[k] || { q: '', type: 'all', status: 'all', from: '', to: '', min: '', max: '' });
+  let scope = 'all';
+  HM.acts.txf = (b, arg) => { const i = arg.indexOf(':'); const k = arg.slice(0, i), v = arg.slice(i + 1); F(scope)[k] = v; shown[scope] = 40; HM.refresh(true); };
+  HM.acts.txMore = () => { shown[scope] = (shown[scope] || 40) + 40; HM.refresh(true); };
+  HM.acts.txClear = () => { filters[scope] = null; HM.refresh(true); };
+  function txListPage(key, acctId, back, title, sub) {
+    scope = key; const f = F(key); const all = HM.history(acctId === 'all' ? null : acctId); const list = ui.applyFilter(all, f); const n = shown[key] || 40;
+    const active = f.q || f.type !== 'all' || f.status !== 'all' || f.from || f.to || f.min || f.max;
+    return {
+      title,
+      html: `${ui.header(title, { back, sub })}<div class="pad">${ui.txFilterUI(f, 'txf')}
+      <div class="between sp sm mute" style="margin:4px 0 8px"><span>${list.length} transaction${list.length === 1 ? '' : 's'}</span>${active ? '<button class="lnk" data-act="txClear">Clear filters</button>' : ''}</div>
+      ${list.length ? `<div class="group">${ui.groupByDay(list.slice(0, n), { acct: acctId === 'all' })}</div>${list.length > n ? `<button class="btn btn-ghost mt" data-act="txMore">Show more (${list.length - n} left)</button>` : ''}` : ui.card(ui.empty('search', 'No matching transactions', active ? 'Try changing or clearing your filters.' : 'Transactions will appear here.', active ? '<button class="btn btn-primary" data-act="txClear">Clear filters</button>' : ''))}</div>`
+    };
+  }
+  HM.route('/transactions', 'accounts', () => txListPage('all', 'all', '/accounts', 'Transaction history', 'All accounts'));
+
+  /* ---------- transaction detail ---------- */
+  HM.route('/tx/:id', 'accounts', ({ id }) => {
+    const t = HM.history().find((x) => x.id === id); if (!t) return { html: ui.header('Transaction', { back: '/transactions' }) + '<div class="pad">' + ui.card(ui.empty('alert', 'Transaction not found', 'It may have been reset.')) + '</div>' };
+    const a = HM.acct(t.acct), credit = t.amount > 0, R = HM.RAILS[t.rail] || {}, m = t.meta || {};
+    const bad = ['blocked', 'declined', 'failed'].includes(t.status);
+    const kv = (k, v) => (v ? `<div class="kv"><span>${k}</span><b>${v}</b></div>` : '');
+    const benef = m.benef ? `${esc(m.benef.name)}<br><small class="mute">${esc(m.benef.bank)} · ${HM.mask(m.benef.account)}</small>` : '';
+    return {
+      title: 'Transaction',
+      html: `${ui.header('Transaction details', { back: '/transactions' })}<div class="pad">
+      <div class="card center txd">${ui.catIcon(t.cat).replace('class="cat"', 'class="cat lg"')}<div class="lbl mt">${esc(t.desc)}</div><div class="big ${bad ? 'strike' : credit ? 'pos' : ''}">${credit ? '+' : '−'}${money(Math.abs(t.amount)).replace('−', '')}</div><div>${ui.badge(t.status)}</div><div class="sm mute mt">${HM.fmtDT(t.date)}</div></div>
+      ${t.reason ? `<div class="note bad">${icon('alert', 18)}<span>${esc(t.reason)}${t.status === 'blocked' ? ' This is an illustrative training record; your balance was not reduced.' : ' No money was deducted.'}</span></div>` : ''}
+      ${t.status === 'pending' ? `<div class="note warn">${icon('clock', 18)}<span>${credit ? 'Funds are not yet available.' : 'This amount is held against your available balance.'} This item has not completed processing.</span></div>` : ''}
+      <div class="card mt">${kv('Type', esc(R.label || t.rail))}${kv('Category', esc(t.cat))}${kv('Account', esc(a.nickname) + ' ' + HM.mask(a.number))}${kv(credit ? 'From' : 'To', benef || esc(m.payee || m.biller || m.merchant || m.source || m.payer || ''))}${kv('Amount', money(Math.abs(t.amount)))}${t.fee ? kv('Fee', money(t.fee)) : ''}${kv('Purpose / memo', esc(m.purpose || m.memo || ''))}${m.checkNo ? kv('Check number', '#' + m.checkNo) : ''}${m.mode ? kv('Channel', esc(m.mode === 'pos' ? 'In store' : m.mode)) : ''}${kv('Reference', esc(t.ref || ''))}${t.status === 'completed' ? kv('Balance after', money(t.bal)) : ''}${t.settledAt ? kv('Posted', HM.fmtDT(t.settledAt)) : ''}${kv('Status', esc(t.status[0].toUpperCase() + t.status.slice(1)))}</div>
+      <div class="btns">${RECEIPT_RAILS.includes(t.rail) && t.ref ? `<button class="btn btn-primary" data-go="/receipt/${encodeURIComponent(t.ref)}">${icon('receipt', 20)} View receipt</button>` : ''}<button class="btn btn-ghost" data-act="copyRef" data-arg="${esc(t.ref || '')}">${icon('copy', 18)} Copy reference</button></div></div>`
+    };
+  });
+  HM.acts.copyRef = (b, ref) => ui.copy(ref, 'Reference copied');
+
+  /* ---------- account detail ---------- */
+  HM.route('/accounts/deposit', 'accounts', () => depositStart());
+  HM.route('/accounts/deposit/front', 'accounts', () => depositCapture('front'));
+  HM.route('/accounts/deposit/back', 'accounts', () => depositCapture('back'));
+  HM.route('/accounts/deposit/review', 'accounts', () => depositReview());
+  HM.route('/accounts/deposit/done/:id', 'accounts', ({ id }) => depositDone(id));
+  HM.route('/accounts/deposit/history', 'accounts', () => depositHistory());
+  HM.route('/accounts/statements', 'accounts', () => statementsHub());
+  HM.route('/accounts/spending', 'accounts', () => spendingPage());
+  HM.route('/accounts/goals', 'accounts', () => goalsPage());
+  HM.route('/accounts/documents', 'accounts', () => docsPage());
+  HM.route('/accounts/documents/:doc', 'accounts', ({ doc }) => docView(doc));
+
+  HM.route('/accounts/:id', 'accounts', ({ id }) => {
+    const a = HM.acct(id); if (!a) return { html: ui.header('Account', { back: '/accounts' }) + '<div class="pad">' + ui.card(ui.empty('alert', 'Account not found', '')) + '</div>' };
+    const S = HM.state(), hidden = S.prefs.hideBalance, fr = a.status === 'frozen', sav = a.type === 'savings';
+    const hist = HM.history(a.id); const recent = hist.slice(0, 6);
+    const spark = [...hist.filter((t) => t.status === 'completed').slice(0, 40).map((t) => t.bal)].reverse();
+    const yr = new Date().getFullYear(); const intYTD = HM.r2(S.txs.filter((t) => t.acct === a.id && t.rail === 'interest' && new Date(t.date).getFullYear() === yr).reduce((s, t) => s + t.amount, 0));
+    const goalsSaved = HM.r2(S.goals.reduce((s, g) => s + g.saved, 0));
+    return {
+      title: a.nickname,
+      html: `${ui.header(a.nickname, { back: '/accounts', sub: (sav ? 'Savings' : 'Checking') + ' · ' + HM.mask(a.number), right: `<button class="iconbtn" data-go="/accounts/${a.id}/info" aria-label="Account information">${icon('info', 20)}</button>` })}
+      <div class="pad"><div class="card hero-card ${fr ? 'frozen' : ''}"><div class="between sp"><span class="lbl on-dark">${esc(a.name)}</span>${ui.badge(a.status)}</div>
+        <div class="big on-dark">${hidden ? '<span class="masked">••••••</span>' : money(a.available)}</div><div class="sm on-dark-2">Available balance</div>
+        <div class="kv3 dark"><div><small>Current balance</small><b>${hidden ? '••••' : money(a.current)}</b></div><div><small>${sav ? 'APY' : 'Pending holds'}</small><b>${sav ? a.apy.toFixed(2) + '%' : money(HM.r2(a.current - a.available))}</b></div></div>
+        ${spark.length > 3 ? ui.spark(spark) : ''}</div>
+        ${fr ? `<div class="note warn">${icon('snow', 18)}<span><b>Account frozen.</b> Outgoing ACH, wire, check, bill, transfer and withdrawal activity is blocked. <button class="lnk inl" data-go="/accounts/${a.id}/controls">Manage</button></span></div>` : ''}
+        <div class="qa two mt">${[['swap', 'Transfer', '/payments/internal/new?from=' + a.id], ['send', 'Pay', '/payments'], ['camera', 'Deposit', '/accounts/deposit?to=' + a.id], ['file', 'Statements', '/accounts/' + a.id + '/statements']].map((q) => `<button data-go="${q[2]}"><span class="qi">${icon(q[0], 22)}</span>${q[1]}</button>`).join('')}</div></div>
+      ${a.type === 'checking' ? ui.section('Account numbers', '', `<div class="card"><div class="kv"><span>Routing number</span><b>${a.routing} <button class="cp" data-act="copyTxt" data-arg="${a.routing}|Routing number" aria-label="Copy routing number">${icon('copy', 16)}</button></b></div><div class="kv"><span>Account number</span><b class="masked">${HM.mask(a.number)}</b></div><p class="hint">Demo numbers for a fictional bank. Open Account information to reveal and copy.</p></div>`) : `${ui.section('Interest', '', `<div class="card"><div class="kv"><span>Annual percentage yield</span><b>${a.apy.toFixed(2)}% APY</b></div><div class="kv"><span>Interest paid this year</span><b>${money(intYTD)}</b></div><div class="kv"><span>Estimated next payment</span><b>≈ ${money(HM.r2((a.current * a.apy) / 100 / 12))}</b></div><div class="kv"><span>Interest compounds / pays</span><b>Monthly</b></div><p class="hint">Simulated rate for demonstration. Rates are not real offers.</p></div>`)}
+      ${ui.section('Savings goals', ui.link('Manage', '/accounts/goals'), S.goals.length ? `<div class="card">${S.goals.map((g) => `<div class="lim"><div class="lim-h"><b>${esc(g.name)}</b><span>${money(g.saved).replace('.00', '')} / ${money(g.target).replace('.00', '')}</span></div>${ui.progress(Math.round((g.saved / g.target) * 100), '')}</div>`).join('')}<p class="hint">${money(goalsSaved)} allocated of ${money(a.current)} in savings.</p></div>` : ui.card(ui.empty('target', 'No goals yet', 'Create a goal to track your progress.', '<button class="btn btn-primary" data-go="/accounts/goals">Create goal</button>')))}`}
+      ${ui.section('Recent transactions', ui.link('Full history', '/accounts/' + a.id + '/transactions'), recent.length ? `<div class="group">${ui.groupByDay(recent)}</div>` : ui.card(ui.empty('receipt', 'No transactions yet', '')))}
+      ${ui.section('Manage this account', '', `<div class="group">${[['info', 'Account information', 'Details, nickname, copy numbers', '/accounts/' + a.id + '/info'], ['receipt', 'Transaction history', 'Search & filter', '/accounts/' + a.id + '/transactions'], ['file', 'Statements & documents', 'Monthly statements', '/accounts/' + a.id + '/statements'], [fr ? 'unlock' : 'snow', fr ? 'Unfreeze account' : 'Freeze account', 'Account controls', '/accounts/' + a.id + '/controls'], ['sliders', 'Account preferences', 'Paperless & options', '/accounts/' + a.id + '/prefs'], ['bell', 'Account alerts', 'Balance & activity alerts', '/accounts/' + a.id + '/alerts']].map((r) => ui.row({ icon: r[0], title: r[1], sub: r[2], go: r[3] })).join('')}</div>`)}`
+    };
+  });
+  HM.acts.copyTxt = (b, arg) => { const [v, l] = arg.split('|'); ui.copy(v, l || 'Copied'); };
 
   /* ---------- controls hub (choose account) ---------- */
   HM.route('/accounts/:id/transactions', 'accounts', ({ id }) => { const a = HM.acct(id); return txListPage('acct:' + id, id, '/accounts/' + id, 'Transaction history', a.nickname + ' ' + HM.mask(a.number)); });
@@ -1328,12 +1401,12 @@
   const S = () => HM.state();
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const RAIL_INFO = {
-    ach_instant: { title: 'Instant ACH', icon: 'zap', blurb: 'Arrives in seconds', info: 'Delivered within seconds, any time. No fee.', proc: 'Instant — completes immediately' },
-    ach_standard: { title: 'Standard ACH', icon: 'repeat', blurb: '1–2 business days', info: 'Typically settles in 1–2 business days. No fee.', proc: `Pending — posts about ${Math.round(HM.PENDING_MS / 1000)} seconds after submission (demo rule)` },
-    wire: { title: 'Domestic wire', icon: 'bank', blurb: 'Same-day · $25 fee', info: 'Same-day delivery to a U.S. bank. A $25.00 outgoing wire fee applies.', proc: 'Completes immediately in this demo' },
-    check: { title: 'Check payment', icon: 'file', blurb: 'We issue a check', info: 'We issue a check to your payee. No fee.', proc: `Pending until the check clears — about ${Math.round(HM.PENDING_MS / 1000)} seconds in this demo` },
-    internal: { title: 'Transfer between accounts', icon: 'swap', blurb: 'Your own accounts', info: 'Instant transfers between your Harborstone accounts.', proc: 'Instant — completes immediately' },
-    bill: { title: 'Bill payment', icon: 'bill', blurb: 'Pay a saved biller', info: 'Pay now, schedule for later or repeat.', proc: 'Today’s payments complete immediately; future dates are scheduled' }
+    ach_instant: { title: 'Instant ACH', icon: 'zap', blurb: 'Arrives in seconds', info: 'Delivered within seconds, any time. No fee.', proc: 'Unavailable while the account restriction is active' },
+    ach_standard: { title: 'Standard ACH', icon: 'repeat', blurb: '1–2 business days', info: 'Typically settles in 1–2 business days. No fee.', proc: 'Requests are declined while the account restriction is active' },
+    wire: { title: 'Domestic wire', icon: 'bank', blurb: 'Same-day · $25 fee', info: 'Same-day delivery to a U.S. bank. A $25.00 outgoing wire fee applies.', proc: 'Unavailable while the account restriction is active' },
+    check: { title: 'Check payment', icon: 'file', blurb: 'We issue a check', info: 'We issue a check to your payee. No fee.', proc: 'Rejected while the account restriction is active' },
+    internal: { title: 'Transfer between accounts', icon: 'swap', blurb: 'Your own accounts', info: 'Instant transfers between your Harborstone accounts.', proc: 'Unavailable while the account restriction is active' },
+    bill: { title: 'Bill payment', icon: 'bill', blurb: 'Pay a saved biller', info: 'Pay now, schedule for later or repeat.', proc: 'Payments and schedules remain unavailable while the account restriction is active' }
   };
   const PURPOSES = ['Family support', 'Gift', 'Purchase of goods or services', 'Rent or mortgage', 'Invoice payment', 'Loan payment', 'Real estate closing', 'Savings or investment', 'Other'];
   const PAY_RAILS = ['ach_instant', 'ach_standard', 'wire', 'check', 'bill', 'internal'];
@@ -1487,16 +1560,16 @@
   HM.route('/payments/result/:key', 'payments', ({ key }) => {
     if (key.startsWith('sched-')) {
       const s = S().scheduled.find((x) => x.id === key.slice(6)); if (!s) return { html: '' };
-      return { title: 'Scheduled', html: `<div class="pad done"><div class="okring info">${icon('calendar', 36)}</div><h2>Payment scheduled</h2><p class="mute">${money(s.amount)} to ${esc(s.payee)} will be paid on <b>${HM.fmtDate(HM.parseDay(s.next))}</b>${s.freq !== 'once' ? ', then repeat ' + s.freq : ''}.</p><div class="btns"><button class="btn btn-primary" data-go="/payments/scheduled">View scheduled payments</button><button class="btn btn-ghost" data-go="/payments">Done</button></div></div>` };
+      return { title: 'Scheduled', html: `<div class="pad done"><div class="okring info">${icon('calendar', 36)}</div><h2>Schedule paused</h2><p class="mute">${money(s.amount)} to ${esc(s.payee)} was saved as a schedule, but it will not run while the account restriction is active. No payment was sent.</p><div class="btns"><button class="btn btn-primary" data-go="/payments/scheduled">View scheduled payments</button><button class="btn btn-ghost" data-go="/payments">Done</button></div></div>` };
     }
     const t = S().txs.find((x) => x.id === key); if (!t) return { html: ui.header('Result', { back: '/payments' }) };
     const ok = ['completed', 'pending'].includes(t.status), a = HM.acct(t.acct), R = HM.RAILS[t.rail] || {};
-    const bt = { completed: ['check', 'ok', 'Payment sent'], pending: ['clock', 'wait', 'Payment submitted'], blocked: ['snow', 'bad', 'Payment blocked'], failed: ['x', 'bad', 'Payment failed'], declined: ['x', 'bad', 'Declined'] }[t.status] || ['info', 'ok', 'Done'];
+    const bt = { completed: ['check', 'ok', 'Payment sent'], pending: ['clock', 'wait', 'Payment submitted'], blocked: ['snow', 'bad', 'Payment blocked'], failed: ['x', 'bad', 'Payment failed'], declined: ['x', 'bad', 'Declined'], rejected: ['x', 'bad', 'Payment rejected'], cancelled: ['x', 'bad', 'Payment cancelled'] }[t.status] || ['info', 'ok', 'Done'];
     return {
       title: bt[2],
       html: `<div class="pad done"><div class="okring ${ok ? (t.status === 'pending' ? 'wait' : '') : 'bad'}">${icon(bt[0], 38)}</div><h2>${bt[2]}</h2>
-      <p class="mute">${t.status === 'completed' ? `${money(Math.abs(t.amount))} was sent${t.rail === 'internal' ? '' : ' from ' + esc(a.nickname)}.` : t.status === 'pending' ? `${money(Math.abs(t.amount))} is pending and will post automatically in about ${Math.round(HM.PENDING_MS / 1000)} seconds (demo rule).` : esc(t.reason || 'No money was moved.')}</p>
-      ${t.status === 'blocked' ? `<div class="note bad left">${icon('snow', 18)}<span>${esc(a.nickname)} is frozen. This attempt was recorded as a <b>blocked demo attempt</b> and your balance did <b>not</b> change. Contact Harborstone support for information about this account restriction.</span></div>` : ''}
+      <p class="mute">${t.status === 'completed' ? `${money(Math.abs(t.amount))} was sent${t.rail === 'internal' ? '' : ' from ' + esc(a.nickname)}.` : t.status === 'pending' ? 'This item is awaiting review.' : esc(t.reason || 'No money was moved.')}</p>
+      ${t.status === 'blocked' ? `<div class="note bad left">${icon('snow', 18)}<span>${esc(a.nickname)} is frozen. This attempt was recorded as a <b>illustrative training record</b> and your balance did <b>not</b> change. Contact Harborstone support for information about this account restriction.</span></div>` : ''}
       <div class="card left mt"><div class="kv"><span>Type</span><b>${esc(R.label)}</b></div><div class="kv"><span>Amount</span><b>${money(Math.abs(t.amount))}</b></div>${t.fee ? `<div class="kv"><span>Fee</span><b>${money(t.fee)}</b></div>` : ''}<div class="kv"><span>Status</span><b>${ui.badge(t.status)}</b></div><div class="kv"><span>Reference</span><b>${esc(t.ref)}</b></div><div class="kv"><span>Date</span><b>${HM.fmtDT(t.date)}</b></div></div>
       <div class="btns"><button class="btn btn-primary" data-go="/receipt/${encodeURIComponent(t.ref)}">${icon('receipt', 20)} View receipt</button><button class="btn btn-ghost" data-go="/payments">Done</button>${t.status === 'blocked' ? `<button class="btn btn-ghost" data-go="/accounts/${a.id}/controls">${icon('snow', 18)} Account controls</button>` : ''}</div></div>`
     };
@@ -1560,7 +1633,7 @@
       if (!res.ok && !res.blocked) { btn.disabled = false; return ui.toast(res.error, 'err'); }
       HM._pay = null; return HM.go('/payments/result/' + res.tx.id, { replace: true });
     }
-    const id = HM.uid('s'); S().scheduled.push({ id, kind: 'bill', from: d.from, payee: bl.name, billerId: bl.id, cat: bl.category === 'Housing' ? 'Housing' : 'Utilities', amount: d.amount, freq: d.freq, next: d.date, memo: d.memo, status: 'active', created: new Date().toISOString() });
+    const id = HM.uid('s'); S().scheduled.push({ id, kind: 'bill', from: d.from, payee: bl.name, billerId: bl.id, cat: bl.category === 'Housing' ? 'Housing' : 'Utilities', amount: d.amount, freq: d.freq, next: d.date, memo: d.memo, status: 'paused', created: new Date().toISOString() });
     HM.save(); HM._pay = null;
     if (d.date === today) { HM.processDue(); const t = HM.history().find((x) => x.rail === 'bill' && x.desc === 'Bill payment · ' + bl.name); if (t) return HM.go('/payments/result/' + t.id, { replace: true }); }
     HM.go('/payments/result/sched-' + id, { replace: true });
@@ -1655,7 +1728,7 @@
     const s = S(), amt = HM.parseAmt(d.amount), today = HM.dayKey(new Date());
     if (!d.target) return ui.fail(f, 'Choose who or where to pay.', 'target'); if (sk === 'internal' && d.target === d.from) return ui.fail(f, 'Choose two different accounts.', 'target');
     if (isNaN(amt) || amt <= 0) return ui.fail(f, 'Enter an amount greater than $0.00.', 'amount'); if (!d.next || d.next < today) return ui.fail(f, 'Choose today or a future date.', 'next');
-    const x = { id: HM.uid('s'), kind: sk === 'ach' ? 'ach_standard' : sk, from: d.from, amount: amt, freq: d.freq, next: d.next, memo: (d.memo || '').trim(), status: 'active', created: new Date().toISOString() };
+    const x = { id: HM.uid('s'), kind: sk === 'ach' ? 'ach_standard' : sk, from: d.from, amount: amt, freq: d.freq, next: d.next, memo: (d.memo || '').trim(), status: 'paused', created: new Date().toISOString() };
     if (sk === 'bill') { const b = s.billers.find((y) => y.id === d.target); x.payee = b.name; x.billerId = b.id; x.cat = b.category === 'Housing' ? 'Housing' : 'Utilities'; }
     else if (sk === 'ach') { const b = s.beneficiaries.find((y) => y.id === d.target); x.payee = b.name; x.benef = { name: b.name, bank: b.bank, routing: b.routing, account: b.account, type: b.type }; }
     else { x.to = d.target; x.payee = HM.acct(d.target).nickname; }
@@ -1935,7 +2008,7 @@
       title: 'Card security',
       html: `${ui.header('Card security', { back: '/cards', sub: label(c) + ' •• ' + c.last4 })}<div class="pad"><div class="group">${ui.toggle({ title: 'Online purchases', sub: 'Allow card-not-present payments', on: cc.online, act: 'cardCtl', arg: id + ':online' })}${ui.toggle({ title: 'International transactions', sub: 'Allow purchases outside the U.S.', on: cc.intl, act: 'cardCtl', arg: id + ':intl' })}${c.kind === 'virtual' ? '' : ui.toggle({ title: 'ATM withdrawals', sub: 'Allow cash withdrawals', on: cc.atm, act: 'cardCtl', arg: id + ':atm' })}${c.kind === 'virtual' ? '' : ui.toggle({ title: 'Contactless payments', sub: 'Tap to pay', on: cc.contactless, act: 'cardCtl', arg: id + ':contactless' })}</div>
       <div id="limits"></div>${ui.section('Card spending limits', '', `<form data-form="cardLimits" data-id="${id}" class="card" novalidate>${ui.field({ name: 'pos', label: 'Per-purchase limit', money: true, inputmode: 'decimal', value: String(c.limits.pos), hint: 'Purchases above this are declined.' })}${c.kind === 'virtual' ? '' : ui.field({ name: 'atm', label: 'Per-withdrawal ATM limit', money: true, inputmode: 'decimal', value: String(c.limits.atm), hint: 'Also subject to your daily withdrawal limit of ' + money(S().limits.withdrawal).replace('.00', '') + '.' })}<button class="btn btn-primary mt" type="submit">Save limits</button></form>`)}
-      <div class="note">${icon('info', 18)}<span>Turn a control off, then use “Try a demo purchase” to see it decline automatically.</span></div></div>`,
+      <div class="note">${icon('info', 18)}<span>Card purchases remain unavailable while the linked account is restricted.</span></div></div>`,
       after() { if (location.hash.endsWith('#limits')) { const el = document.getElementById('limits'); if (el) el.scrollIntoView(); } }
     };
   });
@@ -1953,7 +2026,7 @@
     const base = HM.history().filter((t) => ['card', 'withdrawal'].includes(t.rail)); const list = ui.applyFilter(base, cf);
     return {
       title: 'Card activity',
-      html: `${ui.header('Card activity', { back: '/cards', sub: 'Debit & virtual card transactions', right: `<button class="iconbtn" data-act="simOpen" aria-label="Try a demo purchase">${icon('zap', 20)}</button>` })}<div class="pad">
+      html: `${ui.header('Card activity', { back: '/cards', sub: 'Debit & virtual card transactions', right: '' })}<div class="pad">
       <details class="filters" open><summary>${icon('filter', 16)} Search &amp; filters</summary>${ui.txFilterUI(cf, 'cf')}</details>
       <div class="sm mute" style="margin:2px 0 8px">${list.length} transaction${list.length === 1 ? '' : 's'}</div>${list.length ? `<div class="group">${ui.groupByDay(list.slice(0, 80))}</div>` : ui.card(ui.empty('card', 'No card transactions', 'Nothing matches. Try clearing filters.'))}</div>`
     };
@@ -1973,10 +2046,6 @@
 
   /* ---------- simulator: outcomes decided by rules only ---------- */
   const MERCH = { pos: ['Fresh Market', 'Corner Café', 'Fuel Stop 24', 'Urban Threads'], contactless: ['Metro Transit', 'Corner Café', 'Daily Basket'], online: ['Gadget Garage', 'StreamBox Monthly', 'Book Nook'], intl: ['Harbor Inn (overseas)', 'Skyline Air (intl)'], atm: ['Harborstone ATM', 'Corner Bank ATM'] };
-  HM.acts.simOpen = () => {
-    const s = S();
-    ui.sheet(`<h3 class="sh-title">Try a demo purchase</h3><p class="sh-body">Your card controls, limits, account status and balance decide the result automatically.</p><form data-form="sim" novalidate>${ui.select({ name: 'card', label: 'Card', value: sel, options: s.cards.map((c) => [c.id, label(c) + ' •• ' + c.last4 + ' (' + stat(c) + ')']) })}${ui.select({ name: 'mode', label: 'Type', value: 'pos', options: [['pos', 'In-store (chip)'], ['contactless', 'Contactless tap'], ['online', 'Online purchase'], ['intl', 'International purchase'], ['atm', 'ATM withdrawal']] })}${ui.field({ name: 'merchant', label: 'Merchant', value: 'Fresh Market', maxlength: 40 })}${ui.field({ name: 'amount', label: 'Amount', money: true, inputmode: 'decimal', placeholder: '0.00' })}<div class="sh-actions"><button class="btn btn-primary" type="submit">Run transaction</button><button class="btn btn-ghost" type="button" data-act="closeSheet">Cancel</button></div></form>`, { after() { const f = document.querySelector('form[data-form=sim]'); f.mode.addEventListener('change', () => { f.merchant.value = MERCH[f.mode.value][0]; }); } });
-  };
   HM.forms.sim = (f, d) => {
     const amt = HM.parseAmt(d.amount); if (!d.merchant.trim()) return ui.fail(f, 'Enter a merchant name.', 'merchant'); if (isNaN(amt) || amt <= 0) return ui.fail(f, 'Enter an amount greater than $0.00.', 'amount');
     const res = HM.cardTxn({ cardId: d.card, merchant: d.merchant.trim(), amount: amt, mode: d.mode, cat: d.mode === 'online' ? 'Shopping' : undefined });
@@ -2075,11 +2144,11 @@
     S().security.pwChanged = new Date().toISOString(); HM.notify('security', 'Password change simulated', 'Your password was updated in this demo. Sign-in credentials are managed by the app owner.'); HM.save(); ui.toast('Password updated (demo)'); HM.back('/more/security');
   };
   HM.route('/more/security/faceid', 'more', () => ({
-    title: 'Face ID demo',
-    html: `${ui.header('Face ID demonstration', { back: '/more/security' })}<div class="pad center"><div class="faceid" id="fid"><div class="scan"></div>${icon('face', 90)}</div><h2 id="fidT">Face ID</h2><p class="mute" id="fidS">This is a <b>simulation</b>. No camera is used and no biometric data is read or stored.</p>
-    <div class="btns"><button class="btn btn-primary" id="fidGo" data-act="faceRun">Run Face ID demo</button>${S().security.faceId ? '<button class="btn btn-ghost" data-act="faceOff">Remove Face ID (demo)</button>' : ''}</div></div>`
+    title: 'Biometric sign-in',
+    html: `${ui.header('Biometric sign-in', { back: '/more/security' })}<div class="pad center"><div class="faceid" id="fid"><div class="scan"></div>${icon('face', 90)}</div><h2 id="fidT">Face ID</h2><p class="mute" id="fidS">Biometric sign-in requires a native device authentication integration. This web version uses email verification.</p>
+    <div class="btns"><button class="btn btn-primary" id="fidGo" data-act="faceRun">Check availability</button>${S().security.faceId ? '<button class="btn btn-ghost" data-act="faceOff">Remove Face ID (demo)</button>' : ''}</div></div>`
   }));
-  HM.acts.faceRun = async (b) => { const f = document.getElementById('fid'); b.disabled = true; f.classList.add('scanning'); document.getElementById('fidT').textContent = 'Scanning…'; await new Promise((r) => setTimeout(r, 1800)); f.classList.remove('scanning'); f.classList.add('done'); document.getElementById('fidT').textContent = 'Face recognized (demo)'; document.getElementById('fidS').textContent = 'In a real app this would unlock Harborstone Mobile.'; S().security.faceId = true; S().security.biometric = true; HM.save(); setTimeout(() => { b.disabled = false; }, 600); };
+  HM.acts.faceRun = () => { ui.toast('Biometric authentication is not configured for this web build. Use email verification.'); };
   HM.acts.faceOff = () => { S().security.faceId = false; HM.save(); HM.refresh(false); ui.toast('Face ID removed'); };
   HM.route('/more/security/devices', 'more', () => ({
     title: 'Trusted devices',
@@ -2088,7 +2157,7 @@
   HM.acts.devRemove = async (b, id) => { const d = S().security.devices.find((x) => x.id === id); if (await ui.confirm({ title: 'Remove ' + d.name + '?', body: 'It will no longer be trusted.', ok: 'Remove', danger: true })) { S().security.devices = S().security.devices.filter((x) => x.id !== id); HM.save(); HM.refresh(true); ui.toast('Device removed'); } };
   HM.route('/more/security/history', 'more', () => ({
     title: 'Login history',
-    html: `${ui.header('Login history', { back: '/more/security' })}<div class="pad"><div class="group">${S().security.logins.map((l) => ui.row({ icon: l.ok ? 'check' : 'x', tone: l.ok ? 'green' : 'red', title: l.ok ? 'Successful sign-in' : 'Failed sign-in', sub: HM.fmtDT(l.date) + ' · ' + l.device + ' · ' + l.loc, noChev: true })).join('')}</div><p class="footnote">Locations are not tracked in this demo.</p></div>`
+    html: `${ui.header('Login history', { back: '/more/security' })}<div class="pad"><div class="group">${S().security.logins.map((l) => ui.row({ icon: l.ok ? 'check' : 'x', tone: l.ok ? 'green' : 'red', title: l.ok ? 'Successful sign-in' : 'Failed sign-in', sub: HM.fmtDT(l.date) + ' · ' + l.device + ' · ' + l.loc, noChev: true })).join('')}</div><p class="footnote">Location details are not collected by this application.</p></div>`
   }));
   HM.route('/more/security/alerts', 'more', () => { const a = S().security.alerts; return { title: 'Security alerts', html: `${ui.header('Security alerts', { back: '/more/security' })}<div class="pad"><div class="group">${ui.toggle({ title: 'New device sign-in', on: a.newDevice, act: 'secAlert', arg: 'newDevice' })}${ui.toggle({ title: 'Password changes', on: a.passwordChange, act: 'secAlert', arg: 'passwordChange' })}${ui.toggle({ title: 'Large payments', sub: 'Payments of $500 or more', on: a.largeTx, act: 'secAlert', arg: 'largeTx' })}${ui.toggle({ title: 'Failed sign-in attempts', on: a.loginFail, act: 'secAlert', arg: 'loginFail' })}</div></div>` }; });
   HM.acts.secAlert = (b, k) => { const a = S().security.alerts; a[k] = !a[k]; HM.save(); HM.refresh(true); };
@@ -2111,7 +2180,7 @@
   /* ---------- support ---------- */
   const FAQ = [
     ['How do I freeze my account?', 'Go to Accounts, choose the account and open Account controls, then tap Freeze account. Outgoing payments, wires, checks, bills, transfers and withdrawals are blocked until you unfreeze it. Deposits are still accepted.'],
-    ['Why is my payment pending?', 'Standard ACH, check payments and mobile deposits are pending first. In this demo they post automatically about 90 seconds after submission. Pending debits reduce your available balance right away.'],
+    ['Why was my payment blocked?', 'Outgoing payments are unavailable while the account restriction is active. Blocked requests do not deduct funds or create a pending payment.'],
     ['What are my daily limits?', 'Limits apply per rail (Instant ACH, Standard ACH, wire, check, withdrawal, deposit) and to all payments combined. See Payments › Daily limits, where you can also change them for testing.'],
     ['How do I add a beneficiary?', 'Open Payments › Beneficiaries and tap +. You’ll need a valid 9-digit ABA routing number and an account number. This demo accepts fictional numbers only.'],
     ['How do I deposit a check?', 'Accounts › Deposit Check (or the Home shortcut). Enter the amount, date and payer, capture the front and back, review and submit. Funds are pending until reviewed.'],
@@ -2128,7 +2197,7 @@
   HM.route('/more/support/faq', 'more', () => ({ title: 'FAQ', html: `${ui.header('Frequently asked questions', { back: '/more/support' })}<div class="pad"><div class="group faq">${FAQ.map((q) => `<details><summary>${esc(q[0])}${icon('chevD', 18)}</summary><p>${esc(q[1])}</p></details>`).join('')}</div></div>` }));
   const HELP = [['Accounts', 'bank', ['Reading your balances: current vs available', 'Freezing and unfreezing an account', 'Changing an account nickname']], ['Payments', 'send', ['Sending an Instant ACH', 'Wire transfer requirements', 'Scheduling and cancelling payments']], ['Cards', 'card', ['Locking your card', 'Setting spending limits', 'Using your virtual card']], ['Security', 'shield', ['Email verification codes', 'Trusted devices', 'Spotting scams']]];
   HM.route('/more/support/help', 'more', () => ({ title: 'Help center', html: `${ui.header('Help center', { back: '/more/support' })}<div class="pad">${HELP.map((h) => `<div class="lbl mt2">${h[0]}</div><div class="group mt">${h[2].map((a) => ui.row({ icon: h[1], title: a, act: 'helpOpen', arg: a })).join('')}</div>`).join('')}</div>` }));
-  HM.acts.helpOpen = (b, a) => ui.sheet(`<h3 class="sh-title">${esc(a)}</h3><p class="sh-body">This is a demo help article. In a live bank, step-by-step guidance for “${esc(a.toLowerCase())}” would appear here. For related answers, see the FAQ or send a support request.</p><div class="sh-actions"><button class="btn btn-primary" data-go="/more/support/faq">Open FAQ</button><button class="btn btn-ghost" data-act="closeSheet">Close</button></div>`);
+  HM.acts.helpOpen = (b, a) => ui.sheet(`<h3 class="sh-title">${esc(a)}</h3><p class="sh-body">This is a sample help article. In a live bank, step-by-step guidance for “${esc(a.toLowerCase())}” would appear here. For related answers, see the FAQ or send a support request.</p><div class="sh-actions"><button class="btn btn-primary" data-go="/more/support/faq">Open FAQ</button><button class="btn btn-ghost" data-act="closeSheet">Close</button></div>`);
   HM.route('/more/support/info', 'more', () => ({ title: 'Service info', html: `${ui.header('Customer service', { back: '/more/support' })}<div class="pad"><div class="card"><div class="kv"><span>Phone support</span><b>Mon–Fri 8am–8pm ET<br>Sat 9am–5pm ET</b></div><div class="kv"><span>Lost or stolen cards</span><b>24 / 7</b></div><div class="kv"><span>Mailing address</span><b>Harborstone Bank<br>100 Demo Harbor Way<br>Sample City, ST 00000</b></div><div class="kv"><span>Response time</span><b>1 business day</b></div></div><div class="note">${icon('alert', 18)}<span>Harborstone Bank is fictional. These details are for demonstration only.</span></div></div>` }));
   HM.route('/more/support/new', 'more', () => ({
     title: 'Support request',
