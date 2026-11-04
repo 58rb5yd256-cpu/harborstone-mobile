@@ -22,3 +22,10 @@
 - Native Face ID / Android biometric APIs are not implemented by this web-only project; the UI directs users to email verification.
 - No real bank, ACH, wire, card network, ATM, or check-clearing integration is connected.
 - Seeded ledger records and account figures are illustrative training data. The app must not be used as proof of real funds or payment processing.
+
+## 2026-11-04 interface wording refinement
+- Replaced prominent customer-facing “Frozen” labels with “Restricted” or concise availability wording while preserving the underlying restriction logic.
+- Simplified the payment review notice to a neutral instruction; the result screen still clearly states when no money moved.
+- Reduced the branch finder notice to a compact sample-location label.
+- Kept the educational-project disclosure in the About/privacy/documentation areas so the interface is not misrepresented as a real bank.
+- No payment, balance, authentication, OTP, or account-restriction logic was changed in this wording pass.
