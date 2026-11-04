@@ -2,13 +2,13 @@
   "id": "/",
   "name": "Harborstone Mobile",
   "short_name": "Harborstone",
-  "description": "Harborstone Mobile \u2014 an interactive financial-safety training experience. Account figures and transaction examples are illustrative; no bank rails are connected.",
+  "description": "Harborstone Mobile \u2014 Your finances. Your direction.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#082F3A",
-  "theme_color": "#082F3A",
+  "background_color": "#08080B",
+  "theme_color": "#08080B",
   "categories": [
     "finance"
   ],
