@@ -1,0 +1,1 @@
+(function () { try { var p = localStorage.getItem('hm_theme') || 'dark'; var t = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : p; document.documentElement.setAttribute('data-theme', t); } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); } })();
