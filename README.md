@@ -1,3 +1,11 @@
+# Harborstone Mobile
+
+Harborstone Mobile is an interactive financial-safety training experience. Account figures and historical transaction examples are illustrative and stored in the browser; no real bank, card network, ACH, wire, or deposit-processing rails are connected. Do not enter real banking credentials, card details, PINs, or identity documents.
+
+## Restricted-account behavior
+
+All outgoing payment rails are rejected before funds or settlement logic can run. Check deposits are rejected without credit. Existing pending items from older browser storage are normalized to blocked records at startup, available balances are restored to current balances, and scheduled instructions are paused.
+
 # Harborstone Mobile — *Your finances. Your direction.*
 
 A fictional, educational mobile-banking web app (school project). **All balances, payments, deposits, cards, receipts and statements are simulated.** Harborstone Bank is not a real bank. Nothing moves real money and no real card/bank credentials are collected.
@@ -27,22 +35,32 @@ harborstone-mobile/
 │     home.js  accounts.js  payments.js  receipts.js  cards.js  more.js   one file per tab
 │     main.js      bootstrap
 ├─ api/auth/request-otp.js, verify-otp.js, _lib.js
-├─ tests/run.cjs, helpers.cjs   Playwright end-to-end tests
+├─ tests/  run-all.mjs, run.cjs, routes.cjs, auth-api.cjs, api-server.mjs, helpers.cjs   Playwright tests
 ├─ dev-server.mjs, package.json, vercel.json, .env.example, .gitignore
 ```
 
-## Quick look (no install)
-The easiest way: open **Harborstone_Mobile_Standalone.html** (one self-contained file; works by double-click or on a phone). Or
-Unzip, then double-click **OPEN-ME.html** (it opens `public/index.html`, the login page). The login always requires server-side credential validation and email OTP. For local testing, run `npx vercel dev` with private environment variables; the static preview server does not bypass authentication or accept arbitrary credentials.
-
 ## Run locally
+Sign-in is always checked by the server (email + password, then an emailed 6-digit code); there is no local shortcut. To run the real API locally:
 ```bash
-npm install                 # only nodemailer, used by the SMTP option
-npm start                   # http://localhost:8000
+npm install
+cp .env.example .env.local     # fill in YOUR private values (never commit this file)
+npx vercel dev                 # http://localhost:3000
 ```
-The static `npm start` server serves the interface only; it does not authenticate users. For real local authentication and email OTP, use `npx vercel dev` with private environment variables in `.env.local`. The application never accepts arbitrary local credentials or displays a locally generated OTP.
+`npm start` only serves the static interface (login will report that the secure sign-in service is not running).
 
-Tests: `npm test` (UI, simulation mode, needs `npm start`) and `npm run test:auth` (real `api/auth` handlers via `tests/api-server.mjs`, Resend call stubbed). With the server running, `npm i -D playwright && npx playwright install chromium && npm test`.
+## Tests
+```bash
+npm i -D playwright && npx playwright install chromium
+npm test        # starts tests/api-server.mjs (real api/auth handlers, Resend call stubbed, test-only credentials) and runs
+                # run.cjs (UI/payments/frozen rules), routes.cjs (route crawler), auth-api.cjs (login + OTP)
+```
+The harness proves the server logic and the request that would be sent to Resend. It does **not** prove delivery by a real email provider.
+
+## Layout notes (mobile shell)
+- `public/css/layout.css` is the single authoritative layout layer (loaded after `app.css`): app shell, safe areas, login/OTP, bottom navigation, support button, Home.
+- `#app` is `position:fixed; inset:0` and a flex column: `#view` scrolls, `#nav` is a normal row at the bottom (not an overlay), so it can never cover content and always spans the safe area. Five equal tabs on one baseline.
+- Login/OTP/forgot hide the nav and the support button (`body.auth`); the keyboard hides them via the visual-viewport check (`body.kbd-open`).
+- The support button is a sibling of the nav and is hidden on pages that contain entry fields.
 
 ## GitHub (new, separate repository)
 ```bash
@@ -127,3 +145,14 @@ Open the deployed URL in **Safari** → Share → **Add to Home Screen** → Add
 - The six-digit code expires after five minutes; incorrect and expired codes are rejected.
 - Resend requests a newly generated code and invalidates the earlier request from the UI's perspective.
 - The static preview server does not create a fake successful login. Use `npx vercel dev` for local API-backed sign-in.
+
+
+## Version 8 update
+
+- Bottom navigation now uses five equal, horizontally aligned tabs: Home, Activity, Transfer, Cards, and More.
+- Transfer is no longer raised or visually larger than the other tabs.
+- Navigation and the support shortcut account for mobile safe-area spacing, including the iPhone home-indicator area.
+- Activity now includes all supported ledger entries, search/filter controls, and a spending-analytics view.
+- A support shortcut is available above the navigation on signed-in screens.
+
+The app remains a project interface. External banking rails, KYC providers, card processors, investment providers, credit bureaus, and native biometric APIs require separately configured and authorized services; interface actions must not be interpreted as proof that those external operations occurred.
