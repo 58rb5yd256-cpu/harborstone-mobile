@@ -405,3 +405,46 @@ body.auth .footnote,body.auth .login-assurance,body.auth .login-security{display
 /* Profile photo presentation */
 .avatar-img{object-position:center 28%;}
 .prof-card .avatar-img{width:56px;height:56px;border-radius:50%;object-fit:cover;}
+
+
+/* v7 responsive refinement: keep authentication screens isolated from app navigation */
+body.auth.kbd #nav, body.auth #nav{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body.auth #view{padding-bottom:0!important;overflow-x:hidden!important}
+body.auth .auth-wrap{width:100%;max-width:100%;padding-left:0;padding-right:0;background:linear-gradient(180deg,#082f3a 0%,#0b3b47 44%,#f4f2ee 44.2%,#f4f2ee 100%);}
+body.auth .auth-hero{width:100%;padding:calc(var(--sa-t) + 22px) 18px 58px;background:linear-gradient(145deg,#0b4652 0%,#082f3a 72%,#061f28 100%);border-radius:0 0 42px 42px;text-align:center;position:relative;z-index:0}
+body.auth .auth-hero:after{content:"";position:absolute;left:-8%;right:-8%;bottom:-23px;height:48px;border-radius:50%;background:#f4f2ee;z-index:-1}
+body.auth .auth-hero .logo{margin:0 auto 8px;width:58px;height:58px}
+body.auth .auth-hero h1{font-size:30px;letter-spacing:.01em}
+body.auth .auth-card{position:relative;z-index:1;margin:-8px 18px 18px;padding:22px 20px 20px;border-radius:26px;background:#fff;box-shadow:0 12px 34px rgba(5,35,43,.12)}
+body.auth .auth-card h2{font-size:25px}
+body.auth .auth-wrap{overflow-y:auto;overscroll-behavior:contain}
+body.auth .page{height:100%;min-height:100%;}
+/* Compact dashboard balance and clean curved teal masthead */
+.home-hero-compact{min-height:132px;padding-bottom:36px;border-radius:0 0 42px 42px;background:radial-gradient(ellipse at 80% 0%,rgba(79,157,164,.28),transparent 55%),linear-gradient(145deg,#0b4652,#062b35 72%)}
+.balance-premium{margin:-12px 18px 0;padding:16px 17px 14px;border-radius:22px}
+.balance-premium .big{font-size:clamp(30px,7.2vw,42px)}
+.balance-metrics{margin-top:12px;gap:8px}
+.balance-metrics>div{padding:9px 10px}
+#nav .tab{font-size:11px}
+@media(max-height:700px){body.auth .auth-wrap{overflow-y:auto}body.auth .auth-hero{padding-top:calc(var(--sa-t) + 12px);padding-bottom:38px}body.auth .auth-card{padding:17px 16px;margin-left:14px;margin-right:14px}}
+@media(min-width:600px){body.auth .auth-hero{border-radius:0 0 48px 48px}}
+
+
+/* Version 8 navigation: five equal tabs on one baseline, with device-safe spacing. */
+:root{--nav-h:68px}
+#nav{left:0;right:0;bottom:0;transform:none;width:100%;max-width:560px;margin:0 auto;min-height:calc(68px + var(--sa-b));align-items:stretch;justify-content:space-around;gap:2px;padding:7px 8px calc(7px + var(--sa-b));overflow:visible;background:rgba(255,255,255,.98);border-top:1px solid var(--line);box-shadow:0 -5px 22px rgba(4,31,39,.08)}
+#nav:after{content:"";position:absolute;left:0;right:0;top:100%;height:var(--sa-b);background:rgba(255,255,255,.98)}
+#nav .tab,#nav .tab-primary,#nav .tab.active,#nav .tab-primary.active{position:static;z-index:auto;flex:1 1 20%;min-width:0;min-height:50px;height:50px;margin:0;padding:5px 1px 4px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:3px;background:transparent;box-shadow:none;transform:none;color:#7B8890;font-size:11px;font-weight:650}
+#nav .tab svg{width:23px;height:23px;color:currentColor}
+#nav .tab.active{background:#F1E8D5;color:var(--navy)}
+#nav .tab:active{transform:scale(.96);background:#F5F1E8}
+body.sheet-open #nav{transform:translateY(120%)}
+body.kbd:not(.sheet-open) #nav{display:flex;transform:none;bottom:0;z-index:60}
+body.auth #nav,body.auth #nav:after{display:none!important}
+.support-fab{position:fixed;z-index:35;right:max(16px,calc((100vw - 560px)/2 + 16px));bottom:calc(var(--nav-h) + var(--sa-b) + 14px);width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:#F6E5B8;background:linear-gradient(145deg,#17606B,#082F3A);box-shadow:0 5px 18px rgba(8,47,58,.25);border:1px solid rgba(255,255,255,.24)}
+.support-fab:active{transform:scale(.94)}
+body.auth .support-fab{display:none}
+#view{padding-bottom:calc(var(--nav-h) + var(--sa-b) + 30px)}
+body.auth #view{padding-bottom:0}
+@media(max-width:360px){#nav{padding-left:4px;padding-right:4px;gap:0}#nav .tab{font-size:10px}.support-fab{width:44px;height:44px;right:12px}}
+@media(min-width:561px){#nav{left:50%;right:auto;transform:translateX(-50%)}body.sheet-open #nav{transform:translate(-50%,120%)}}
