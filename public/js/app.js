@@ -498,7 +498,7 @@
     lastRender = Date.now();
     document.title = (res.title ? res.title + ' · ' : '') + 'Harborstone Mobile';
   }
-  window.addEventListener('hashchange', () => render(false));
+  window.addEventListener('hashchange', () => { ui.closeSheet(); render(false); });
 
   /* ---------- tabs ---------- */
   HM.TABS = [
@@ -559,7 +559,7 @@
   ui.card = (inner, cls) => `<div class="card ${cls || ''}">${inner}</div>`;
   ui.group = (rows) => `<div class="group">${rows.join('')}</div>`;
   ui.empty = (ic, title, body, cta) => `<div class="empty"><div class="empty-i">${icon(ic, 30)}</div><h3>${esc(title)}</h3><p>${esc(body)}</p>${cta || ''}</div>`;
-  ui.badge = (status) => { const m = { completed: ['Completed', 'ok'], pending: ['Pending', 'wait'], scheduled: ['Scheduled', 'info'], blocked: ['Blocked', 'bad'], declined: ['Declined', 'bad'], rejected: ['Rejected', 'bad'], returned: ['Returned', 'bad'], cancelled: ['Cancelled', 'mute'], failed: ['Failed', 'bad'], active: ['Active', 'ok'], frozen: ['Frozen', 'frz'], locked: ['Locked', 'frz'], cancelled: ['Cancelled', 'mute'], resolved: ['Resolved', 'ok'], open: ['Open', 'wait'], 'pending activation': ['Pending activation', 'wait'] }; const x = m[String(status).toLowerCase()] || [status, 'mute']; return `<span class="badge ${x[1]}">${esc(x[0])}</span>`; };
+  ui.badge = (status) => { const m = { completed: ['Completed', 'ok'], pending: ['Pending', 'wait'], scheduled: ['Scheduled', 'info'], blocked: ['Blocked', 'bad'], declined: ['Declined', 'bad'], rejected: ['Rejected', 'bad'], returned: ['Returned', 'bad'], cancelled: ['Cancelled', 'mute'], failed: ['Failed', 'bad'], active: ['Active', 'ok'], frozen: ['Restricted', 'frz'], locked: ['Locked', 'frz'], cancelled: ['Cancelled', 'mute'], resolved: ['Resolved', 'ok'], open: ['Open', 'wait'], 'pending activation': ['Pending activation', 'wait'] }; const x = m[String(status).toLowerCase()] || [status, 'mute']; return `<span class="badge ${x[1]}">${esc(x[0])}</span>`; };
   ui.catIcon = (cat) => { const c = HM.CATS[cat] || HM.CATS.Other; return `<span class="cat" style="--c:${c.c}">${icon(c.i, 18)}</span>`; };
   ui.txRow = (t, o) => {
     o = o || {}; const credit = t.amount > 0; const bad = ['blocked', 'declined', 'failed'].includes(t.status);
@@ -578,7 +578,7 @@
     return `<div class="fld" data-fld="${o.name}"><label for="${id}">${esc(o.label)}${o.optional ? ' <i>(optional)</i>' : ''}</label>${o.money ? `<div class="money-in"><span>$</span>${input}</div>` : input}${o.hint ? `<p class="hint">${o.hint}</p>` : ''}<p class="ferr" role="alert"></p></div>`;
   };
   ui.select = (o) => `<div class="fld" data-fld="${o.name}"><label for="f_${o.name}">${esc(o.label)}</label><div class="sel"><select id="f_${o.name}" name="${o.name}">${o.options.map((x) => `<option value="${esc(x[0])}" ${String(x[0]) === String(o.value) ? 'selected' : ''} ${x[2] ? 'disabled' : ''}>${esc(x[1])}</option>`).join('')}</select>${icon('chevD', 18)}</div>${o.hint ? `<p class="hint">${o.hint}</p>` : ''}<p class="ferr" role="alert"></p></div>`;
-  ui.acctOptions = (o) => { o = o || {}; return HM.state().accounts.filter((a) => !(o.exclude || []).includes(a.id) && (!o.type || a.type === o.type)).map((a) => [a.id, `${a.nickname} ${HM.mask(a.number)} · ${money(a.available)}${a.status === 'frozen' ? ' (Frozen)' : ''}`]); };
+  ui.acctOptions = (o) => { o = o || {}; return HM.state().accounts.filter((a) => !(o.exclude || []).includes(a.id) && (!o.type || a.type === o.type)).map((a) => [a.id, `${a.nickname} ${HM.mask(a.number)} · ${money(a.available)}${a.status === 'frozen' ? ' (Restricted)' : ''}`]); };
   ui.toggle = (o) => `<div class="row tgl"><span class="row-m"><b>${esc(o.title)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</span><button class="sw ${o.on ? 'on' : ''}" role="switch" aria-checked="${!!o.on}" aria-label="${esc(o.title)}" data-act="${o.act}" data-arg="${esc(o.arg == null ? '' : o.arg)}"><i></i></button></div>`;
   ui.fail = (form, msg, field) => {
     ui.clearErr(form);
@@ -1002,7 +1002,7 @@
   function acctCard(a, hidden) {
     const fr = a.status === 'frozen';
     return `<button class="acct ${a.type === 'savings' ? 'sav' : ''} ${fr ? 'frozen' : ''}" data-go="/accounts/${a.id}">
-      <div class="t"><span>${a.type}</span>${fr ? `<span class="frzpill">${icon('snow', 12)} Frozen</span>` : '<span class="frzpill">Active</span>'}</div>
+      <div class="t"><span>${a.type}</span>${fr ? `<span class="frzpill">Restricted</span>` : '<span class="frzpill">Active</span>'}</div>
       <h3>${esc(a.nickname)}</h3><div class="num">${HM.mask(a.number)}</div>
       <div class="amt">${hidden ? '<span class="masked">••••••</span>' : money(a.available)}</div><div class="sub"><span>Available</span><span>Current ${hidden ? '••••' : money(a.current)}</span></div>
       <div class="view">View account details ${icon('chevR', 14)}</div></button>`;
@@ -1049,7 +1049,7 @@
       html: `${ui.header('Accounts', { back: false, sub: 'Manage your Harborstone accounts' })}
       <div class="pad"><div class="card total-card"><div class="lbl">Total combined balance</div><div class="big">${hidden ? '<span class="masked">••••••</span>' : money(T.current)}</div>
         <div class="kv3"><div><small>Checking (${S.accounts.filter((a) => a.type === 'checking').length})</small><b>${hidden ? '••••' : money(T.checking)}</b></div><div><small>Savings (${S.accounts.filter((a) => a.type === 'savings').length})</small><b>${hidden ? '••••' : money(T.savings)}</b></div></div>
-        ${frozen ? `<div class="note warn">${icon('snow', 18)}<span>${frozen} account${frozen > 1 ? 's are' : ' is'} frozen. Outgoing activity and check deposits are unavailable due to an account restriction.</span></div>` : ''}</div>
+        ${frozen ? `<div class="note warn">${icon('snow', 18)}<span>Payments and check deposits are currently unavailable for ${frozen} account${frozen > 1 ? 's' : ''}.</span></div>` : ''}</div>
         ${grp('checking', 'Checking accounts')}${grp('savings', 'Savings accounts')}</div>
       ${ui.section('Manage', '', `<div class="tiles">${[['camera', 'Deposit Check', 'Mobile deposit', '/accounts/deposit'], ['receipt', 'Transactions', 'Search & filter', '/transactions'], ['file', 'Statements', 'Monthly & history', '/accounts/statements'], ['book', 'Documents', 'Agreements & forms', '/accounts/documents'], ['target', 'Savings goals', 'Track targets', '/accounts/goals'], ['chart', 'Spending insights', 'By category', '/accounts/spending'], ['clock', 'Deposit history', 'Past deposits', '/accounts/deposit/history']].map((t) => `<button class="tile" data-go="${t[3]}"><span class="row-i navy">${icon(t[0], 20)}</span><b>${t[1]}</b><small>${t[2]}</small></button>`).join('')}</div>`)}`
     };
@@ -1062,9 +1062,9 @@
     return {
       title: 'Account controls',
       html: `${ui.header('Account controls', { back: '/accounts/' + id, sub: a.nickname })}<div class="pad">
-      <div class="card center ctl ${fr ? 'is-frozen' : ''}"><div class="ctl-i">${icon(fr ? 'snow' : 'shield', 34)}</div><h2>${fr ? 'Account is frozen' : 'Account is active'}</h2><p class="mute sm">${fr ? 'Money cannot leave this account. Deposits are not accepted while the restriction is in place. Contact support to ask about this restriction.' : 'This account is active.'}</p>
+      <div class="card center ctl ${fr ? 'is-frozen' : ''}"><div class="ctl-i">${icon(fr ? 'snow' : 'shield', 34)}</div><h2>${fr ? 'Payments unavailable' : 'Account is active'}</h2><p class="mute sm">${fr ? 'Outgoing payments, withdrawals and check deposits are unavailable for this account. No money will move.' : 'This account is active.'}</p>
         <button class="btn btn-ghost mt" data-go="/more/support">${icon('msg', 20)} Contact support</button></div>
-      ${ui.section('While an account is frozen', '', `<div class="card">${['Outgoing instant & standard ACH', 'Domestic wire transfers', 'Check payments', 'Bill payments & scheduled payments', 'Transfers out to your other accounts', 'ATM withdrawals & card purchases', 'Check deposits (rejected, nothing credited)'].map((x) => `<div class="kv"><span>${x}</span><b class="neg">Blocked</b></div>`).join('')}</div>`)}
+      ${ui.section('Unavailable activity', '', `<div class="card">${['Outgoing instant & standard ACH', 'Domestic wire transfers', 'Check payments', 'Bill payments & scheduled payments', 'Transfers out to your other accounts', 'ATM withdrawals & card purchases', 'Check deposits (rejected, nothing credited)'].map((x) => `<div class="kv"><span>${x}</span><b class="neg">Blocked</b></div>`).join('')}</div>`)}
       ${ui.section('More', '', `<div class="group">${ui.row({ icon: 'sliders', title: 'Account preferences', go: '/accounts/' + id + '/prefs' })}${ui.row({ icon: 'bell', title: 'Account alerts', go: '/accounts/' + id + '/alerts' })}${ui.row({ icon: 'info', title: 'Account information', go: '/accounts/' + id + '/info' })}</div>`)}</div>`
     };
   });
@@ -1430,7 +1430,7 @@
   HM._pay = null;
   const draftFor = (rail) => { if (!HM._pay || HM._pay.rail !== rail) HM._pay = { rail, idem: 'pay:' + HM.uid('x'), from: 'chk1', amount: '', desc: '' }; return HM._pay; };
   const fromQ = () => new URLSearchParams(location.hash.split('?')[1] || '');
-  const frozenWarn = (id) => { const a = HM.acct(id); return a && a.status === 'frozen' ? `<div class="note warn frz-w">${icon('snow', 18)}<span><b>${esc(a.nickname)} is frozen.</b> Submitting will be blocked and recorded as a blocked attempt. No money will move.</span></div>` : ''; };
+  const frozenWarn = (id) => { const a = HM.acct(id); return a && a.status === 'frozen' ? `<div class="note warn frz-w">${icon('snow', 18)}<span><b>Payments from ${esc(a.nickname)} are unavailable.</b> This request will be declined. No money will move.</span></div>` : ''; };
   const benOptions = (sel) => [['', 'Select a beneficiary']].concat(S().beneficiaries.map((b) => [b.id, `${b.name} · ${b.bank} ${HM.mask(b.account)}`]));
   const benInfo = (id) => { const b = S().beneficiaries.find((x) => x.id === id); return b ? `<div class="kv"><span>Receiving bank</span><b>${esc(b.bank)}</b></div><div class="kv"><span>Routing number</span><b>${b.routing}</b></div><div class="kv"><span>Account</span><b>${esc(b.type)} ${HM.mask(b.account)}</b></div>` : '<p class="hint">Pick a beneficiary to see their receiving bank details.</p>'; };
   const limitLine = (rail) => { const R = HM.RAILS[rail]; if (!R.limit) return ''; const L = HM.limitInfo(R.limit); return `<p class="hint">Daily ${HM.LIMIT_LABELS[R.limit]} limit ${money(L.limit).replace('.00', '')} · ${money(L.left)} remaining today</p>`; };
@@ -1527,7 +1527,7 @@
       ${frozenWarn(d.from)}
       <div class="card mt">${reviewRows(d)}<div class="kv"><span>Processing</span><b>${future ? 'Scheduled for ' + HM.fmtDate(HM.parseDay(d.date)) : esc(info.proc)}</b></div></div>
       ${a.status === 'frozen' ? '' : `<div class="card mt"><div class="lbl">Balance &amp; limits</div><div class="kv"><span>Available now</span><b>${money(a.available)}</b></div><div class="kv"><span>Available after</span><b>${money(HM.r2(a.available - total))}</b></div>${lim ? `<div class="lim"><div class="lim-h"><b>${HM.LIMIT_LABELS[R.limit]} daily limit</b><span>${money(HM.r2(lim.used + d.amount))} / ${money(lim.limit).replace('.00', '')}</span></div>${ui.progress(Math.round(((lim.used + d.amount) / lim.limit) * 100))}<div class="lim-f"><span>Used today ${money(lim.used)}</span><span>Left after ${money(Math.max(0, HM.r2(lim.left - d.amount)))}</span></div></div>` : ''}${agg ? `<div class="lim"><div class="lim-h"><b>All payments daily limit</b><span>${money(agg.left)} left</span></div>${ui.progress(Math.round(((agg.used + d.amount) / agg.limit) * 100))}</div>` : ''}</div>`}
-      <div class="note warn">${icon('alert', 18)}<span>Make sure everything is correct. This is a simulated payment for a demo bank.</span></div>
+      <div class="note warn">${icon('alert', 18)}<span>Review the payment details before continuing.</span></div>
       <div class="btns"><button class="btn btn-gold" id="payConfirm" data-act="payConfirm">${future ? 'Confirm & schedule' : 'Confirm & send'}</button><button class="btn btn-ghost" data-back="/payments">Edit details</button></div></div>`
     };
   }
@@ -1569,7 +1569,7 @@
       title: bt[2],
       html: `<div class="pad done"><div class="okring ${ok ? (t.status === 'pending' ? 'wait' : '') : 'bad'}">${icon(bt[0], 38)}</div><h2>${bt[2]}</h2>
       <p class="mute">${t.status === 'completed' ? `${money(Math.abs(t.amount))} was sent${t.rail === 'internal' ? '' : ' from ' + esc(a.nickname)}.` : t.status === 'pending' ? 'This item is awaiting review.' : esc(t.reason || 'No money was moved.')}</p>
-      ${t.status === 'blocked' ? `<div class="note bad left">${icon('snow', 18)}<span>${esc(a.nickname)} is frozen. This attempt was recorded as a <b>illustrative training record</b> and your balance did <b>not</b> change. Contact Harborstone support for information about this account restriction.</span></div>` : ''}
+      ${t.status === 'blocked' ? `<div class="note bad left">${icon('snow', 18)}<span>This payment was not processed. No money was transferred and your account balance did not change.</span></div>` : ''}
       <div class="card left mt"><div class="kv"><span>Type</span><b>${esc(R.label)}</b></div><div class="kv"><span>Amount</span><b>${money(Math.abs(t.amount))}</b></div>${t.fee ? `<div class="kv"><span>Fee</span><b>${money(t.fee)}</b></div>` : ''}<div class="kv"><span>Status</span><b>${ui.badge(t.status)}</b></div><div class="kv"><span>Reference</span><b>${esc(t.ref)}</b></div><div class="kv"><span>Date</span><b>${HM.fmtDT(t.date)}</b></div></div>
       <div class="btns"><button class="btn btn-primary" data-go="/receipt/${encodeURIComponent(t.ref)}">${icon('receipt', 20)} View receipt</button><button class="btn btn-ghost" data-go="/payments">Done</button>${t.status === 'blocked' ? `<button class="btn btn-ghost" data-go="/accounts/${a.id}/controls">${icon('snow', 18)} Account controls</button>` : ''}</div></div>`
     };
@@ -1861,7 +1861,7 @@
           <div class="chkface"><div class="chk-top"><div><b>${esc(holder)}</b><span>${esc(HM.acct(t.acct).nickname)}</span></div><div class="chk-no">${m.checkNo ? '№ ' + m.checkNo : ''}<br><small>DATE ${m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate), { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</small></div></div>
           <div class="chk-pay"><small>PAY TO THE<br>ORDER OF</small><b>${esc(m.payee)}</b><div class="box">${money(amt)}</div></div><div class="chk-w">${amountWords(amt)}</div>
           <div class="chk-bot"><div><small>MEMO</small> ${esc(m.memo || '')}</div><div class="sig">${esc(holder)}</div></div><div class="micr">⑆${HM.BANK.routing}⑆ ${HM.mask(a.number)}⑈ ${String(m.checkNo || '').padStart(4, '0')}</div><div class="chk-spec">SPECIMEN</div></div>
-          ${row('Payee', esc(m.payee))}${row('Check number', m.checkNo ? '#' + m.checkNo : '')}${row('Issue date', m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate)) : '')}${row('Source account', acctLine(a))}${row('Memo', esc(m.memo))}${row('Confirmation', esc(t.ref))}${row('Check status', bad ? 'Not issued — account frozen' : 'Sample check record')}</div>${foot(t)}</article>`;
+          ${row('Payee', esc(m.payee))}${row('Check number', m.checkNo ? '#' + m.checkNo : '')}${row('Issue date', m.issueDate ? HM.fmtDate(HM.parseDay(m.issueDate)) : '')}${row('Source account', acctLine(a))}${row('Memo', esc(m.memo))}${row('Confirmation', esc(t.ref))}${row('Check status', bad ? 'Not issued — payment unavailable' : 'Sample check record')}</div>${foot(t)}</article>`;
       }
       case 'internal': {
         const pair = HM.txByRef(t.ref); const deb = pair.find((x) => x.amount < 0) || t, cr = pair.find((x) => x.amount > 0); const hh = h.filter((x) => x.ref === t.ref);
@@ -1936,7 +1936,7 @@
       html: `${ui.header('Cards', { back: false, sub: 'Manage your debit and virtual cards' })}
       <div class="pad"><div class="chips">${s.cards.map((x) => `<button class="chip ${x.id === c.id ? 'on' : ''}" data-act="pickCard" data-arg="${x.id}">${x.kind === 'virtual' ? 'Virtual' : 'Debit'} ••${x.last4}</button>`).join('')}</div>
       ${cardVisual(c)}
-      ${fr ? `<div class="note warn">${icon('snow', 18)}<span>The linked account is frozen. Card purchases and ATM withdrawals will be declined.</span></div>` : ''}
+      ${fr ? `<div class="note warn">${icon('snow', 18)}<span>Card purchases and ATM withdrawals are unavailable for the linked account.</span></div>` : ''}
       ${c.status === 'pending' ? `<div class="note">${icon('info', 18)}<span>Your new card is on its way. When it arrives, activate it to start using it.</span></div><button class="btn btn-gold mt" data-go="/cards/activate/${c.id}">${icon('check', 18)} Activate card</button>` : c.status === 'cancelled' ? '' : `<div class="btns two"><button class="btn ${c.status === 'locked' ? 'btn-gold' : 'btn-primary'}" data-act="toggleLock" data-arg="${c.id}">${icon(c.status === 'locked' ? 'unlock' : 'lock', 18)} ${c.status === 'locked' ? 'Unlock card' : 'Lock card'}</button><button class="btn btn-ghost" data-go="/cards/activity">${icon('receipt', 18)} Activity</button></div>`}</div>
       ${ui.section('Card controls', '', `<div class="group">${[['lock', 'Lock & unlock', 'Instantly pause the card', '/cards/controls/' + c.id], ['shield', 'Card security', 'Online, international, ATM, contactless', '/cards/security/' + c.id], ['sliders', 'Spending limits', 'Purchase & ATM limits', '/cards/security/' + c.id + '#limits'], ['key', 'Change PIN', 'Demo only — PIN is never stored', '/cards/pin/' + c.id], ['refresh', 'Replace card', 'Damaged or worn', '/cards/controls/' + c.id + '#replace'], ['alert', 'Report lost or stolen', 'Cancel and order a new card', '/cards/controls/' + c.id + '#lost']].map((r) => ui.row({ icon: r[0], tone: r[0] === 'alert' ? 'red' : '', title: r[1], sub: r[2], go: r[3] })).join('')}</div>`)}
       ${ui.section('More', '', `<div class="group">${ui.row({ icon: 'receipt', title: 'Card activity', sub: 'Transactions, merchants & status', go: '/cards/activity' })}${ui.row({ icon: 'device', title: 'Virtual card', sub: 'For online shopping', go: '/cards/virtual' })}</div>`)}
@@ -2224,7 +2224,7 @@
   ];
   let pf = { q: '', f: 'all' };
   HM.acts.placeQ = (b, a) => { pf.q = a.slice(2); HM.refresh(true); }; HM.acts.placeF = (b, a) => { pf.f = a; HM.refresh(true); };
-  const placesPage = (kind) => { const list = PLACES.filter((p) => p[1] === kind && (!pf.q || (p[0] + p[2]).toLowerCase().includes(pf.q.toLowerCase())) && (pf.f === 'all' || (pf.f === '24' && p[5]))); return { title: kind === 'atm' ? 'Find an ATM' : 'Find a branch', html: `${ui.header(kind === 'atm' ? 'Find an ATM' : 'Find a branch', { back: '/more' })}<div class="pad"><div class="note warn">${icon('alert', 18)}<span><b>Demonstration content.</b> These locations are fictional. No real ATM or branch data is connected.</span></div><div class="searchbar mt">${icon('search', 18)}<input type="search" placeholder="Search by name or street" value="${esc(pf.q)}" data-live="placeQ" data-key="q" aria-label="Search locations"></div><div class="chips"><button class="chip ${pf.f === 'all' ? 'on' : ''}" data-act="placeF" data-arg="all">All</button><button class="chip ${pf.f === '24' ? 'on' : ''}" data-act="placeF" data-arg="24">Open 24 hours</button></div>${list.length ? `<div class="group">${list.map((p) => ui.row({ icon: kind === 'atm' ? 'atm' : 'building', title: p[0], sub: p[2] + ' · ' + p[4], right: p[3], act: 'placeOpen', arg: p[0] })).join('')}</div>` : ui.card(ui.empty('pin', 'No locations found', 'Try a different search.'))}</div>` }; };
+  const placesPage = (kind) => { const list = PLACES.filter((p) => p[1] === kind && (!pf.q || (p[0] + p[2]).toLowerCase().includes(pf.q.toLowerCase())) && (pf.f === 'all' || (pf.f === '24' && p[5]))); return { title: kind === 'atm' ? 'Find an ATM' : 'Find a branch', html: `${ui.header(kind === 'atm' ? 'Find an ATM' : 'Find a branch', { back: '/more' })}<div class="pad"><div class="note warn">${icon('alert', 18)}<span><b>Sample locations.</b> Branch information is provided for layout preview only.</span></div><div class="searchbar mt">${icon('search', 18)}<input type="search" placeholder="Search by name or street" value="${esc(pf.q)}" data-live="placeQ" data-key="q" aria-label="Search locations"></div><div class="chips"><button class="chip ${pf.f === 'all' ? 'on' : ''}" data-act="placeF" data-arg="all">All</button><button class="chip ${pf.f === '24' ? 'on' : ''}" data-act="placeF" data-arg="24">Open 24 hours</button></div>${list.length ? `<div class="group">${list.map((p) => ui.row({ icon: kind === 'atm' ? 'atm' : 'building', title: p[0], sub: p[2] + ' · ' + p[4], right: p[3], act: 'placeOpen', arg: p[0] })).join('')}</div>` : ui.card(ui.empty('pin', 'No locations found', 'Try a different search.'))}</div>` }; };
   HM.route('/more/atm', 'more', () => { pf = pf.k === 'atm' ? pf : { q: '', f: 'all', k: 'atm' }; return placesPage('atm'); });
   HM.route('/more/branches', 'more', () => { pf = pf.k === 'branch' ? pf : { q: '', f: 'all', k: 'branch' }; return placesPage('branch'); });
   HM.acts.placeOpen = (b, n) => { const p = PLACES.find((x) => x[0] === n); ui.sheet(`<h3 class="sh-title">${esc(p[0])}</h3><p class="sh-body">${esc(p[2])}<br>${esc(p[4])} · ${p[3]} away</p><div class="note warn">${icon('alert', 18)}<span>Demonstration location — not a real address.</span></div><div class="sh-actions"><button class="btn btn-ghost" data-act="closeSheet">Close</button></div>`); };
