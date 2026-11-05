@@ -561,3 +561,27 @@ body.auth .login-help{margin:0 auto;padding:4px 12px}
 body.auth .login-links{margin-top:8px;padding-top:6px}
 @media(max-height:880px){body.auth .auth-hero{padding:calc(var(--sa-t) + 10px) 24px 12px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:68px!important;height:68px!important}body.auth .auth-hero h1{font-size:28px;margin-top:8px}body.auth .auth-app{font-size:10.5px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:46px}body.auth .auth-card .login-submit{height:48px}body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:46px}body.auth .auth-card h2{font-size:22px}}
 @media(max-height:720px){body.auth .auth-hero{padding-top:calc(var(--sa-t) + 6px);padding-bottom:8px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:52px!important;height:52px!important}body.auth .auth-hero h1{font-size:24px;margin-top:6px}body.auth .auth-card{padding-top:14px}body.auth .login-intro{display:none}body.auth .auth-card .fld{margin-top:6px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:42px}body.auth .auth-card .opts{margin:8px 0 10px}body.auth .auth-card .login-submit,body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:44px}body.auth .login-divider{margin:8px 0 0}body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:38px}body.auth .login-links{margin-top:2px;padding-top:2px}}
+
+/* =====================================================================
+   v12 — no locked page box; one dark top + bottom bar in BOTH themes
+   ===================================================================== */
+html,body{height:auto!important;min-height:100%;overflow:visible!important;position:static}
+html{min-height:100lvh}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;margin:0 auto;height:auto;min-height:100vh;min-height:100lvh;max-height:none}
+@supports (-webkit-touch-callout:none){html,body{height:auto!important}#app{height:auto;min-height:100lvh}}
+:root,html[data-theme="light"]{--bar:#0b0b0f;--bar-line:rgba(236,208,140,.35)}
+html[data-theme="light"] body.auth #app,html[data-theme="light"] body.auth #view,html[data-theme="light"] body.auth .auth-wrap{background:#0b0b0f!important}
+/* header text/buttons on the dark bar (light theme too) */
+.hdr-t h1,html[data-theme="light"] .hdr-t h1,.home-hi b,html[data-theme="light"] .home-hi b,body.auth .auth-hero h1,html[data-theme="light"] body.auth .auth-hero h1{color:#f3dfae!important}
+.hdr-t p,html[data-theme="light"] .hdr-t p,.home-hi small,html[data-theme="light"] .home-hi small,body.auth .auth-app,html[data-theme="light"] body.auth .auth-app{color:#c9c2ae!important}
+.hdr .iconbtn,html[data-theme="light"] .hdr .iconbtn,.home-actions .iconbtn,html[data-theme="light"] .home-actions .iconbtn,body.auth .auth-theme .iconbtn,html[data-theme="light"] body.auth .auth-theme .iconbtn{background:rgba(255,255,255,.08)!important;border:1px solid rgba(236,208,140,.3)!important;color:#f3dfae!important;box-shadow:none!important}
+.hdr .iconbtn svg,.home-actions .iconbtn svg{color:#f3dfae;stroke:currentColor}
+.home-actions .dot,html[data-theme="light"] .home-actions .dot{border-color:#0b0b0f}
+html[data-theme="light"] .home-id .logo{filter:none!important}
+html[data-theme="light"] body.auth .auth-hero:before{display:none}
+body.auth .auth-hero,html[data-theme="light"] body.auth .auth-hero{background:radial-gradient(70% 90% at 50% 30%,rgba(217,182,107,.2),transparent 70%)!important}
+/* bottom nav: dark in both themes */
+#nav,html[data-theme="light"] #nav{background:#0b0b0f!important;border-top:1px solid rgba(236,208,140,.35)}
+#nav .tab,#nav .tab.active,html[data-theme="light"] #nav .tab,html[data-theme="light"] #nav .tab.active{color:#9a9482}
+#nav .tab.active,html[data-theme="light"] #nav .tab.active{color:#f3dfae}
+html[data-theme="light"] #nav .tab.active svg{background:linear-gradient(145deg,#f6e4b4 0%,#d9b66b 52%,#a97d33 100%);color:#1a1405}
