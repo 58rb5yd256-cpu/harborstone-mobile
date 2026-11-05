@@ -476,3 +476,88 @@ body.rc-full .sigs{display:none}
 body.rc-full .wgrid .c.full:last-child{display:none}
 body.rc-full .wgrid .c{padding:4px 14px}
 body.rc-full .r-wire .rc-stamp{top:64px;right:22px}
+
+/* =====================================================================
+   v11 — unified shell: solid top bar, bottom-flush nav, bank-style sign-in
+   (last in the cascade; both themes defined together)
+   ===================================================================== */
+:root{--bar:#0b0b0f;--bar2:#101015;--bar-line:rgba(236,208,140,.32);--sheet:#15151b;--fld:#1d1d25;--fld-b:rgba(236,208,140,.22)}
+html[data-theme="light"]{--bar:#f4f2ec;--bar2:#faf8f3;--bar-line:rgba(160,120,40,.34);--sheet:#ffffff;--fld:#f6f4ee;--fld-b:rgba(150,112,36,.32)}
+html,body{background:var(--bar)!important;min-height:100%}
+@supports (-webkit-touch-callout:none){html,body{height:-webkit-fill-available}#app{height:-webkit-fill-available}}
+#app{background:var(--bg)}
+/* status-bar area: always one solid colour, no fade, no blur */
+#app:before,html[data-theme="light"] #app:before{background:var(--bar)!important;height:var(--sa-t);opacity:1;z-index:70}
+body.auth #app:before{background:transparent!important}
+/* every page header + the home header share one flat bar */
+.hdr,html[data-theme="light"] .hdr,.home-hero,html[data-theme="light"] .home-hero{background:var(--bar)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-bottom:1px solid var(--bar-line);box-shadow:0 6px 18px rgba(0,0,0,.14);filter:none;text-shadow:none}
+.hdr:before,.home-hero:before,.hero:before{display:none!important}
+.hdr{border-radius:0 0 22px 22px;padding:calc(var(--sa-t) + 10px) 18px 14px}
+.hdr-t h1{color:var(--gold2);font-size:22px;letter-spacing:-.01em;opacity:1}
+html[data-theme="light"] .hdr-t h1{color:#2a2417}
+.hdr-t p{color:var(--mute);opacity:1}
+.home-hero{border-radius:0 0 26px 26px;padding:calc(var(--sa-t) + 10px) 18px 64px}
+.home-hi small{color:var(--mute);font-size:13px;opacity:1}
+.home-hi b{color:var(--gold2);font-size:22px;opacity:1;text-shadow:none}
+html[data-theme="light"] .home-hi b{color:#2a2417}
+.home-id .logo{filter:none!important}
+.home-actions{gap:9px}
+.home-actions .avatar-btn,.home-actions .avatar-img,.home-actions .avatar,.home-actions .iconbtn{width:42px;height:42px}
+.home-actions .iconbtn{background:var(--fld);border:1px solid var(--fld-b);color:var(--gold2);box-shadow:none}
+html[data-theme="light"] .home-actions .iconbtn{color:#8a6318}
+.home-actions .avatar-img,.home-actions .avatar{border:2px solid #d9b66b;box-shadow:none;object-fit:cover}
+.home-actions .dot{border-color:var(--bar)}
+.page-in,.page-in *{filter:none}
+/* bottom nav: solid, flush with the bottom edge, clear of the home indicator */
+#nav,html[data-theme="light"] #nav{background:var(--bar)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-top:1px solid var(--bar-line);border-radius:22px 22px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.16);
+  padding:8px calc(10px + var(--sa-r)) max(12px,calc(var(--sa-b) * .6)) calc(10px + var(--sa-l));margin:0;position:relative;bottom:0}
+html[data-theme="light"] #nav .tab,html[data-theme="light"] #nav .tab.active{background:none!important}
+
+/* ---------------- sign-in: bank-style, full-bleed sheet ---------------- */
+body.auth #app,body.auth #view,body.auth .page,body.auth .auth-wrap,html[data-theme="light"] body.auth #app,html[data-theme="light"] body.auth #view,html[data-theme="light"] body.auth .auth-wrap{background:var(--bar)!important}
+body.auth .auth-wrap{min-height:100%;display:flex;flex-direction:column;padding:0}
+body.auth .auth-hero{flex:none;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(var(--sa-t) + 34px) 24px 26px;margin:0;background:radial-gradient(70% 90% at 50% 30%,rgba(217,182,107,.2),transparent 70%)!important}
+body.auth .auth-hero:before{display:none}
+body.auth .auth-hero .logo{width:92px!important;height:92px!important;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
+body.auth .auth-hero .logo svg{width:92px;height:92px}
+body.auth .auth-hero h1{margin:16px 0 4px;font-size:34px;letter-spacing:-.01em;color:var(--gold2)}
+html[data-theme="light"] body.auth .auth-hero h1{color:#2a2417}
+body.auth .auth-app{font-size:11.5px;letter-spacing:.34em;font-weight:700;color:var(--mute)}
+body.auth .auth-theme{top:calc(var(--sa-t) + 10px);right:16px}
+body.auth .auth-card,html[data-theme="light"] body.auth .auth-card{flex:1 1 auto;margin:0;border:0;border-top:1px solid var(--bar-line);border-radius:30px 30px 0 0;background:var(--sheet)!important;box-shadow:0 -14px 40px rgba(0,0,0,.22);-webkit-backdrop-filter:none;backdrop-filter:none;padding:28px 24px calc(var(--sa-b) + 20px);max-width:none;width:100%}
+body.auth .auth-card h2{font-size:25px;margin:0 0 4px;color:var(--ink)}
+html[data-theme="light"] body.auth .auth-card h2{color:#1f1b12}
+body.auth .login-intro{margin:0 0 20px;font-size:14.5px;color:var(--mute)}
+body.auth .auth-card .fld{margin-top:14px}
+body.auth .auth-card .fld label{font-size:12.5px;font-weight:700;letter-spacing:.02em;color:var(--mute);margin-bottom:6px}
+body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:54px;border-radius:12px;background:var(--fld)!important;border:1.5px solid var(--fld-b);font-size:16.5px;padding:0 16px;color:var(--ink)}
+body.auth .auth-card .opts{margin:16px 0 18px}
+body.auth .auth-card .login-submit{height:56px;border-radius:14px;font-size:17px;font-weight:800;width:100%}
+body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:54px;border-radius:14px;width:100%;margin-top:12px;background:transparent;border:1.5px solid var(--bar-line);color:var(--gold2);font-weight:750}
+html[data-theme="light"] body.auth .auth-card .btn-biometric{color:#7a5614}
+body.auth .login-divider{margin:22px 0 14px;font-size:13px}
+body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:52px;border-radius:14px;width:100%;background:transparent;border:0;font-size:16px;font-weight:800;color:var(--gold2);text-decoration:underline;text-underline-offset:4px}
+html[data-theme="light"] body.auth .auth-card .login-enroll{color:#7a5614}
+body.auth .login-help{display:block;margin:2px auto 0;font-size:14px;padding:8px 12px}
+body.auth .login-links{margin-top:18px;padding-top:14px;border-top:1px solid var(--fld-b);justify-content:space-between;gap:0}
+body.auth .login-links button{font-size:12.5px;padding:8px 6px;color:var(--mute)}
+@media(max-height:760px){body.auth .auth-hero{padding-top:calc(var(--sa-t) + 14px);padding-bottom:14px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:68px!important;height:68px!important}body.auth .auth-hero h1{font-size:28px;margin-top:10px}body.auth .auth-card{padding-top:20px}body.auth .auth-card .fld input{height:48px}body.auth .login-intro{margin-bottom:10px}}
+/* v11b: opaque balance card, tighter sign-in so it fits one screen */
+.wl-card,.wallet .card{background:linear-gradient(160deg,#1a1912,#121217)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-theme="light"] .wl-card,html[data-theme="light"] .wallet .card{background:linear-gradient(160deg,#ffffff,#fbf6e8)!important}
+body.auth .auth-hero{padding:calc(var(--sa-t) + 20px) 24px 18px}
+body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:84px!important;height:84px!important}
+body.auth .auth-hero h1{font-size:32px;margin:12px 0 2px}
+body.auth .auth-card,html[data-theme="light"] body.auth .auth-card{padding:22px 22px calc(var(--sa-b) + 10px)}
+body.auth .login-intro{margin-bottom:6px}
+body.auth .auth-card .fld{margin-top:10px}
+body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:50px}
+body.auth .auth-card .opts{margin:12px 0 14px}
+body.auth .auth-card .login-submit{height:52px}
+body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:50px;margin-top:10px}
+body.auth .login-divider{margin:14px 0 4px}
+body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:44px}
+body.auth .login-help{margin:0 auto;padding:4px 12px}
+body.auth .login-links{margin-top:8px;padding-top:6px}
+@media(max-height:880px){body.auth .auth-hero{padding:calc(var(--sa-t) + 10px) 24px 12px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:68px!important;height:68px!important}body.auth .auth-hero h1{font-size:28px;margin-top:8px}body.auth .auth-app{font-size:10.5px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:46px}body.auth .auth-card .login-submit{height:48px}body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:46px}body.auth .auth-card h2{font-size:22px}}
+@media(max-height:720px){body.auth .auth-hero{padding-top:calc(var(--sa-t) + 6px);padding-bottom:8px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:52px!important;height:52px!important}body.auth .auth-hero h1{font-size:24px;margin-top:6px}body.auth .auth-card{padding-top:14px}body.auth .login-intro{display:none}body.auth .auth-card .fld{margin-top:6px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:42px}body.auth .auth-card .opts{margin:8px 0 10px}body.auth .auth-card .login-submit,body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:44px}body.auth .login-divider{margin:8px 0 0}body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:38px}body.auth .login-links{margin-top:2px;padding-top:2px}}
