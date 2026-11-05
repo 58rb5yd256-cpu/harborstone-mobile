@@ -585,3 +585,37 @@ body.auth .auth-hero,html[data-theme="light"] body.auth .auth-hero{background:ra
 #nav .tab,#nav .tab.active,html[data-theme="light"] #nav .tab,html[data-theme="light"] #nav .tab.active{color:#9a9482}
 #nav .tab.active,html[data-theme="light"] #nav .tab.active{color:#f3dfae}
 html[data-theme="light"] #nav .tab.active svg{background:linear-gradient(145deg,#f6e4b4 0%,#d9b66b 52%,#a97d33 100%);color:#1a1405}
+
+/* =====================================================================
+   v13 — light theme: top bar + nav follow the theme (solid, crisp)
+   ===================================================================== */
+html[data-theme="light"]{--bar:#f6f2ea;--bar-line:rgba(160,120,40,.4)}
+html[data-theme="light"] .hdr,html[data-theme="light"] .home-hero{box-shadow:0 6px 16px rgba(120,90,30,.12)}
+html[data-theme="light"] .hdr-t h1,html[data-theme="light"] .home-hi b,html[data-theme="light"] body.auth .auth-hero h1{color:#2a2417!important}
+html[data-theme="light"] .hdr-t p,html[data-theme="light"] .home-hi small,html[data-theme="light"] body.auth .auth-app{color:#6d6757!important}
+html[data-theme="light"] .hdr .iconbtn,html[data-theme="light"] .home-actions .iconbtn,html[data-theme="light"] body.auth .auth-theme .iconbtn{background:#fff!important;border:1px solid rgba(160,120,40,.35)!important;color:#8a6318!important}
+html[data-theme="light"] .hdr .iconbtn svg,html[data-theme="light"] .home-actions .iconbtn svg{color:#8a6318}
+html[data-theme="light"] .home-actions .dot{border-color:#f6f2ea}
+html[data-theme="light"] body.auth #app,html[data-theme="light"] body.auth #view,html[data-theme="light"] body.auth .page,html[data-theme="light"] body.auth .auth-wrap{background:#f6f2ea!important}
+html[data-theme="light"] body.auth .auth-hero{background:radial-gradient(70% 90% at 50% 30%,rgba(217,182,107,.32),transparent 70%)!important}
+html[data-theme="light"] body.auth .auth-card{box-shadow:0 -10px 30px rgba(120,90,30,.14)}
+html[data-theme="light"] #nav{background:#f6f2ea!important;border-top:1px solid rgba(160,120,40,.4);box-shadow:0 -8px 22px rgba(120,90,30,.14)}
+html[data-theme="light"] #nav .tab,html[data-theme="light"] #nav .tab.active{color:#8c8473}
+html[data-theme="light"] #nav .tab.active{color:#7a5614}
+
+/* =====================================================================
+   v13 — bars follow the theme: dark theme = dark bars, light theme = light bars
+   (colours only; nav/header geometry untouched)
+   ===================================================================== */
+html[data-theme="light"]{--bar:#f4f2ec;--bar-line:rgba(160,120,40,.34)}
+html[data-theme="light"] body.auth #app,html[data-theme="light"] body.auth #view,html[data-theme="light"] body.auth .auth-wrap{background:#f4f2ec!important}
+html[data-theme="light"] .hdr-t h1,html[data-theme="light"] .home-hi b,html[data-theme="light"] body.auth .auth-hero h1{color:#2a2417!important}
+html[data-theme="light"] .hdr-t p,html[data-theme="light"] .home-hi small,html[data-theme="light"] body.auth .auth-app{color:#6d6757!important}
+html[data-theme="light"] .hdr .iconbtn,html[data-theme="light"] .home-actions .iconbtn,html[data-theme="light"] body.auth .auth-theme .iconbtn{background:#fff!important;border:1px solid rgba(160,120,40,.34)!important;color:#7a5614!important;box-shadow:none!important}
+html[data-theme="light"] .hdr .iconbtn svg,html[data-theme="light"] .home-actions .iconbtn svg{color:#7a5614}
+html[data-theme="light"] .home-actions .dot{border-color:#f4f2ec}
+html[data-theme="light"] body.auth .auth-hero{background:radial-gradient(70% 90% at 50% 30%,rgba(217,182,107,.35),transparent 70%)!important}
+html[data-theme="light"] #nav{background:#f4f2ec!important;border-top:1px solid rgba(160,120,40,.34);box-shadow:0 -8px 24px rgba(120,90,30,.14)}
+html[data-theme="light"] #nav .tab,html[data-theme="light"] #nav .tab.active{color:#8c8473}
+html[data-theme="light"] #nav .tab.active{color:#7a5614}
+html[data-theme="light"] .hdr,html[data-theme="light"] .home-hero{box-shadow:0 6px 18px rgba(120,90,30,.12)}
