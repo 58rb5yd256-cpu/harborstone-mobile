@@ -730,18 +730,18 @@
     return {
       title: 'Sign in',
       html: `<div class="lg"><div class="lg-top"><span class="lg-theme">${HM.themeBtn()}</span><span class="lg-tile">${ui.logo(58)}</span><h1>HARBORSTONE</h1><span class="lg-sub">MOBILE BANKING</span></div>
-      <div class="lg-body"><div class="lg-hd"><h2>Welcome back</h2><p class="lg-p">Sign in to your account</p></div>
+      <div class="lg-body"><div class="lg-main"><div class="lg-hd"><h2>Welcome back</h2><p class="lg-p">Sign in to your account</p></div>
         ${n ? `<div class="note warn">${icon('info', 18)}<span>${esc(n)}</span></div>` : ''}
         <form data-form="login" novalidate>
           <div class="fld lg-fld" data-fld="email"><label class="sr" for="f_email">Username or Email</label><div class="lg-in"><span class="lg-ic">${icon('user', 22)}</span><input id="f_email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="Username or Email" autocapitalize="none" spellcheck="false"></div><p class="ferr" role="alert"></p></div>
           <div class="fld lg-fld" data-fld="password"><label class="sr" for="f_password">Password</label><div class="lg-in pw"><span class="lg-ic">${icon('lock', 22)}</span><input id="f_password" name="password" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" class="pwt" data-act="togglePw" aria-label="Show password">${icon('eye', 22)}</button></div><p class="ferr" role="alert"></p></div>
           <div class="lg-opts"><label class="lg-sw"><input type="checkbox" name="remember" ${rem ? 'checked' : ''}><i></i><span>Remember me</span></label><button type="button" class="lnk" data-go="/forgot">Forgot password?</button></div>
           <button class="btn btn-primary lg-submit" type="submit" data-busy="Signing in…"><span>Sign In</span><i aria-hidden="true">${icon('chevR', 20)}</i></button>
-        </form>
+        </form></div>
         <div class="lg-alt"><div class="lg-or"><span>OR</span></div>
         <button class="btn btn-biometric lg-face" type="button" data-act="faceLogin"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>
         <p class="lg-new">New to Harborstone? <button type="button" data-go="/register">Open an account</button></p></div>
-        <nav class="lg-links" aria-label="More"><button type="button" data-go="/pub/security">${icon('shield', 26)}<span>Security</span></button><button type="button" data-go="/pub/contact"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/><path d="M19 20a4 4 0 01-4 2h-2"/></svg><span>Contact</span></button><button type="button" data-go="/pub/locations">${icon('pin', 26)}<span>Locations</span></button></nav>
+        <div class="lg-foot"><nav class="lg-links" aria-label="More"><button type="button" data-go="/pub/security">${icon('shield', 26)}<span>Security</span></button><button type="button" data-go="/pub/contact"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/><path d="M19 20a4 4 0 01-4 2h-2"/></svg><span>Contact</span></button><button type="button" data-go="/pub/locations">${icon('pin', 26)}<span>Locations</span></button></nav><p class="lg-ver"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Harborstone Mobile · Version 1.0.0</span></p></div>
       </div></div>`
 
     };
