@@ -835,3 +835,32 @@ html[data-theme] body.auth .lg .lg-face{display:flex;align-items:center;justify-
 .lg-in,html[data-theme] body.auth .lg .lg-face{height:calc(var(--u)*6.2)}
 html[data-theme] body.auth .lg .lg-submit{height:calc(var(--u)*6.4)}
 .lg-body form,.lg-alt{gap:calc(var(--u)*1.5)}
+
+/* v24 — full-bleed screens (no side inset) + sign-in links pinned to the bottom */
+.page,html[data-theme] .page{padding-left:0;padding-right:0}
+.lg{position:absolute;top:0;right:0;bottom:0;left:0;height:auto;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lg-body{justify-content:flex-start;gap:calc(var(--u)*2.6)}
+.lg-body .lg-links{margin-top:auto;padding-bottom:calc(var(--u)*.4)}
+
+/* v25 — even, moderate spacing; links + version line as one footer group */
+.lg-tile{width:calc(var(--u)*10.4);height:calc(var(--u)*10.4)}
+.lg-body{justify-content:space-between;gap:calc(var(--u)*2.8);padding-top:calc(var(--u)*1.6)}
+.lg-body .lg-links{margin-top:0}
+.lg-foot{display:flex;flex-direction:column;gap:calc(var(--u)*1.2)}
+.lg-ver{display:flex;align-items:center;justify-content:center;gap:calc(var(--u)*.8);margin:0;font-size:calc(var(--u)*1.5);color:var(--lg-mute)}
+.lg-ver svg{width:calc(var(--u)*1.6);height:calc(var(--u)*1.6);flex:none}
+.lg-body form,.lg-alt{gap:calc(var(--u)*1.8)}
+.lg{padding-top:calc(var(--sa-t) + var(--u)*.8)}
+.lg-tile{width:calc(var(--u)*9.8);height:calc(var(--u)*9.8)}
+.lg-top h1{margin-top:calc(var(--u)*1.3)}
+.lg-body{gap:calc(var(--u)*2.3);padding-top:calc(var(--u)*1.2)}
+.lg-in,html[data-theme] body.auth .lg .lg-face{height:calc(var(--u)*6)}
+html[data-theme] body.auth .lg .lg-submit{height:calc(var(--u)*6.2)}
+.lg-body form,.lg-alt{gap:calc(var(--u)*1.6)}
+.lg-foot{gap:calc(var(--u)*.9)}
+
+/* v26 — heading sits with the fields; clear gap under the bank name */
+.lg-main{display:flex;flex-direction:column;gap:calc(var(--u)*2.2)}
+.lg-hd{margin:0}
+.lg-body{padding-top:calc(var(--u)*3.4);gap:calc(var(--u)*2)}
+.lg-top{padding-bottom:0}
