@@ -708,3 +708,25 @@ html[data-theme="light"] .home-actions .iconbtn{background:#fff!important}
 html[data-theme="light"] .hdr-t h1{color:#0a0803!important}
 .hdr-t p,html[data-theme="light"] .hdr-t p{font-weight:600}
 html[data-theme="light"] .hdr-t p{color:#4a4436!important}
+
+/* v19 — install guide */
+.hm-inst{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:flex;justify-content:center;padding:0 12px calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateY(120%);transition:transform .3s ease;pointer-events:none}
+.hm-inst.on{transform:none}
+.hm-inst-card{pointer-events:auto;width:100%;max-width:440px;background:#15151b;color:#f4efe0;border:1px solid rgba(236,208,140,.4);border-radius:22px;padding:16px 16px 18px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+html[data-theme="light"] .hm-inst-card{background:#fff;color:#1f1b12;border-color:rgba(160,120,40,.4);box-shadow:0 18px 50px rgba(120,90,30,.28)}
+.hm-inst-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hm-inst-top b{font-size:18px;font-weight:900;color:#f2c75c}
+html[data-theme="light"] .hm-inst-top b{color:#0a0803}
+.hm-inst-x{width:34px;height:34px;border-radius:50%;border:0;background:rgba(236,208,140,.16);color:inherit;font-size:22px;line-height:1}
+.hm-steps{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.hm-steps li{display:flex;align-items:center;gap:12px;font-size:15.5px;background:rgba(236,208,140,.1);border-radius:14px;padding:10px 12px}
+.hm-steps li span{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f6e4b4,#d9b66b 55%,#a97d33);color:#1a1405;flex:none}
+.hm-steps small{opacity:.7}
+.hm-inst-row{display:flex;gap:10px}
+.hm-inst-btn{flex:1;height:48px;border-radius:999px;border:0;font-weight:800;font-size:16px;background:linear-gradient(145deg,#f6e4b4,#d9b66b 55%,#a97d33);color:#1a1405}
+.hm-inst-btn.ghost{background:rgba(236,208,140,.16);color:inherit}
+.hm-inst-p{margin:0 0 12px;font-size:15.5px}
+.hm-arrow{width:0;height:0;margin:12px auto 0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:15px solid #d9b66b;animation:hmBob 1.1s ease-in-out infinite}
+@keyframes hmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@media(prefers-reduced-motion:reduce){.hm-arrow{animation:none}}
+.hm-inst-btn{display:grid;place-items:center;padding:0;text-align:center}
