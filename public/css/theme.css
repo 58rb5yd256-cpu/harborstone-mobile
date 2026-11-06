@@ -654,3 +654,35 @@ body.auth .login-links button{color:var(--lg-mute)}
 html[data-theme="light"] body.auth .auth-theme .iconbtn{background:#fff!important}
 @media(max-height:880px){body.auth .auth-hero{padding-top:calc(var(--sa-t) + 12px);padding-bottom:10px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:72px!important;height:72px!important}body.auth .auth-hero h1{font-size:28px;margin-top:8px}body.auth .auth-hero:after{margin-top:8px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:44px}body.auth .auth-card .login-submit,body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:48px}body.auth .auth-card h2{font-size:22px}body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:44px}}
 @media(max-height:720px){body.auth .auth-hero{padding-top:calc(var(--sa-t) + 4px);padding-bottom:4px}body.auth .auth-hero .logo,body.auth .auth-hero .logo svg{width:52px!important;height:52px!important}body.auth .auth-hero h1{font-size:23px;margin-top:4px}body.auth .auth-hero:after{display:none}body.auth .login-intro{display:none}body.auth .auth-card .fld{margin-top:4px}body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:40px}body.auth .auth-card .login-submit,body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric{height:42px}body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{height:38px}body.auth .login-divider{margin:6px 0 0}}
+
+/* =====================================================================
+   v15 — sign-in: glassmorphic, borderless fields (dark+gold / white+gold)
+   ===================================================================== */
+:root{--gl-fill:rgba(255,255,255,.07);--gl-fill2:rgba(255,255,255,.11);--gl-sh:0 10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+html[data-theme="light"]{--gl-fill:rgba(255,255,255,.62);--gl-fill2:rgba(255,255,255,.85);--gl-sh:0 10px 28px rgba(150,112,36,.16),inset 0 1px 0 rgba(255,255,255,.9)}
+body.auth .auth-wrap{position:relative;overflow:hidden;background:var(--lg-bg)!important}
+body.auth .auth-wrap:before,body.auth .auth-wrap:after{content:"";position:absolute;border-radius:50%;filter:blur(46px);pointer-events:none;z-index:0}
+body.auth .auth-wrap:before{width:300px;height:300px;top:-70px;right:-90px;background:radial-gradient(circle,rgba(217,182,107,.55),transparent 70%)}
+body.auth .auth-wrap:after{width:340px;height:340px;bottom:90px;left:-130px;background:radial-gradient(circle,rgba(217,182,107,.3),transparent 70%)}
+html[data-theme="light"] body.auth .auth-wrap:before{background:radial-gradient(circle,rgba(230,190,100,.6),transparent 70%)}
+body.auth .auth-hero,body.auth .auth-card{position:relative;z-index:1}
+body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input,body.auth .auth-card .fld input:focus,html[data-theme="light"] body.auth .auth-card .fld input:focus{background:var(--gl-fill)!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border:0!important;border-radius:16px;box-shadow:var(--gl-sh)!important;padding:0 16px;height:54px;outline:none}
+body.auth .auth-card .fld input:focus,html[data-theme="light"] body.auth .auth-card .fld input:focus{background:var(--gl-fill2)!important}
+body.auth .auth-card .pwt{right:6px}
+body.auth .auth-card .fld label,html[data-theme="light"] body.auth .auth-card .fld label{margin-bottom:6px}
+body.auth .auth-card .btn-biometric,html[data-theme="light"] body.auth .auth-card .btn-biometric,body.auth .auth-card .login-enroll,html[data-theme="light"] body.auth .auth-card .login-enroll{background:var(--gl-fill)!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border:0!important;box-shadow:var(--gl-sh)}
+body.auth .auth-card .chk span{border:0;background:var(--gl-fill);box-shadow:var(--gl-sh);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+body.auth .login-divider:before,body.auth .login-divider:after{background:var(--lg-line);height:1px}
+@media(max-height:880px){body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:46px}}
+@media(max-height:720px){body.auth .auth-card .fld input,html[data-theme="light"] body.auth .auth-card .fld input{height:40px}}
+
+/* =====================================================================
+   v16 — crisp header text: fade-only page transitions (no transform layers)
+   ===================================================================== */
+@keyframes pin{from{opacity:0}to{opacity:1}}
+@keyframes hmRise{from{opacity:0}to{opacity:1}}
+.page-in{animation:pin .2s ease both;transform:none;will-change:auto}
+.page-in .sec,.page-in .xf-tile,.page-in .group,.page-in .card,.page-in .wl-card,.page-in .dock,.page-in .xf-from{animation:hmRise .3s ease both}
+.hdr,.hdr *,.home-hero,.home-hero *{transform:none;will-change:auto;-webkit-backface-visibility:visible;backface-visibility:visible;filter:none;opacity:1;animation:none}
+.hdr .iconbtn:active,.home-actions .iconbtn:active{transform:none}
+html,body,#app{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
