@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#08080B",
-  "theme_color": "#08080B",
+  "background_color": "#181A1D",
+  "theme_color": "#181A1D",
   "categories": [
     "finance"
   ],
