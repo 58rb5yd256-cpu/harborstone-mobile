@@ -126,11 +126,11 @@
   HM.icon = (n, s) => `<svg class="ic" width="${s || 22}" height="${s || 22}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n] || IC.info}"/></svg>`;
 
   HM.CATS = {
-    Groceries: { c: '#1F7A6B', i: 'cart' }, Dining: { c: '#C9A96A', i: 'cup' }, Transport: { c: '#3F6C8B', i: 'car' },
-    Shopping: { c: '#8A5A7A', i: 'bag' }, Entertainment: { c: '#B5654A', i: 'film' }, Health: { c: '#5B8E5A', i: 'heart' },
-    Utilities: { c: '#6B7A8C', i: 'bulb' }, Housing: { c: '#0A3340', i: 'home' }, Travel: { c: '#7A6BB0', i: 'plane' },
-    Income: { c: '#2E8B6A', i: 'arrowDown' }, Transfer: { c: '#8C9AA5', i: 'swap' }, Payments: { c: '#4D6F7B', i: 'send' },
-    Interest: { c: '#2E8B6A', i: 'star' }, Deposit: { c: '#2E8B6A', i: 'camera' }, Cash: { c: '#7B6E55', i: 'atm' }, Fees: { c: '#A5675F', i: 'receipt' }, Other: { c: '#9AA0A6', i: 'dots' }
+    Groceries: { c: '#D4AF37', i: 'cart' }, Dining: { c: '#B59A3C', i: 'cup' }, Transport: { c: '#8A8F98', i: 'car' },
+    Shopping: { c: '#6B7280', i: 'bag' }, Entertainment: { c: '#7D8590', i: 'film' }, Health: { c: '#E5C76B', i: 'heart' },
+    Utilities: { c: '#9A7B1F', i: 'bulb' }, Housing: { c: '#C59B27', i: 'home' }, Travel: { c: '#B8860B', i: 'plane' },
+    Income: { c: '#D4AF37', i: 'arrowDown' }, Transfer: { c: '#A0A6AE', i: 'swap' }, Payments: { c: '#9A7B1F', i: 'send' },
+    Interest: { c: '#B59A3C', i: 'star' }, Deposit: { c: '#B8860B', i: 'camera' }, Cash: { c: '#8A8F98', i: 'atm' }, Fees: { c: '#E5C76B', i: 'receipt' }, Other: { c: '#C9B26A', i: 'dots' }
   };
   HM.RAILS = {
     ach_instant: { label: 'Zelle transfer', icon: 'zap', limit: 'ach_instant', fee: 0, settle: 'instant', agg: true },
@@ -580,7 +580,7 @@
   };
   ui.progress = (pct, tone) => `<div class="prog ${tone || (pct >= 90 ? 'hot' : pct >= 70 ? 'warm' : '')}"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div>`;
   ui.seg = (opts, active, act) => `<div class="seg" role="tablist">${opts.map((o) => `<button class="${String(o[0]) === String(active) ? 'on' : ''}" data-act="${act}" data-arg="${esc(o[0])}">${esc(o[1])}</button>`).join('')}</div>`;
-  ui.logo = (s) => `<svg class="logo hs-crest" width="${s || 40}" height="${s || 40}" viewBox="0 0 80 80" role="img" aria-label="Harborstone logo"><defs><linearGradient id="hsG1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4D2"/><stop offset=".3" stop-color="#F1D184"/><stop offset=".62" stop-color="#B98A38"/><stop offset="1" stop-color="#F6DC98"/></linearGradient><linearGradient id="hsG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF2C4"/><stop offset=".5" stop-color="#E2B95B"/><stop offset="1" stop-color="#9C6F2A"/></linearGradient><linearGradient id="hsF" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A2A31"/><stop offset=".55" stop-color="#121216"/><stop offset="1" stop-color="#050507"/></linearGradient><radialGradient id="hsGl" cx=".3" cy=".1" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".5" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><filter id="hsBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter></defs><ellipse cx="40" cy="73" rx="22" ry="4" fill="#000" opacity=".5" filter="url(#hsBlur)"/><path d="M40 4 70 21v34L40 72 10 55V21z" fill="#6E4C17"/><path d="M40 3 70 20v33L40 70 10 53V20z" fill="url(#hsG1)"/><path d="M40 8.5 65 22.5v28L40 64.5 15 50.5v-28z" fill="url(#hsF)" stroke="#8C6620" stroke-width=".8"/><path d="M40 8.5 65 22.5v28L40 64.5 15 50.5v-28z" fill="url(#hsGl)"/><g transform="translate(1.6 2.4)" fill="#5E4010"><path d="M27 21h7v13h12V21h7v30h-7V40H34v11h-7z"/></g><path d="M27 21h7v13h12V21h7v30h-7V40H34v11h-7z" fill="url(#hsG2)" stroke="#FFF1C2" stroke-opacity=".6" stroke-width=".6"/><path d="M40 3 70 20" stroke="#fff" stroke-opacity=".7" stroke-width="1" fill="none"/></svg>`;
+  ui.logo = (s) => `<svg class="logo hs-mark" width="${s || 40}" height="${s || 40}" viewBox="0 0 120 120" role="img" aria-label="Harborstone logo"><defs><linearGradient id="hsG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F1DC97"/><stop offset=".28" stop-color="#E5C76B"/><stop offset=".62" stop-color="#D4AF37"/><stop offset="1" stop-color="#B8860B"/></linearGradient><linearGradient id="hsBr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C9A233"/><stop offset=".18" stop-color="#EBD084"/><stop offset=".36" stop-color="#CFA83A"/><stop offset=".55" stop-color="#F0DA94"/><stop offset=".74" stop-color="#C79C2C"/><stop offset="1" stop-color="#B8860B"/></linearGradient><clipPath id="hsC"><path d="M60 7 105 23v35c0 28-19 46-45 55C34 104 15 86 15 58V23z"/></clipPath></defs><path d="M60 7 105 23v35c0 28-19 46-45 55C34 104 15 86 15 58V23z" fill="#D4AF37" fill-opacity=".07"/><g clip-path="url(#hsC)" stroke="url(#hsG)" stroke-width="5" stroke-opacity=".34"><path d="M-10 70 70 -10M-10 96 96 -10M4 108 118 -6M30 108 124 14M56 112 124 44M80 116 124 72"/></g><path d="M60 7 105 23v35c0 28-19 46-45 55C34 104 15 86 15 58V23z" fill="none" stroke="url(#hsG)" stroke-width="5" stroke-linejoin="round"/><path d="M37 41 50 34v52H37zM70 34h13v46l-13 6z" fill="url(#hsBr)"/><path d="M50 53h20v13H50z" fill="url(#hsG)"/><path d="M37 41 50 34v3L40 42.6V86h-3z" fill="#fff" fill-opacity=".35"/></svg>`;
 
   /* ---------- forms ---------- */
   ui.field = (o) => {
@@ -611,13 +611,13 @@
   ui.bars = (rows) => {
     const W = 320, H = 150, pb = 22, max = Math.max(1, ...rows.flatMap((r) => [r.a, r.b])), bw = 14, gap = (W - 20) / rows.length;
     const y = (v) => H - pb - (v / max) * (H - pb - 10);
-    return `<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="Income and expenses by month"><line x1="0" x2="${W}" y1="${H - pb}" y2="${H - pb}" stroke="var(--line)"/>${rows.map((r, i) => { const x = 10 + i * gap + gap / 2 - bw - 1; return `<rect x="${x}" y="${y(r.a)}" width="${bw}" height="${Math.max(1, H - pb - y(r.a))}" rx="4" fill="var(--teal)"><title>${esc(r.label)} income ${money(r.a)}</title></rect><rect x="${x + bw + 2}" y="${y(r.b)}" width="${bw}" height="${Math.max(1, H - pb - y(r.b))}" rx="4" fill="var(--gold)"><title>${esc(r.label)} expenses ${money(r.b)}</title></rect><text x="${x + bw}" y="${H - 6}" text-anchor="middle" class="ax">${esc(r.label)}</text>`; }).join('')}</svg>`;
+    return `<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="Income and expenses by month"><line x1="0" x2="${W}" y1="${H - pb}" y2="${H - pb}" stroke="var(--line)"/>${rows.map((r, i) => { const x = 10 + i * gap + gap / 2 - bw - 1; return `<rect x="${x}" y="${y(r.a)}" width="${bw}" height="${Math.max(1, H - pb - y(r.a))}" rx="4" fill="#D4AF37"><title>${esc(r.label)} income ${money(r.a)}</title></rect><rect x="${x + bw + 2}" y="${y(r.b)}" width="${bw}" height="${Math.max(1, H - pb - y(r.b))}" rx="4" fill="#8A8F98"><title>${esc(r.label)} expenses ${money(r.b)}</title></rect><text x="${x + bw}" y="${H - 6}" text-anchor="middle" class="ax">${esc(r.label)}</text>`; }).join('')}</svg>`;
   };
   ui.spark = (vals, o) => {
     o = o || {}; const W = 300, H = o.h || 70; if (vals.length < 2) return ''; const mn = Math.min(...vals), mx = Math.max(...vals), rg = mx - mn || 1;
     const pts = vals.map((v, i) => [(i / (vals.length - 1)) * W, H - 6 - ((v - mn) / rg) * (H - 14)]);
     const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D8BE86" stop-opacity=".45"/><stop offset="1" stop-color="#D8BE86" stop-opacity="0"/></linearGradient></defs><path d="${d} L${W} ${H} L0 ${H} Z" fill="url(#spg)"/><path d="${d}" fill="none" stroke="#E4CE9D" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4AF37" stop-opacity=".45"/><stop offset="1" stop-color="#D4AF37" stop-opacity="0"/></linearGradient></defs><path d="${d} L${W} ${H} L0 ${H} Z" fill="url(#spg)"/><path d="${d}" fill="none" stroke="#D4AF37" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
   };
   /* analytics helpers */
   ui.spendBy = (fromTs, toTs, acctIds) => {
@@ -700,7 +700,9 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const notice = () => { try { const n = sessionStorage.getItem('hm_notice'); sessionStorage.removeItem('hm_notice'); return n; } catch (e) { return null; } };
 
-  const authShell = (inner, o) => `<div class="auth-wrap"><div class="auth-hero"><span class="auth-theme">${HM.themeBtn()}</span>${ui.logo(54)}<h1>Harborstone</h1><span class="auth-app">MOBILE BANKING</span></div><div class="auth-card">${inner}</div></div>`;
+  const naTabs = (on) => `<div class="na-tabs" role="tablist"><button type="button" role="tab" aria-selected="${on === 'login'}" class="${on === 'login' ? 'on' : ''}" data-go="/login">LOGIN</button><i></i><button type="button" role="tab" aria-selected="${on === 'register'}" class="${on === 'register' ? 'on' : ''}" data-go="/register">REGISTER</button></div>`;
+  const naShell = (o) => `<div class="na"><div class="na-top">${o.back || '<span></span>'}${HM.themeBtn()}</div><div class="na-brand">${ui.logo(o.logo || 84)}${o.title ? `<h1>${o.title}</h1>` : ''}${o.sub ? `<p>${o.sub}</p>` : ''}</div>${o.tabs ? naTabs(o.tabs) : ''}<div class="auth-card">${o.body}</div>${o.foot || ''}</div>`;
+  const authShell = (inner, o) => naShell({ logo: 64, body: inner });
 
   /* ---------- API with local-only development fallback ---------- */
   async function api(path, body) {
@@ -729,20 +731,17 @@
     clearTimers(); const rem = remembered(); const n = notice();
     return {
       title: 'Sign in',
-      html: `<div class="lgn"><div class="lg-top"><span class="lg-theme">${HM.themeBtn()}</span><span class="lg-tile">${ui.logo(58)}</span><h1>HARBORSTONE</h1><span class="lg-sub">MOBILE BANKING</span></div>
-      <div class="lg-body"><div class="lg-main"><div class="lg-hd"><h2>Welcome back</h2><p class="lg-p">Sign in to your account</p></div>
+      html: naShell({ title: 'Welcome Back!', tabs: 'login', body: `
         ${n ? `<div class="note warn">${icon('info', 18)}<span>${esc(n)}</span></div>` : ''}
         <form data-form="login" novalidate>
-          <div class="fld lg-fld" data-fld="email"><label class="sr" for="f_email">Username or Email</label><div class="lg-in"><span class="lg-ic">${icon('user', 22)}</span><input id="f_email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="Username or Email" autocapitalize="none" spellcheck="false"></div><p class="ferr" role="alert"></p></div>
-          <div class="fld lg-fld" data-fld="password"><label class="sr" for="f_password">Password</label><div class="lg-in pw"><span class="lg-ic">${icon('lock', 22)}</span><input id="f_password" name="password" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" class="pwt" data-act="togglePw" aria-label="Show password">${icon('eye', 22)}</button></div><p class="ferr" role="alert"></p></div>
-          <div class="lg-opts"><label class="lg-sw"><input type="checkbox" name="remember" ${rem ? 'checked' : ''}><i></i><span>Remember me</span></label><button type="button" class="lnk" data-go="/forgot">Forgot password?</button></div>
-          <button class="btn btn-primary lg-submit" type="submit" data-busy="Signing in…"><span>Sign In</span><i aria-hidden="true">${icon('chevR', 20)}</i></button>
-        </form></div>
-        <div class="lg-alt"><div class="lg-or"><span>OR</span></div>
-        <button class="btn btn-biometric lg-face" type="button" data-act="faceLogin"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>
-        <p class="lg-new">New to Harborstone? <button type="button" data-go="/register">Open an account</button></p></div>
-        <div class="lg-foot"><nav class="lg-links" aria-label="More"><button type="button" data-go="/pub/security">${icon('shield', 26)}<span>Security</span></button><button type="button" data-go="/pub/contact"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/><path d="M19 20a4 4 0 01-4 2h-2"/></svg><span>Contact</span></button><button type="button" data-go="/pub/locations">${icon('pin', 26)}<span>Locations</span></button></nav><p class="lg-ver"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Harborstone Mobile · Version 1.0.0</span></p></div>
-      </div></div>`
+          <div class="fld na-fld" data-fld="email"><div class="na-in">${icon('user', 19)}<input id="f_email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="Username or Email" aria-label="Username or Email" autocapitalize="none" spellcheck="false"><span class="na-ok" aria-hidden="true">${icon('check', 14)}</span></div><p class="ferr" role="alert"></p></div>
+          <div class="fld na-fld" data-fld="password"><div class="na-in">${icon('lock', 19)}<input id="f_password" name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required><button type="button" class="pwt" data-act="togglePw" aria-label="Show password">${icon('eye', 19)}</button></div><p class="ferr" role="alert"></p></div>
+          <label class="na-sw"><input type="checkbox" name="remember" ${rem ? 'checked' : ''}><i></i><span>Remember me</span></label>
+          <button class="na-cta" type="submit" data-busy="Signing in…"><span>LOGIN</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </form>
+        <button type="button" class="na-link" data-go="/forgot">Forgot Password?</button>
+        <button class="na-cta alt" type="button" data-act="faceLogin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>`,
+        foot: `<div class="na-foot"><nav class="na-links" aria-label="More"><button type="button" data-go="/pub/security">Security</button><button type="button" data-go="/pub/contact">Contact</button><button type="button" data-go="/pub/locations">Locations</button></nav><p class="na-ver">${icon('lock', 12)}<span>Harborstone Mobile · Version 1.0.0</span></p></div>` })
 
     };
   }, { pub: true });
@@ -772,17 +771,25 @@
   }
   HM.acts.faceLogin = async (button) => {
     if (button.dataset.busy === '1') return;
-    const focusForm = () => { const e = document.querySelector('form[data-form="login"] input[name="email"]'), pw = document.querySelector('form[data-form="login"] input[name="password"]'); if (pw && e && e.value) pw.focus(); else if (e) e.focus(); };
-    const bio = bioGet(); if (!bio || !bioOk()) return focusForm();
+    const bio = bioGet(); const can = !!(bio && bioOk());
+    ui.sheet(`<div class="fid ${can ? 'scan' : 'off'}" id="fid"><div class="fid-g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><i></i></div><h3 class="sh-title">Face ID</h3><p class="sh-body" id="fidMsg">${can ? 'Look at your phone to sign in.' : 'Face ID is not set up on this device yet. Sign in with your password, then turn it on in More, Security.'}</p><div class="sh-actions"><button class="btn btn-ghost" data-act="closeSheet">${can ? 'Cancel' : 'Use password'}</button></div></div>`);
+    if (!can) return;
     button.dataset.busy = '1';
-    const overlay = document.createElement('div'); overlay.className = 'biometric-overlay'; overlay.setAttribute('role', 'status');
-    overlay.innerHTML = '<div class="biometric-island"><span class="biometric-ring"></span></div>'; document.body.appendChild(overlay);
     let ok = false;
     try { const r = await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ type: 'public-key', id: unb64(bio.id), transports: ['internal'] }], userVerification: 'required', timeout: 60000 } }); ok = !!r; } catch (e) { ok = false; }
-    overlay.remove(); delete button.dataset.busy;
-    if (!ok) return focusForm();
-    startSession(bio.email, false); HM.go('/home', { replace: true });
+    delete button.dataset.busy;
+    const box = document.getElementById('fid'), msg = document.getElementById('fidMsg');
+    if (!ok) { if (box) box.className = 'fid fail'; if (msg) msg.textContent = 'Face ID did not work. Try again or use your password.'; return; }
+    if (box) box.className = 'fid ok'; if (msg) msg.textContent = 'Signed in.';
+    setTimeout(() => { ui.closeSheet(); startSession(bio.email, false); HM.go('/home', { replace: true }); }, 450);
   };
+  /* sign-in: live field feedback + 3D logo tilt (pointer). No inline handlers (CSP). */
+  const siCheck = (i, onBlur) => { const f = i.closest('.fld'); if (!f) return; const v = i.value.trim(); let ok = false;
+    if (i.name === 'email') { ok = EMAIL_RE.test(v); if (onBlur && v && !ok) { f.classList.add('bad'); f.querySelector('.ferr').textContent = 'Enter a valid email address, like name@example.com.'; } else if (ok || !v) { f.classList.remove('bad'); f.querySelector('.ferr').textContent = ''; } }
+    else if (v) { f.classList.remove('bad'); f.querySelector('.ferr').textContent = ''; }
+    f.classList.toggle('good', ok); };
+  document.addEventListener('input', (e) => { const i = e.target; if (i && i.closest && i.closest('.na')) siCheck(i, false); });
+  document.addEventListener('focusout', (e) => { const i = e.target; if (i && i.tagName === 'INPUT' && i.closest('.na')) siCheck(i, true); });
   HM.forms.login = async (f, d, btn) => {
     const email = d.email.trim().toLowerCase();
     if (!email) return ui.fail(f, 'Enter your email address.', 'email');
@@ -802,18 +809,16 @@
     clearTimers(); const p = getPending() || HM._pend; if (!p) { HM.go('/login', { replace: true }); return { html: '' }; }
     return {
       title: 'Verify',
-      html: authShell(`
-        <button class="back-lnk" data-act="otpBack">${icon('chevL', 18)} Back to sign in</button>
-        <h2>Verify your email</h2>
-        <p class="mute sm">${p.delivery === 'email' ? `We sent a 6-digit code to <b>${esc(p.masked)}</b>.` : 'Enter the 6-digit code below.'}</p>
+      html: naShell({ logo: 64, title: 'Verify Account', sub: p.delivery === 'email' ? `We sent a 6-digit code to <b>${esc(p.masked)}</b>.` : 'Enter the 6-digit code below.', body: `
         ${p.devCode ? `<div class="note warn dev">${icon('alert', 18)}<span><b>DEVELOPMENT-ONLY OTP MODE.</b> Email delivery is not configured${p.delivery === 'local-simulation' ? ' (local simulation)' : ''}. Your test code is <b class="devcode">${esc(p.devCode)}</b>. This is never shown in production.</span></div>` : ''}
         <form data-form="otp" novalidate>
+          <p class="na-prompt">Enter OTP Code</p>
           <div class="otp" id="otpBoxes" role="group" aria-label="6-digit verification code">${[0, 1, 2, 3, 4, 5].map((i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="${i === 0 ? 'one-time-code' : 'off'}" aria-label="Digit ${i + 1}" data-i="${i}">`).join('')}</div>
           <p class="ferr center otp-err" id="otpErr" role="alert"></p>
           <p class="center sm mute" id="otpTimer">Code expires in <b>5:00</b></p>
-          <button class="btn btn-primary mt" type="submit">Verify and continue</button>
+          <button class="na-cta" type="submit"><span>VERIFY</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </form>
-        <button class="btn btn-ghost mt" id="resendBtn" data-act="resendOtp" disabled>Resend code</button>`),
+        <div class="na-row"><button type="button" class="na-link" id="resendBtn" data-act="resendOtp" disabled>Resend Code</button><button type="button" class="na-link" data-act="otpBack">Go Back</button></div>` }),
       after() {
         const boxes = Array.from(document.querySelectorAll('#otpBoxes input')); boxes[0].focus();
         const val = () => boxes.map((b) => b.value).join('');
@@ -827,7 +832,7 @@
           const pp = getPending() || HM._pend; if (!pp) return;
           const left = Math.max(0, Math.round((pp.expiresAt - Date.now()) / 1000)); el.innerHTML = left > 0 ? `Code expires in <b>${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b>` : '<b style="color:var(--bad)">This code has expired.</b> Request a new one.';
           const cd = Math.max(0, 30 - Math.floor((Date.now() - pp.sentAt) / 1000));
-          rb.disabled = cd > 0; rb.textContent = cd > 0 ? `Resend code in ${cd}s` : 'Resend code';
+          rb.disabled = cd > 0; rb.textContent = cd > 0 ? `Resend Code in ${cd}s` : 'Resend Code';
         };
         tick(); timers.push(setInterval(tick, 1000));
       }
@@ -882,13 +887,13 @@
   /* ---------- register / forgot  ---------- */
   HM.route('/register', 'auth', () => ({
     title: 'Open an account',
-    html: authShell(`<button class="back-lnk" data-go="/login">${icon('chevL', 18)} Back to sign in</button><h2>Open an account</h2><p class="mute sm">Tell us a little about yourself to get started.</p>
+    html: naShell({ title: 'Hello There!', tabs: 'register', body: `<p class="mute sm center">Tell us a little about yourself to get started.</p>
       <form data-form="register" novalidate>
         <div class="two">${ui.field({ name: 'first', label: 'First name', autocomplete: 'given-name' })}${ui.field({ name: 'last', label: 'Last name', autocomplete: 'family-name' })}</div>
         ${ui.field({ name: 'email', label: 'Email address', type: 'email', inputmode: 'email' })}
         ${ui.select({ name: 'type', label: 'Account to open', value: 'checking', options: [['checking', 'Harbor Everyday Checking'], ['savings', 'Harbor High-Yield Savings'], ['both', 'Checking + Savings']] })}
         <div class="fld" data-fld="agree"><label class="chk"><input type="checkbox" name="agree"><span></span>I agree to the terms and privacy policy</label><p class="ferr" role="alert"></p></div>
-        <button class="btn btn-primary" type="submit">Submit application</button></form>`)
+        <button class="na-cta" type="submit"><span>GET STARTED</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>` })
   }), { pub: true });
   HM.forms.register = (f, d) => {
     if (!ui.need(f, d, [['first', 'Enter your first name.'], ['last', 'Enter your last name.']])) return;
@@ -948,7 +953,7 @@
       ${ui.seg([['month', 'This month'], ['30', '30 days'], ['90', '90 days']], spendRange, 'homeSpendRange')}
       ${data.length ? `<div class="spend-row">${ui.donut(data.slice(0, 7), { center: money(total).replace('.00', ''), label })}<div class="catl">${top.map((d) => `<div><i style="background:${d.color}"></i><span>${esc(d.label)}</span><b>${money(d.value).replace('.00', '')}</b></div>`).join('')}${rest > 0 ? `<div><i style="background:#C5CBCE"></i><span>Other</span><b>${money(rest).replace('.00', '')}</b></div>` : ''}</div></div>` : ui.empty('chart', 'No spending yet', 'Purchases and payments will appear here.')}
       <div class="hr"></div>
-      <div class="between sp"><div><div class="lbl">Income vs expenses</div><div class="sm mute">Last 6 months</div></div><div class="legend" style="margin:0"><span><i style="background:var(--teal)"></i>Income</span><span><i style="background:var(--gold)"></i>Spent</span></div></div>
+      <div class="between sp"><div><div class="lbl">Income vs expenses</div><div class="sm mute">Last 6 months</div></div><div class="legend" style="margin:0"><span><i style="background:#D4AF37"></i>Income</span><span><i style="background:#8A8F98"></i>Spent</span></div></div>
       ${ui.bars(months)}
       <div class="cmp"><div><small>Spent in ${esc(cur.label)}</small><b>${money(cur.b)}</b></div><div><small>Spent in ${esc(prev.label)}</small><b>${money(prev.b)}</b></div><div><small>Change</small><b class="${delta > 0 ? 'neg' : 'pos'}">${delta > 0 ? '▲' : delta < 0 ? '▼' : ''} ${Math.abs(delta)}%</b></div></div>
       <button class="lnk mt" data-go="/accounts/spending">Full spending insights ›</button></div>`;
@@ -968,17 +973,17 @@
     return {
       title: 'Home',
       html: `
-      <div class="hero home-hero"><div class="home-bar"><div class="home-id">${ui.logo(42)}<div class="home-hi"><small>${greeting()}</small><b>${esc(name)}</b></div></div><div class="home-actions">${HM.themeBtn()}<button class="avatar-btn" data-act="zoomPhoto" aria-label="View profile photo">${HM.avatar ? HM.avatar() : ''}</button><button class="iconbtn" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div>
-</div>
-
-      <div class="wallet"><div class="wl-card">
-        <div class="wl-top"><span class="wl-lbl">Total balance</span><button class="eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 16)} ${hidden ? 'Show' : 'Hide'}</button></div>
-        <div class="wl-amt">${hidden ? '<span class="masked">••••••••</span>' : `${money(T.current).split('.')[0]}<small>.${money(T.current).split('.')[1] || '00'}</small>`}</div>
-        <div class="wl-sub"><span class="wl-pill">${icon('check', 13)} Available ${hideable(money(T.available), hidden)}</span><span class="wl-cur">USD</span></div>
-        ${(() => { const sav = S.accounts.filter((a) => a.type === 'savings').reduce((x, a) => x + a.current, 0), chk = S.accounts.filter((a) => a.type !== 'savings').reduce((x, a) => x + a.current, 0), tot = Math.max(1, sav + chk); return `<div class="wl-split"><i class="c1" style="flex:${Math.max(4, Math.round(chk / tot * 100))}"></i><i class="c2" style="flex:${Math.max(4, Math.round(sav / tot * 100))}"></i></div><div class="wl-leg"><span><i class="c1"></i>Checking <b>${hideable(money(chk).replace('.00', ''), hidden)}</b></span><span><i class="c2"></i>Savings <b>${hideable(money(sav).replace('.00', ''), hidden)}</b></span></div>`; })()}
-      </div></div>
-
-      <div class="dock" role="group" aria-label="Quick actions">${[['send', 'Send', '/payments/ach_instant/new'], ['swap', 'Transfer', '/payments'], ['bill', 'Pay', '/payments/bills'], ['camera', 'Deposit', '/accounts/deposit'], ['card', 'Cards', '/cards']].map((q) => `<button data-go="${q[2]}"><span class="dk-i">${icon(q[0], 22)}</span><span>${q[1]}</span></button>`).join('')}</div>
+      <div class="hm-top"><div class="hm-bar"><div class="db-id"><button class="avatar-btn" data-act="zoomPhoto" aria-label="View profile photo">${HM.avatar ? HM.avatar() : ''}</button><div class="db-hi"><small>${greeting()}</small><b>${esc(name)}</b></div></div><div class="hm-acts">${HM.themeBtn()}<button class="iconbtn db-bell" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div>
+        <div class="vcard"><div class="vc-top"><span class="vc-brand">${ui.logo(34)}<b>Harborstone</b></span><button class="db-eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 15)} ${hidden ? 'Show' : 'Hide'}</button></div>
+          <div class="vc-mid"><span class="vc-chip"><i></i></span><span class="vc-nfc">${icon('contactless', 22)}</span></div>
+          <div class="vc-lbl">Total balance</div>
+          <div class="vc-amt">${hidden ? '<span class="masked">••••••••</span>' : `${money(T.current).split('.')[0]}<small>.${money(T.current).split('.')[1] || '00'}</small>`}</div>
+          <div class="vc-bot"><span>Available ${hideable(money(T.available), hidden)}</span><span>USD</span></div>
+        </div>
+        <div class="hm-cta"><button data-go="/payments/ach_instant/new">${icon('send', 18)}<span>SEND</span></button><button data-go="/payments">${icon('swap', 18)}<span>TRANSFER</span></button></div>
+        <div class="hm-mini" role="group" aria-label="Quick actions">${[['bill', 'Pay', '/payments/bills'], ['camera', 'Deposit', '/accounts/deposit'], ['card', 'Cards', '/cards'], ['chart', 'Spending', '/accounts/spending']].map((q) => `<button data-go="${q[2]}"><span class="hm-mi">${icon(q[0], 20)}</span><span>${q[1]}</span></button>`).join('')}</div>
+        ${(() => { const sav = S.accounts.filter((a) => a.type === 'savings').reduce((x, a) => x + a.current, 0), chk = S.accounts.filter((a) => a.type !== 'savings').reduce((x, a) => x + a.current, 0), tot = Math.max(1, sav + chk); return `<button class="db-split" data-go="/accounts"><span class="db-sp-bar"><i style="width:${Math.max(3, Math.round(chk / tot * 100))}%"></i></span><span class="db-sp-row"><span class="db-sp c1"><small><i></i>Checking</small><b>${hideable(money(chk), hidden)}</b></span><span class="db-sp c2"><small><i></i>Savings</small><b>${hideable(money(sav), hidden)}</b></span></span></button>`; })()}
+      </div>
 
       <div class="svc" role="group" aria-label="Shortcuts">${[['file', 'Statements', '/accounts/statements'], ['chart', 'Spending', '/accounts/spending'], ['target', 'Goals', '/accounts/goals'], ['star', 'Rewards', '/more/rewards'], ['users', 'Recipients', '/payments/beneficiaries'], ['calendar', 'Scheduled', '/payments/scheduled']].map((q) => `<button data-go="${q[2]}">${icon(q[0], 16)}<span>${q[1]}</span></button>`).join('')}</div>
 
@@ -1036,7 +1041,7 @@
 
   function acctCard(a, hidden) {
     const fr = a.status === 'frozen';
-    return `<button class="acct ${a.type === 'savings' ? 'sav' : ''} ${fr ? 'frozen' : ''}" data-go="/accounts/${a.id}">
+    return `<button class="acct ag${Math.max(0, HM.state().accounts.indexOf(a)) % 4} ${a.type === 'savings' ? 'sav' : ''} ${fr ? 'frozen' : ''}" data-go="/accounts/${a.id}">
       <div class="t"><span>${a.type}</span>${fr ? `<span class="frzpill">Restricted</span>` : '<span class="frzpill">Active</span>'}</div>
       <h3>${esc(a.nickname)}</h3><div class="num">${HM.mask(a.number)}</div>
       <div class="amt">${hidden ? '<span class="masked">••••••</span>' : money(a.available)}</div><div class="sub"><span>Available</span><span>Current ${hidden ? '••••' : money(a.current)}</span></div>
@@ -1987,7 +1992,7 @@
   function cardVisual(c, o) {
     o = o || {}; const a = HM.acct(c.acct); const off = c.status !== 'active';
     return `<div class="dcard ${c.kind === 'virtual' ? 'virt' : ''} ${off ? 'off' : ''}" role="img" aria-label="${label(c)} ending ${c.last4}, ${stat(c)}">
-      <div class="dc-top"><span class="dc-bank">${ui.logo(26)} HARBORSTONE</span><span class="dc-tag">${c.kind === 'virtual' ? 'VIRTUAL' : 'DEBIT'}</span></div>
+      <div class="dc-top"><span class="dc-bank">${ui.logo(30)} Harborstone</span><span class="dc-tag">${c.kind === 'virtual' ? 'VIRTUAL' : 'DEBIT'}</span></div>
       <div class="dc-chip">${c.kind === 'virtual' ? '' : '<i></i>'}</div>
       <div class="dc-num">•••• •••• •••• ${c.last4}</div>
       <div class="dc-bot"><div><small>CARDHOLDER</small><b>${esc(holderName())}</b></div><div><small>EXPIRES</small><b>${c.exp}</b></div>${c.controls.contactless && c.kind !== 'virtual' ? `<span class="dc-nfc">${icon('contactless', 22)}</span>` : ''}</div>
@@ -2151,8 +2156,8 @@
     return {
       title: 'More',
       html: `${ui.header('More', { back: false, sub: 'Profile, security and services' })}
-      <div class="pad"><button class="card prof-card" data-go="/more/profile">${avatar('lg')}<span class="row-m"><b>${esc(name)}</b><small>${p.email ? esc(p.email) : 'Add your contact details'}</small></span><span class="row-c">${icon('chevR', 18)}</span></button></div>
-      ${g('Profile & security', [['user', 'Profile', 'Name, contact & address', '/more/profile'], ['shield', 'Security settings', 'Password, Face ID, devices', '/more/security'], ['bell', 'Notifications', 'Push & email preferences', '/more/notifications'], ['globe', 'Language & region', 'Language, currency, time zone', '/more/language'], ['sun', 'Appearance', 'Dark or light mode', '/more/appearance'], ['sliders', 'App preferences', 'Display & device', '/more/prefs']])}
+      <div class="pad"><button class="card prof-card" data-go="/more/profile">${avatar('lg')}<span class="row-m"><b>${esc(name)}</b><small>${p.email ? esc(p.email) : 'Add your contact details'}</small></span><span class="row-c">${icon('chevR', 18)}</span></button><div class="card thm-row"><span class="row-i">${icon('moon', 20)}</span><span class="row-m"><b>Appearance</b><small>Dark or light mode</small></span>${HM.themeBtn()}</div></div>
+      ${g('Profile & security', [['user', 'Profile', 'Name, contact & address', '/more/profile'], ['shield', 'Security settings', 'Password, Face ID, devices', '/more/security'], ['bell', 'Notifications', 'Push & email preferences', '/more/notifications'], ['globe', 'Language & region', 'Language, currency, time zone', '/more/language'], ['sliders', 'App preferences', 'Display & device', '/more/prefs']])}
       ${g('Accounts & money', [['bank', 'Account details', 'Account & routing numbers', '/more/account-details'], ['file', 'Statements', 'Monthly records', '/accounts/statements'], ['file', 'Tax documents', 'Annual summaries', '/more/tax'], ['chart', 'Spending insights', 'Where your money goes', '/accounts/spending'], ['target', 'Savings goals', 'Plan and track', '/accounts/goals'], ['users', 'Beneficiaries', 'Saved recipients', '/payments/beneficiaries'], ['calendar', 'Scheduled payments', 'Upcoming and recurring', '/payments/scheduled'], ['zap', 'Limits', 'Daily payment limits', '/payments/limits'], ['book', 'Account documents', 'Agreements & forms', '/accounts/documents']])}
       ${g('Products & services', [['bank', 'Open an account', 'Savings, CDs, checking', '/more/open-account'], ['car', 'Loans & credit', 'Auto, home and cards', '/more/loans'], ['wallet', 'Linked services', 'Wallets & external accounts', '/more/linked'], ['file', 'Paperless & documents', 'Statements, tax, notices', '/more/paperless'], ['bulb', 'Learn', 'Money tips & guides', '/more/learn']])}
       ${g('Rewards & tools', [['star', 'Harbor Rewards', 'Points & tiers', '/more/rewards'], ['zap', 'Offers', 'Activate bonus offers', '/more/offers'], ['users', 'Refer a friend', 'Share your code', '/more/refer'], ['calendar', 'Calculators', 'Loan & savings', '/more/tools'], ['globe', 'Exchange rates', 'Major currencies', '/more/tools/rates'], ['receipt', 'Rates & fees', 'Account pricing', '/more/fees']])}
@@ -2335,19 +2340,11 @@
   'use strict';
   const HM = window.HM, ui = HM.ui, esc = HM.esc, icon = HM.icon, money = HM.money, S = () => HM.state();
 
-  /* ---------- appearance (dark / light / system) ---------- */
-  const TKEY = 'hm_theme';
-  const getPref = () => { try { return localStorage.getItem(TKEY) || 'dark'; } catch (e) { return 'dark'; } };
-  const resolved = (p) => (p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : p);
-  HM.applyTheme = (p) => {
-    const t = resolved(p || getPref()); document.documentElement.setAttribute('data-theme', t);
-    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', t === 'light' ? '#F6F2EA' : '#08080B');
-    document.querySelectorAll('[data-act="toggleTheme"]').forEach((b) => { b.innerHTML = icon(t === 'light' ? 'moon' : 'sun', 20); b.setAttribute('aria-label', t === 'light' ? 'Switch to dark mode' : 'Switch to light mode'); });
-  };
-  HM.themeBtn = (cls) => `<button class="iconbtn theme-btn ${cls || ''}" data-act="toggleTheme" aria-label="Switch theme">${icon(resolved(getPref()) === 'light' ? 'moon' : 'sun', 20)}</button>`;
-  HM.acts.toggleTheme = () => { const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; const n = cur === 'light' ? 'dark' : 'light'; try { localStorage.setItem(TKEY, n); } catch (e) { /* ignore */ } HM.applyTheme(n); };
-  HM.acts.setTheme = (b, v) => { try { localStorage.setItem(TKEY, v); } catch (e) { /* ignore */ } HM.applyTheme(v); HM.refresh(true); };
-  if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (getPref() === 'system') HM.applyTheme('system'); }); } catch (e) { /* ignore */ } }
+  /* ---------- Neumorphic Dark / Light (dark by default, choice is saved) ---------- */
+  const modeGet = () => { try { return localStorage.getItem('hm_mode') === 'light' ? 'light' : 'dark'; } catch (e) { return 'dark'; } };
+  HM.applyTheme = () => { const m = modeGet(); document.documentElement.setAttribute('data-theme', m); const c = m === 'light' ? '#EEF0F4' : '#181A1D'; document.querySelectorAll('meta[name="theme-color"]').forEach((x) => x.setAttribute('content', c)); document.querySelectorAll('.thm').forEach((x) => x.setAttribute('aria-checked', m === 'dark' ? 'true' : 'false')); };
+  HM.themeBtn = () => `<button type="button" class="thm" role="switch" aria-checked="${modeGet() === 'dark'}" aria-label="Dark mode" data-act="toggleTheme"><span class="thm-s">${icon('sun', 14)}</span><span class="thm-m">${icon('moon', 14)}</span><i></i></button>`;
+  HM.acts.toggleTheme = () => { try { localStorage.setItem('hm_mode', modeGet() === 'dark' ? 'light' : 'dark'); } catch (e) { /* ignore */ } HM.applyTheme(); };
   HM.applyTheme();
 
   /* ---------- helpers ---------- */
@@ -2356,12 +2353,6 @@
   const info = (title, back, secs, tab) => ({ title, html: `${ui.header(title, { back })}<div class="pad"><div class="card doc">${secs.map((s) => `<h3>${esc(s[0])}</h3><p>${esc(s[1])}</p>`).join('')}</div></div>` });
   const pageRoute = (path, title, back, fn) => HM.route(path, 'more', () => ({ title, html: `${ui.header(title, { back })}<div class="pad">${fn()}</div>` }));
   const spent = () => S().txs.filter((t) => t.amount < 0 && t.status === 'completed').reduce((a, t) => a + Math.abs(t.amount), 0);
-
-  /* ---------- appearance page ---------- */
-  HM.route('/more/appearance', 'more', () => {
-    const p = getPref(); const opt = (v, t, s, ic) => `<button class="row" data-act="setTheme" data-arg="${v}"><span class="row-i">${icon(ic, 20)}</span><span class="row-m"><b>${t}</b><small>${s}</small></span><span class="row-r">${p === v ? icon('check', 20) : ''}</span></button>`;
-    return { title: 'Appearance', html: `${ui.header('Appearance', { back: '/more' })}<div class="pad"><div class="group">${opt('dark', 'Dark', 'Black and gold', 'moon')}${opt('light', 'Light', 'White and gold', 'sun')}${opt('system', 'Match device', 'Follows your phone setting', 'device')}</div><p class="hint mt">Your choice applies to every screen, including sign-in.</p></div>` };
-  });
 
   /* ---------- account & money ---------- */
   pageRoute('/more/account-details', 'Account details', '/more', () => `${S().accounts.map((a) => `<div class="card"><div class="between sp"><b>${esc(a.nickname)}</b>${ui.badge(a.status)}</div>
