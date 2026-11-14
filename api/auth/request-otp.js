@@ -11,16 +11,30 @@ export default async function handler(req, res) {
     const password = String(body.password || '');
     if (!email || !password) return reply(res, 400, { message: 'Enter your email and password.' });
 
-    const wantEmail = (process.env.HM_LOGIN_EMAIL || '').trim().toLowerCase();
-    const wantPass = process.env.HM_LOGIN_PASSWORD || '';
-    if (!wantEmail || !wantPass) return reply(res, 503, { message: 'Sign-in is not configured yet. Set HM_LOGIN_EMAIL and HM_LOGIN_PASSWORD in Vercel.' });
+    // One or more sign-in identities. The first is the original (submitted) login and is
+    // unchanged. An optional second identity (HM_LOGIN_EMAIL_2 / HM_LOGIN_PASSWORD_2) lets the
+    // owner sign in with a different email + password so the code is sent to a different inbox
+    // (HM_OTP_TO_2, or the second login email if that is not set). If the second identity is not
+    // configured, behaviour is exactly as before.
+    const identities = [];
+    const addIdentity = (e, p, to) => {
+      const em = (e || '').trim().toLowerCase();
+      const pw = p || '';
+      if (em && pw) identities.push({ email: em, pass: pw, to: ((to || e) || '').trim() });
+    };
+    addIdentity(process.env.HM_LOGIN_EMAIL, process.env.HM_LOGIN_PASSWORD, process.env.HM_OTP_TO);
+    addIdentity(process.env.HM_LOGIN_EMAIL_2, process.env.HM_LOGIN_PASSWORD_2, process.env.HM_OTP_TO_2);
+
+    if (!identities.length) return reply(res, 503, { message: 'Sign-in is not configured yet. Set HM_LOGIN_EMAIL and HM_LOGIN_PASSWORD in Vercel.' });
     try { secret(); } catch { return reply(res, 503, { message: 'Sign-in is not configured yet. Set HM_OTP_SECRET (24+ characters) in Vercel.' }); }
 
-    const okEmail = safeEqual(email, wantEmail);
-    const okPass = safeEqual(password, wantPass);
-    if (!(okEmail && okPass)) return reply(res, 401, { message: 'Incorrect email or password.' });
+    let matched = null;
+    for (const id of identities) {
+      if (safeEqual(email, id.email) && safeEqual(password, id.pass)) { matched = id; break; }
+    }
+    if (!matched) return reply(res, 401, { message: 'Incorrect email or password.' });
 
-    const to = (process.env.HM_OTP_TO || wantEmail).trim();
+    const to = matched.to;
     const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
     const nonce = crypto.randomBytes(12).toString('hex');
     const requestId = seal({ e: email, h: codeHash(code, nonce), n: nonce, exp: Date.now() + 5 * 60 * 1000 });
