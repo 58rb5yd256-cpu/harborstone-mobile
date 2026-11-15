@@ -2004,10 +2004,11 @@
   function cardVisual(c, o) {
     o = o || {}; const a = HM.acct(c.acct); const off = c.status !== 'active';
     return `<div class="dcard ${c.kind === 'virtual' ? 'virt' : ''} ${off ? 'off' : ''}" role="img" aria-label="${label(c)} ending ${c.last4}, ${stat(c)}">
-      <div class="dc-top"><span class="dc-bank">${ui.logo(30)} Westmark</span><span class="dc-tag">${c.kind === 'virtual' ? 'VIRTUAL' : 'DEBIT'}</span></div>
-      <div class="dc-chip">${c.kind === 'virtual' ? '' : '<i></i>'}</div>
-      <div class="dc-num">•••• •••• •••• ${c.last4}</div>
-      <div class="dc-bot"><div><small>CARDHOLDER</small><b>${esc(holderName())}</b></div><div><small>EXPIRES</small><b>${c.exp}</b></div>${c.controls.contactless && c.kind !== 'virtual' ? `<span class="dc-nfc">${icon('contactless', 22)}</span>` : ''}</div>
+      <span class="dc-holo" aria-hidden="true">${ui.logo(150)}</span>
+      <div class="dc-top"><span class="dc-bank">${ui.logo(26)}<b>Westmark</b></span><span class="dc-tag">${c.kind === 'virtual' ? 'VIRTUAL' : 'DEBIT'}</span></div>
+      <div class="dc-mid"><span class="dc-chip"><i></i></span>${c.controls.contactless && c.kind !== 'virtual' ? `<span class="dc-nfc">${icon('contactless', 24)}</span>` : ''}</div>
+      <div class="dc-num"><span>••••</span><span>••••</span><span>••••</span><span>${c.last4}</span></div>
+      <div class="dc-bot"><div class="dc-f"><small>Card holder</small><b>${esc(holderName())}</b></div><div class="dc-f dc-exp"><small>Valid thru</small><b>${c.exp}</b></div></div>
       ${off ? `<div class="dc-lock">${icon(c.status === 'locked' ? 'lock' : 'clock', 26)}<b>${stat(c)}</b></div>` : ''}</div>
       ${o.meta === false ? '' : `<div class="card cmeta"><div class="kv"><span>Status</span><b>${ui.badge(c.status === 'pending' ? 'pending activation' : c.status)}</b></div><div class="kv"><span>Linked account</span><b>${esc(a.nickname)} ${HM.mask(a.number)}</b></div><div class="kv"><span>Card number</span><b class="masked">•••• ${c.last4}</b></div></div>`}`;
   }
