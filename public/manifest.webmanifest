@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Harborstone Mobile",
-  "short_name": "Harborstone",
-  "description": "Harborstone Mobile \u2014 Your finances. Your direction.",
+  "name": "Westmark Mobile",
+  "short_name": "Westmark",
+  "description": "Westmark Mobile \u2014 Your finances. Your direction.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

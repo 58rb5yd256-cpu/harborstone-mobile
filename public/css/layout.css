@@ -1,4 +1,4 @@
-/* Harborstone Mobile — authoritative layout layer (loaded after app.css).
+/* Westmark Mobile — authoritative layout layer (loaded after app.css).
    One clean set of rules for: app shell, safe areas, login/OTP, bottom navigation, support button, Home dashboard.
    Design rules: no fixed pixel heights for screens; svh/clamp() sizing; nav is a normal flex row at the bottom of the shell
    (never an overlay), so it can never cover content and always sits on one baseline. */

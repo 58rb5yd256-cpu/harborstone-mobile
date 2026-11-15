@@ -1,5 +1,5 @@
 /* =====================================================================
-   Harborstone Mobile — design system v31
+   Westmark Mobile — design system v31
    Neumorphic Dark (default) and Neumorphic White, accented with Champagne Gold.
    Loaded last. Every surface below is built from these tokens.
    ===================================================================== */
@@ -423,3 +423,42 @@ html[data-theme] .sw i{background:var(--bg)!important;background-image:none!impo
 html[data-theme] .sw.on{box-shadow:var(--inset-s),0 0 0 1px var(--gold)!important}
 html[data-theme] .sw.on i{background:var(--gold)!important;border-color:var(--gold)!important}
 html[data-theme] .rc-ctl{background:var(--bg)!important;background-image:none!important;border-top:1px solid var(--edge)!important;box-shadow:0 -6px 14px var(--lo)!important}
+
+/* ---------- Westmark logo: animated on login + dashboard, static elsewhere ---------- */
+.hs-mark .wm-shine{opacity:0}
+.wm-star{transform-box:fill-box;transform-origin:center}
+@keyframes wmSpin{to{transform:rotate(360deg)}}
+@keyframes wmShine{0%{opacity:0;transform:translateX(-24px)}12%{opacity:.9}34%{opacity:0;transform:translateX(104px)}100%{opacity:0;transform:translateX(104px)}}
+@keyframes wmFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5%)}}
+/* login (and the other pre-sign-in screens): turn, gleam and float */
+.na-brand .hs-mark{animation:wmFloat 5.5s ease-in-out infinite}
+.na-brand .hs-mark .wm-star{animation:wmSpin 14s linear infinite}
+.na-brand .hs-mark .wm-shine{animation:wmShine 4.8s ease-in-out infinite}
+/* dashboard card: a slower, quieter version */
+.vc-brand .hs-mark .wm-star{animation:wmSpin 22s linear infinite}
+.vc-brand .hs-mark .wm-shine{animation:wmShine 7s ease-in-out infinite}
+/* The logo plays its full animation for everyone, including with Reduce Motion on (by request).
+   The app has global reduced-motion rules that zero out every animation, so re-assert these with !important. */
+@media (prefers-reduced-motion:reduce){
+  .na-brand .hs-mark{animation:wmFloat 5.5s ease-in-out infinite!important}
+  .na-brand .hs-mark .wm-star{animation:wmSpin 14s linear infinite!important}
+  .na-brand .hs-mark .wm-shine{animation:wmShine 4.8s ease-in-out infinite!important}
+  .vc-brand .hs-mark .wm-star{animation:wmSpin 22s linear infinite!important}
+  .vc-brand .hs-mark .wm-shine{animation:wmShine 7s ease-in-out infinite!important}
+}
+
+/* ---------- stronger, clearer heading words on the hub (both modes) ---------- */
+/* greeting + page subtitles: brighter and bolder instead of dim gray */
+html[data-theme="dark"] .db-hi small,html[data-theme="dark"] .hdr-t p{color:#D8DBE0!important}
+html[data-theme="light"] .db-hi small,html[data-theme="light"] .hdr-t p{color:#434A53!important}
+html[data-theme] .db-hi small{font-weight:600!important;font-size:13px!important}
+html[data-theme] .hdr-t p{font-weight:500!important}
+/* the big heading words themselves: heavier so they stand out clearly */
+html[data-theme] .hdr-t h1{font-weight:800!important}
+html[data-theme] .db-hi b{font-weight:700!important;font-size:17.5px!important}
+html[data-theme] .sec-h h2,html[data-theme] #view .page h2{font-weight:800!important}
+html[data-theme="dark"] .sec-h h2,html[data-theme="dark"] #view .page h2{color:#F3F4F6!important}
+html[data-theme="light"] .sec-h h2,html[data-theme="light"] #view .page h2{color:#181A1D!important}
+/* bottom-nav labels: a touch stronger so Home…More read clearly */
+html[data-theme] #nav .tab span{font-weight:600!important}
+html[data-theme="dark"] #nav .tab:not(.active) span{color:#AEB4BD!important}

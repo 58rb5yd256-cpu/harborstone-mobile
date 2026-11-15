@@ -1,4 +1,4 @@
-// Shared helpers for the Harborstone Mobile OTP endpoints (Vercel serverless, Node runtime).
+// Shared helpers for the Westmark Mobile OTP endpoints (Vercel serverless, Node runtime).
 // Nothing here reads or reuses any Prosperity Mobile variable: every setting is HM_* / RESEND_* / SMTP_*.
 import crypto from 'node:crypto';
 
@@ -52,9 +52,9 @@ export const maskEmail = (email) => {
 export const devOtpAllowed = () => process.env.HM_DEV_OTP === 'true' && process.env.VERCEL_ENV !== 'production' && process.env.NODE_ENV !== 'production';
 
 export function emailTemplate(code) {
-  const text = `Your Harborstone Bank verification code is ${code}. It expires in 5 minutes. If you did not request it, ignore this email.`;
-  const html = `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #E6E2DA;border-radius:16px;overflow:hidden"><div style="background:#0A3340;color:#fff;padding:22px 24px"><div style="font-size:22px;font-weight:700;letter-spacing:.02em">Harborstone Bank</div><div style="color:#E4CE9D;font-size:13px;margin-top:2px">Your finances. Your direction.</div></div><div style="padding:24px;color:#14232A"><p style="margin:0 0 14px">Your verification code is:</p><div style="font-size:34px;font-weight:700;letter-spacing:10px;text-align:center;background:#F4F2EE;border-radius:12px;padding:16px">${code}</div><p style="color:#66747D;font-size:14px;margin:16px 0 0">This code expires in 5 minutes. If you didn’t request it, you can ignore this email.</p></div><div style="background:#F8F6F2;color:#66747D;font-size:12px;padding:14px 24px">Harborstone Bank · 100 Harbor Way, Seattle, WA</div></div>`;
-  return { subject: 'Your Harborstone Bank verification code', text, html };
+  const text = `Your Westmark Bank verification code is ${code}. It expires in 5 minutes. If you did not request it, ignore this email.`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;max-width:480px;margin:auto;border:1px solid #E6E2DA;border-radius:16px;overflow:hidden"><div style="background:#0A3340;color:#fff;padding:22px 24px"><div style="font-size:22px;font-weight:700;letter-spacing:.02em">Westmark Bank</div><div style="color:#E4CE9D;font-size:13px;margin-top:2px">Your finances. Your direction.</div></div><div style="padding:24px;color:#14232A"><p style="margin:0 0 14px">Your verification code is:</p><div style="font-size:34px;font-weight:700;letter-spacing:10px;text-align:center;background:#F4F2EE;border-radius:12px;padding:16px">${code}</div><p style="color:#66747D;font-size:14px;margin:16px 0 0">This code expires in 5 minutes. If you didn’t request it, you can ignore this email.</p></div><div style="background:#F8F6F2;color:#66747D;font-size:12px;padding:14px 24px">Westmark Bank · 100 Harbor Way, Seattle, WA</div></div>`;
+  return { subject: 'Your Westmark Bank verification code', text, html };
 }
 
 // Provider order: Resend (HTTPS API) → SMTP (nodemailer). Returns the provider used, or null if neither is configured.
@@ -75,7 +75,7 @@ export async function sendEmail(to, code) {
     const nodemailer = (await import('nodemailer')).default;
     const port = Number(process.env.SMTP_PORT || 465);
     const t = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure: String(process.env.SMTP_SECURE ?? (port === 465)) === 'true', auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } });
-    await t.sendMail({ from: { name: process.env.HM_FROM_NAME || 'Harborstone Bank', address: process.env.HM_FROM_ADDRESS || process.env.SMTP_USER }, to, subject, text, html });
+    await t.sendMail({ from: { name: process.env.HM_FROM_NAME || 'Westmark Bank', address: process.env.HM_FROM_ADDRESS || process.env.SMTP_USER }, to, subject, text, html });
     return 'smtp';
   }
   return null;

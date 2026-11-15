@@ -1,4 +1,4 @@
-/* Harborstone Mobile — design system: deep navy teal, champagne gold, white, soft neutrals */
+/* Westmark Mobile — design system: deep navy teal, champagne gold, white, soft neutrals */
 :root{
   --navy:#1f2123;--navy2:#373a3c;--navy3:#161718;--teal:#51565a;--gold:#8e9398;--gold2:#c9cccf;--goldd:#798086;
   --bg:#f0f1f2;--card:#fff;--ink:#1d1f21;--mute:#6c7277;--line:#dee0e2;--soft:#f4f5f5;
@@ -161,7 +161,7 @@ input,select,textarea{max-width:100%;min-width:0}
 @media(orientation:landscape) and (max-height:520px){#nav{padding-top:3px}.tab{padding:4px 2px}.auth-hero{padding-top:calc(var(--sa-t) + 12px);padding-bottom:30px}.auth-card{margin-top:-18px}}
 
 
-/* Harborstone Mobile — view-specific styles */
+/* Westmark Mobile — view-specific styles */
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .left{text-align:left}.right{text-align:right}.inl{display:inline;padding:0;font-size:inherit}
 .np{color:#9ea2a7;font-weight:500;font-style:italic}
@@ -308,7 +308,7 @@ input,select,textarea{max-width:100%;min-width:0}
 }
 @media (max-width:360px){.qa{gap:8px}.qa button{font-size:11.5px;padding:12px 4px}.qa.two{grid-template-columns:repeat(2,1fr)}.big{font-size:32px}.otp{gap:6px}.otp input{height:52px}.dc-num{letter-spacing:.06em}}
 
-/* Harborstone sign-in refinement */
+/* Westmark sign-in refinement */
 .login-security{display:flex;align-items:center;justify-content:center;gap:7px;color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.035em;text-transform:uppercase;background:#EFF5F3;border:1px solid #DCEAE5;border-radius:999px;padding:9px 12px;margin:0 0 19px}
 .login-security .security-dot{width:4px;height:4px;border-radius:50%;background:#A5B6B0;margin:0 2px}
 .login-intro{margin-top:5px;line-height:1.5}

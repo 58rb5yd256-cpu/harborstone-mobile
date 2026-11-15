@@ -1,4 +1,4 @@
-/* Harborstone Mobile — dark & gold glass theme (loaded last; visual only, no layout logic) */
+/* Westmark Mobile — dark & gold glass theme (loaded last; visual only, no layout logic) */
 :root{
   --bg:#090a0a;--card:rgba(255,255,255,.055);--ink:#eaebec;--mute:#989ca1;--line:rgba(185,188,191,.14);--soft:rgba(255,255,255,.04);
   --navy:#0d0e0e;--navy2:#1d1e20;--navy3:#060606;--teal:#9da2a7;--gold:#9da2a7;--gold2:#ced0d3;--goldd:#abafb3;
@@ -415,7 +415,7 @@ body.rc-full .rc-ctl .iconbtn{background:rgba(9,10,10,.55);color:#ced0d3;border:
 .receipt .rc-amt{color:#1d1f21;font-variant-numeric:tabular-nums}
 .receipt .rk b,.receipt .c b{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:600;letter-spacing:-.01em}
 .receipt .rc-foot b{font-family:ui-monospace,"SF Mono",Menlo,monospace}
-.rc-foot:before{content:"Thank you for banking with Harborstone";display:block;font:600 12px var(--serif);font-style:italic;color:#6c7277;margin-bottom:8px}
+.rc-foot:before{content:"Thank you for banking with Westmark";display:block;font:600 12px var(--serif);font-style:italic;color:#6c7277;margin-bottom:8px}
 
 /* ---- Interaction & polish across every screen ---- */
 .page-in .sec,.page-in .xf-tile,.page-in .group,.page-in .card,.page-in .wl-card,.page-in .dock,.page-in .xf-from{animation:hmRise .5s cubic-bezier(.2,.8,.2,1) both}
