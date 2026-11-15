@@ -462,3 +462,12 @@ html[data-theme="light"] .sec-h h2,html[data-theme="light"] #view .page h2{color
 /* bottom-nav labels: a touch stronger so Home…More read clearly */
 html[data-theme] #nav .tab span{font-weight:600!important}
 html[data-theme="dark"] #nav .tab:not(.active) span{color:#AEB4BD!important}
+
+/* ---------- seamless background to the very top edge (fixes status-bar seam, both modes) ----------
+   The app had a textured "facet" background on the scroll area but a flat solid status-bar strip and
+   header, so a mismatched band showed where the iPhone status bar sits. Make it all one solid colour. */
+html[data-theme] #view,html[data-theme] body.auth #view{background-image:none!important;background-color:var(--bg)!important}
+html[data-theme] #app{background-image:none!important;background-color:var(--bg)!important}
+html[data-theme] #app:before{background:var(--bg)!important;background-image:none!important}
+html[data-theme] body,html[data-theme] html{background:var(--bg)!important}
+html[data-theme] .hm-top,html[data-theme] .db-top{background:transparent!important}
