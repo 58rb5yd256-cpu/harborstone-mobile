@@ -562,3 +562,86 @@ html[data-theme] .hm-cta button:last-child{border:1px solid var(--gold)!importan
 
 /* --- warm brand glow behind the login logo (sits below the status-bar strip) --- */
 html[data-theme] .na{background:radial-gradient(110% 34% at 50% 16%,rgba(201,162,58,.16),transparent 60%)!important}
+
+/* =====================================================================
+   v42 — Modern fintech color system
+   Premium ink-navy surfaces + layered cards + semantic green for money-in.
+   Champagne gold becomes a true accent (brand, primary action), not the
+   colour of every element. Applies from login through every page.
+   The status-bar strip stays seamless with --bg (never gray, never blue).
+   ===================================================================== */
+html[data-theme="dark"],:root{
+  --bg:#0E1526;--facet:#141D33;--hi:#1A2540;--lo:#070B14;
+  --surface:#15203A;--surface-2:#1C2A49;--hair:rgba(255,255,255,.08);
+  --inset-bg:#101A30;
+  --tx:#EEF2F9;--mute:#8C98B0;--sep:rgba(255,255,255,.08);
+  --pos:#35C98B;--pos-tint:rgba(53,201,139,.14);
+  --card-sh:0 10px 26px -14px rgba(0,0,0,.75);
+  --edge:rgba(255,255,255,.08);--scrim:rgba(5,8,14,.62)
+}
+html[data-theme="light"]{
+  --bg:#EDF1F8;--facet:#E4E9F3;--hi:#FFFFFF;--lo:#CFD6E6;
+  --surface:#FFFFFF;--surface-2:#F5F8FD;--hair:rgba(14,21,38,.09);
+  --inset-bg:#EEF2F9;
+  --tx:#0E1526;--mute:#5B6678;--sep:rgba(14,21,38,.08);
+  --pos:#0E9E63;--pos-tint:rgba(14,158,99,.12);
+  --card-sh:0 10px 24px -16px rgba(16,24,40,.34);
+  --edge:rgba(14,21,38,.10);--scrim:rgba(120,126,140,.42)
+}
+
+/* page texture softened to a quiet cool weave over the navy ground */
+html[data-theme="dark"]{--wv:rgba(255,255,255,.022);--wv2:rgba(255,255,255,.014)}
+html[data-theme="light"]{--wv:rgba(31,41,70,.028);--wv2:rgba(31,41,70,.016)}
+
+/* --- layered surfaces: cards sit above the page, flat + soft shadow --- */
+html[data-theme] .card,html[data-theme] .group,html[data-theme] .tile,html[data-theme] .acct,
+html[data-theme] .db-split,html[data-theme] .hero-card,html[data-theme] .card.hero-card{
+  background:var(--surface)!important;background-image:none!important;
+  border:1px solid var(--hair)!important;border-radius:var(--r-l)!important;
+  box-shadow:var(--card-sh)!important;color:var(--tx)!important}
+html[data-theme] .card .card,html[data-theme] .group .card,html[data-theme] .hero-card .card,
+html[data-theme] .hero-card .tile,html[data-theme] .card .tile,html[data-theme] .hero-card .mini,
+html[data-theme] .card .mini,html[data-theme] .mini-h{
+  background:var(--surface-2)!important;border:1px solid var(--hair)!important;
+  box-shadow:none!important;color:var(--tx)!important;border-radius:var(--r-m)!important}
+
+/* header + bottom nav read as elevated chrome on the navy page */
+html[data-theme] .hdr{background:var(--bg)!important;border-bottom:1px solid var(--hair)!important;box-shadow:none!important}
+html[data-theme] #nav{background:var(--surface)!important;border-top:1px solid var(--hair)!important;box-shadow:0 -8px 20px -12px rgba(0,0,0,.5)!important}
+html[data-theme="light"] #nav{box-shadow:0 -8px 20px -14px rgba(16,24,40,.22)!important}
+html[data-theme] #nav .tab.active svg{background:var(--gold-tint)!important;box-shadow:none!important;color:var(--gold)!important}
+
+/* round icon tiles: soft gold-tint chip, flat */
+html[data-theme] .iconbtn,html[data-theme] .hdr .iconbtn,
+html[data-theme] .row-i,html[data-theme] .cat{
+  background:var(--surface-2)!important;border:1px solid var(--hair)!important;box-shadow:none!important;color:var(--gold)!important}
+html[data-theme] .empty-i,html[data-theme] .okring,html[data-theme] .support-fab{
+  background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--card-sh)!important;color:var(--gold)!important}
+
+/* chips / segmented / pills — flat, clear on/off states */
+html[data-theme] .chips button,html[data-theme] .chip,html[data-theme] .svc button{
+  background:var(--surface-2)!important;border:1px solid var(--hair)!important;box-shadow:none!important;color:var(--tx)!important}
+html[data-theme] .chips button.on,html[data-theme] .chip.on,html[data-theme] .seg button.on{
+  background:var(--gold)!important;border-color:var(--gold)!important;color:#15110a!important;box-shadow:none!important}
+html[data-theme] .chips button.on svg,html[data-theme] .chip.on svg,html[data-theme] .seg button.on svg{color:#15110a!important}
+html[data-theme] .seg{background:var(--surface-2)!important;box-shadow:inset 0 0 0 1px var(--hair)!important}
+
+/* money-in reads green — the core bank signal (was gold everywhere) */
+html[data-theme] .tx-a.pos,html[data-theme] .pos,html[data-theme] .big.pos,
+html[data-theme] b.pos,html[data-theme] .amt.pos{color:var(--pos)!important}
+html[data-theme] .badge:not(.bad):not(.info):not(.mute){background:var(--pos-tint)!important;color:var(--pos)!important;border-color:transparent!important}
+html[data-theme] .prog i{background:linear-gradient(90deg,var(--pos),#5fe0a8)!important}
+html[data-theme] .tx .cat:after{background:var(--pos)!important;box-shadow:0 0 0 2px var(--surface)!important}
+
+/* fields sit flat inside the layered cards */
+html[data-theme] .fld input,html[data-theme] .fld select,html[data-theme] .fld textarea,
+html[data-theme] .search,html[data-theme] .na-in,html[data-theme] .amount,
+html[data-theme] body.auth .auth-card .fld input,html[data-theme] body.auth .auth-card .fld select{
+  background:var(--inset-bg)!important;box-shadow:inset 0 0 0 1px var(--hair)!important}
+html[data-theme] .fld input:focus,html[data-theme] .na-in:focus-within,
+html[data-theme] .fld select:focus,html[data-theme] .fld textarea:focus{
+  box-shadow:inset 0 0 0 1.5px var(--gold)!important;outline:0}
+
+/* login brand glow re-tinted to match the navy ground */
+html[data-theme] .na{background:radial-gradient(100% 32% at 50% 13%,rgba(212,175,55,.15),transparent 62%)!important}
+html[data-theme] .toast{background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--card-sh)!important}
