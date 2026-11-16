@@ -3,20 +3,22 @@
    Neumorphic Dark (default) and Neumorphic White, accented with Champagne Gold.
    Loaded last. Every surface below is built from these tokens.
    ===================================================================== */
-/* ===== Soft-UI (neumorphic) palette — single scheme, charcoal hub + lavender-white + indigo ===== */
+/* ===== Ocean-teal palette — single scheme, teal→cyan hub + alabaster body ===== */
 html[data-theme="dark"],:root,html[data-theme="light"]{
-  --bg:#E8E9F2;--facet:#E2E3EE;--hi:#FFFFFF;--lo:#C6C7DA;
-  --hub:#2B2C48;--hub2:#232439;--hub-tx:#EEF0F8;--hub-mute:#9A9EC4;
-  --raise:-6px -6px 12px #FFFFFF,6px 6px 14px #C6C7DA;
-  --raise-s:-3px -3px 7px #FFFFFF,3px 3px 7px #C6C7DA;
-  --edge:rgba(36,38,58,.09);
-  --inset-bg:#E3E4EF;--inset:inset 4px 4px 8px #C6C7DA,inset -4px -4px 8px #FFFFFF;
-  --inset-s:inset 2px 2px 5px #C6C7DA,inset -2px -2px 5px #FFFFFF;
-  --gold:#4F5BD5;--gold-hi:#7C83FF;--gold-tint:rgba(79,91,213,.12);--ring:rgba(79,91,213,.32);
-  --tx:#2B2C45;--mute:#7E8197;--sep:rgba(36,38,58,.08);
+  --bg:#F4F8FA;--facet:#EAF2F5;--hi:#FFFFFF;--lo:#DCE8EC;--card:#FFFFFF;
+  --hub:#0A6076;--hub2:#07596C;--hub-tx:#EAFBFF;--hub-mute:#AFDCE6;
+  --hub-grad:linear-gradient(135deg,#07596C 0%,#0E879E 60%,#19B5CC 100%);
+  --acc-grad:linear-gradient(90deg,#0A7489 0%,#16A6BE 100%);
+  --raise:0 10px 25px rgba(7,89,108,.1);
+  --raise-s:0 6px 16px rgba(7,89,108,.08);
+  --edge:rgba(7,89,108,.08);
+  --inset-bg:#EAF2F5;--inset:inset 2px 2px 6px rgba(7,89,108,.1),inset -2px -2px 6px #FFFFFF;
+  --inset-s:inset 1px 1px 4px rgba(7,89,108,.08),inset -1px -1px 4px #FFFFFF;
+  --gold:#0E879E;--gold-hi:#19B5CC;--gold-tint:#D5F2F0;--ring:rgba(14,135,158,.3);
+  --tx:#0A3642;--mute:#5E8795;--sep:rgba(7,89,108,.1);
   --bad:#E0556A;--bad-tint:rgba(224,85,106,.12);
-  --metal:linear-gradient(140deg,#34365A 0%,#2B2C48 46%,#242440 100%);
-  --metal-tx:#EEF0F8;--scrim:rgba(20,21,34,.5)
+  --metal:linear-gradient(135deg,#07596C 0%,#0E879E 62%,#115E72 100%);
+  --metal-tx:#EAFBFF;--scrim:rgba(7,40,50,.5)
 }
 html[data-theme]{
   --r-pill:9999px;--r-l:22px;--r-m:16px;--r-s:12px;
@@ -512,103 +514,133 @@ html[data-theme] .dc-lock b{color:#fff!important}
 html[data-theme] .dc-lock svg{color:var(--gold)!important}
 
 /* =====================================================================
-   SOFT-UI LAYER — charcoal hub on top, lavender-white body, indigo accent
-   Matches the neumorphic two-tone reference. Loaded last, authoritative.
+   OCEAN-TEAL LAYER — teal→cyan hubs with S-wave dividers, alabaster body,
+   white cards, pill controls, floating pill dock. Loaded last.
    ===================================================================== */
-/* single scheme: no theme toggle */
+:root{--wave:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 440 60' preserveAspectRatio='none'%3E%3Cpath d='M0 34 C100 60 172 8 250 28 C330 48 384 34 440 22 L440 60 L0 60 Z' fill='%23F4F8FA'/%3E%3C/svg%3E")}
+
+/* single scheme: no toggle */
 html[data-theme] .thm,html[data-theme] .na-top .thm{display:none!important}
 
-/* ground + status-bar strip */
+/* ground: alabaster canvas, teal status strip + teal footer with wave */
 html[data-theme] #app{background:var(--bg)!important;background-image:none!important}
-html[data-theme] #app:before{background:var(--hub)!important}
-html[data-theme] #view,html[data-theme] body,html[data-theme] body.auth #view{background:var(--bg)!important;background-image:none!important}
-html[data-theme] .page{background:transparent!important}
+html[data-theme] #app:before{background:var(--hub-grad)!important}
+html[data-theme] #view,html[data-theme] body,html[data-theme] body.auth #view{background:transparent!important;background-image:none!important}
+html[data-theme] .page{background:transparent!important;padding-bottom:40px!important}
+html[data-theme] #app:after{content:"";position:absolute;left:0;right:0;bottom:0;height:150px;z-index:0;pointer-events:none;
+  background:var(--wave) top left/100% 40px no-repeat,var(--hub-grad);background-position:top left}
 
-/* money-in reads green */
-html[data-theme] .pos,html[data-theme] .big.pos,html[data-theme] b.pos,html[data-theme] .tx-a.pos{color:#1FB37A!important}
-html[data-theme] .db-sp small i{background:var(--gold)!important}
-html[data-theme] .db-sp.c2 small i{background:#1FB37A!important}
+/* white cards with soft teal shadow */
+html[data-theme] .card,html[data-theme] .group,html[data-theme] .tile,html[data-theme] .acct,
+html[data-theme] .db-split,html[data-theme] .hero-card,html[data-theme] .seg,html[data-theme] .svc button,
+html[data-theme] .lim,html[data-theme] .mini-h{background:var(--card)!important;border:1px solid var(--edge)!important;
+  box-shadow:var(--raise)!important;color:var(--tx)!important;border-radius:22px!important}
+html[data-theme] .card .card,html[data-theme] .group .row,html[data-theme] .mini-h{box-shadow:none!important}
+html[data-theme] .group{overflow:hidden}
+html[data-theme] .row,html[data-theme] .tx,html[data-theme] .row.slim{background:transparent!important}
 
-/* ---- HOME dark hub: greeting + balance on charcoal, body rises below ---- */
+/* money-in green, text teal */
+html[data-theme] .pos,html[data-theme] .big.pos,html[data-theme] b.pos,html[data-theme] .tx-a.pos{color:#12A594!important}
+
+/* badges: mint */
+html[data-theme] .badge:not(.bad){background:var(--gold-tint)!important;color:#0A6076!important;border:0!important}
+
+/* pill controls + teal-cyan gradient primary */
+html[data-theme] .btn,html[data-theme] .na-in,html[data-theme] .search,html[data-theme] .fld input,
+html[data-theme] .chips button,html[data-theme] .seg,html[data-theme] .hm-cta button,html[data-theme] .na-cta{border-radius:9999px!important}
+html[data-theme] .btn-primary,html[data-theme] .na-cta:not(.alt),html[data-theme] .hm-cta button:first-child,
+html[data-theme] .seg button.on,html[data-theme] .chips button.on,html[data-theme] .chip.on,html[data-theme] button.primary{
+  background:var(--acc-grad)!important;color:#fff!important;border:0!important;box-shadow:0 10px 22px -8px rgba(10,116,137,.5)!important;text-shadow:none!important}
+html[data-theme] .btn-primary svg,html[data-theme] .na-cta:not(.alt) svg,html[data-theme] .hm-cta button:first-child svg{color:#fff!important}
+html[data-theme] .hm-cta button:last-child,html[data-theme] .na-cta.alt,html[data-theme] .btn-ghost{
+  background:var(--card)!important;color:var(--gold)!important;border:1px solid var(--edge)!important;box-shadow:var(--raise-s)!important}
+html[data-theme] .hm-cta button:last-child svg,html[data-theme] .na-cta.alt svg{color:var(--gold)!important}
+html[data-theme] .na-in,html[data-theme] .fld input,html[data-theme] .search{background:#fff!important;box-shadow:inset 0 0 0 1px var(--edge)!important}
+html[data-theme] .na-in>svg,html[data-theme] .fld svg{color:var(--gold)!important}
+
+/* progress + chart bars → teal gradient */
+html[data-theme] .prog,html[data-theme] .db-sp-bar,html[data-theme] .bar,html[data-theme] .track{background:var(--gold-tint)!important}
+html[data-theme] .prog i,html[data-theme] .db-sp-bar i,html[data-theme] .bar i,html[data-theme] .fill{background:var(--acc-grad)!important}
+html[data-theme] .db-sp small i{background:#0E879E!important}
+html[data-theme] .db-sp.c2 small i{background:#12A594!important}
+html[data-theme] [class*="chart"] rect,html[data-theme] .sc-bar,html[data-theme] .sc-bar i,html[data-theme] .spark i.on{background:var(--acc-grad)!important;fill:#0E879E!important}
+
+/* ---- HOME dark hub → teal with S-wave bottom ---- */
 html[data-theme] .hm-top{position:relative;padding-top:calc(var(--sa-t) + 16px)!important}
 html[data-theme] .hm-top:before{content:"";position:absolute;left:-2px;right:-2px;top:0;height:calc(var(--sa-t) + 300px);
-  background:linear-gradient(var(--hub) 60%,var(--hub2));border-radius:0 0 32px 32px;z-index:0;
-  box-shadow:0 16px 30px -16px rgba(16,17,30,.55)}
+  background:var(--hub-grad);z-index:0}
+html[data-theme] .hm-top:after{content:"";position:absolute;left:-2px;right:-2px;top:calc(var(--sa-t) + 268px);height:46px;
+  background:var(--wave) bottom left/100% 46px no-repeat;z-index:0}
 html[data-theme] .hm-top>*{position:relative;z-index:1}
 html[data-theme] .db-hi small{color:var(--hub-mute)!important}
 html[data-theme] .db-hi b{color:var(--hub-tx)!important}
-html[data-theme] .hm-top .avatar-btn{box-shadow:0 0 0 2px rgba(255,255,255,.12)!important}
-html[data-theme] .hm-top .avatar-btn img{border-color:var(--gold-hi)!important}
-html[data-theme] .hm-top .db-bell{background:var(--hub2)!important;border:0!important;color:#c7cbf0!important;box-shadow:none!important}
-html[data-theme] .hm-top .db-bell svg{color:#c7cbf0!important}
+html[data-theme] .hm-top .avatar-btn{box-shadow:0 0 0 2px rgba(255,255,255,.3)!important}
+html[data-theme] .hm-top .db-bell{background:rgba(255,255,255,.16)!important;border:0!important;color:#fff!important}
+html[data-theme] .hm-top .db-bell svg{color:#fff!important}
 
-/* balance card on the hub — raised dark panel */
-html[data-theme] .vcard{border:1px solid rgba(124,131,255,.3)!important;box-shadow:0 18px 36px -18px rgba(10,10,22,.7),inset 0 1px 0 rgba(255,255,255,.08)!important}
-html[data-theme] .vc-bot span:last-child,html[data-theme] .vc-brand b{color:var(--hub-tx)!important}
-html[data-theme] .vc-bot span:last-child{color:var(--gold-hi)!important}
-html[data-theme] .db-eye{background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.18)!important;color:var(--hub-tx)!important;box-shadow:none!important}
-html[data-theme] .db-eye svg{color:var(--gold-hi)!important}
+/* balance card: teal gradient */
+html[data-theme] .vcard{background:var(--hub-grad)!important;border:0!important;border-radius:24px!important;
+  box-shadow:0 16px 34px -14px rgba(7,89,108,.5)!important;color:var(--hub-tx)!important}
+html[data-theme] .vc-lbl,html[data-theme] .vc-amt,html[data-theme] .vc-amt small,html[data-theme] .vc-brand b,html[data-theme] .vc-bot span{color:var(--hub-tx)!important}
+html[data-theme] .vc-bot span:last-child{color:#CFF6FF!important}
+html[data-theme] .db-eye{background:rgba(255,255,255,.18)!important;border:0!important;color:#fff!important}
+html[data-theme] .db-eye svg{color:#fff!important}
 
-/* SEND filled indigo, TRANSFER soft outline */
-html[data-theme] .hm-cta button:first-child{background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;border:0!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
-html[data-theme] .hm-cta button:first-child svg{color:#fff!important}
-html[data-theme] .hm-cta button:last-child{background:var(--bg)!important;color:var(--gold)!important;border:0!important;box-shadow:var(--raise)!important}
-html[data-theme] .hm-cta button:last-child svg{color:var(--gold)!important}
-
-/* colourful quick-action tiles */
-html[data-theme] .hm-mini .hm-mi{border:0!important;color:#fff!important;box-shadow:-4px -4px 9px #fff,5px 5px 12px #c6c7da!important}
-html[data-theme] .hm-mini button:nth-child(1) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#FF8FC7,#E85BA3)!important}
-html[data-theme] .hm-mini button:nth-child(2) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#FFC661,#F39A2B)!important}
-html[data-theme] .hm-mini button:nth-child(3) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#7FD4FF,#2E9BE6)!important}
-html[data-theme] .hm-mini button:nth-child(4) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#67E6B0,#1FB37A)!important}
-html[data-theme] .hm-mini .hm-mi svg{color:#fff!important}
+/* colourful tiles → squircle white with circular teal badge */
 html[data-theme] .hm-mini button{color:var(--tx)!important}
+html[data-theme] .hm-mini .hm-mi{border:0!important;color:#fff!important;border-radius:50%!important;
+  background:var(--acc-grad)!important;box-shadow:0 8px 18px -8px rgba(10,116,137,.5)!important}
+html[data-theme] .hm-mini .hm-mi svg{color:#fff!important}
+html[data-theme] .svc button{border-radius:18px!important}
+html[data-theme] .svc button svg{color:var(--gold)!important}
 
-/* ---- inner pages: dark hub header, light body ---- */
-html[data-theme] .hdr{background:var(--hub)!important;background-image:none!important;color:var(--hub-tx)!important;
-  border:0!important;border-radius:0 0 26px 26px!important;box-shadow:0 12px 24px -16px rgba(16,17,30,.5)!important;
-  padding:calc(var(--sa-t) + 12px) 18px 18px!important;margin-bottom:18px!important}
+/* ---- inner pages: teal header with S-wave bottom ---- */
+html[data-theme] .hdr{background:var(--hub-grad)!important;background-image:var(--hub-grad)!important;color:var(--hub-tx)!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;position:relative;
+  padding:calc(var(--sa-t) + 12px) 18px 34px!important;margin-bottom:20px!important}
+html[data-theme] .hdr:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:40px;
+  background:var(--wave) bottom left/100% 40px no-repeat;z-index:1}
 html[data-theme] .hdr-t h1{color:var(--hub-tx)!important}
 html[data-theme] .hdr-t p{color:var(--hub-mute)!important}
-html[data-theme] .hdr .iconbtn{background:var(--hub2)!important;border:0!important;color:#c7cbf0!important;box-shadow:none!important}
-html[data-theme] .hdr .iconbtn svg{color:#c7cbf0!important}
-html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#aab0ff!important}
-html[data-theme] .hdr-sp{min-width:0!important}
+html[data-theme] .hdr .iconbtn{background:rgba(255,255,255,.16)!important;border:0!important;color:#fff!important;border-radius:50%!important;box-shadow:none!important}
+html[data-theme] .hdr .iconbtn svg{color:#fff!important}
+html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#CFF6FF!important}
 
-/* ---- soft-UI bottom nav with raised centre button (5 icons) ---- */
-html[data-theme] #nav{background:var(--bg)!important;border:0!important;border-top:0!important;
-  box-shadow:0 -8px 20px -12px rgba(28,28,44,.3)!important}
-html[data-theme] #nav .tab,html[data-theme] #nav .tab span{color:#a6a8bf!important}
-html[data-theme] #nav .tab.active,html[data-theme] #nav .tab.active span{color:var(--gold)!important}
-html[data-theme] #nav .tab.active svg{background:transparent!important;box-shadow:none!important}
-html[data-theme] #nav .tab:nth-child(3){position:relative}
-html[data-theme] #nav .tab:nth-child(3) svg{width:54px!important;height:54px!important;margin-top:-10px!important;padding:16px!important;border-radius:50%!important;
-  background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
-html[data-theme] #nav .tab:nth-child(3) span{color:transparent!important;height:0!important;overflow:hidden}
-html[data-theme] #nav .tab:nth-child(3).active svg{color:#fff!important}
+/* ---- floating pill dock nav (5 tabs, teal gradient, active glow) ---- */
+html[data-theme] #nav{background:transparent!important;border:0!important;box-shadow:none!important;
+  padding:0 16px calc(var(--sa-b) + 10px)!important}
+html[data-theme] #nav .navwrap,html[data-theme] #nav>ul,html[data-theme] #nav>div{display:flex}
+html[data-theme] #nav{display:flex;align-items:center;justify-content:space-around;gap:4px;
+  background:var(--hub-grad)!important;margin:0 14px calc(var(--sa-b) + 10px)!important;border-radius:9999px!important;
+  box-shadow:0 14px 30px -10px rgba(7,89,108,.55)!important;height:62px!important;padding:0 8px!important}
+html[data-theme] #nav .tab,html[data-theme] #nav .tab span{color:rgba(255,255,255,.72)!important}
+html[data-theme] #nav .tab svg{color:currentColor!important}
+html[data-theme] #nav .tab.active,html[data-theme] #nav .tab.active span{color:#063A47!important}
+html[data-theme] #nav .tab.active svg{position:relative;color:#063A47!important;background:#fff!important;border-radius:50%!important;
+  padding:9px!important;width:40px!important;height:40px!important;box-shadow:0 0 0 5px rgba(255,255,255,.28),0 6px 14px -4px rgba(0,0,0,.3)!important}
 
-/* ---- LOGIN: dark hub top, light sheet with the form ---- */
-html[data-theme] body.auth #view,html[data-theme] .na{background:linear-gradient(var(--hub) 42%,var(--hub2))!important}
+/* ---- LOGIN: teal hub + white sheet with wave ---- */
+html[data-theme] body.auth #view,html[data-theme] .na{background:var(--hub-grad)!important}
 html[data-theme] .na-brand h1,html[data-theme] .na-brand .hs-mark{color:var(--hub-tx)!important}
-html[data-theme] .na-brand h1{color:var(--hub-tx)!important}
 html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:var(--hub-mute)!important}
-html[data-theme] .na-brand p b{color:#c7cbf0!important}
+html[data-theme] .na-brand p b{color:#CFF6FF!important}
 html[data-theme] .na-tabs button{color:var(--hub-mute)!important}
-html[data-theme] .na-tabs button.on{color:var(--hub-tx)!important;border-bottom-color:var(--gold-hi)!important}
-html[data-theme] .na-tabs i{background:rgba(255,255,255,.12)!important}
-/* the form sits on a raised light sheet rising from the bottom */
-html[data-theme] body.auth .na .auth-card{background:var(--bg)!important;border-radius:34px 34px 0 0!important;
-  margin:calc(var(--u)*2.4) -24px 0!important;padding:30px 24px calc(var(--sa-b) + 24px)!important;
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.7),0 -18px 34px rgba(12,12,22,.4)!important;flex:1}
-html[data-theme] .na-in{background:var(--inset-bg)!important;box-shadow:var(--inset)!important}
-html[data-theme] .na-in>svg,html[data-theme] .na-in .pwt,html[data-theme] .na-in .pwt svg{color:var(--gold)!important}
-html[data-theme] .na-cta,html[data-theme] .hm-cta button:first-child{color:#fff}
-html[data-theme] .na-cta:not(.alt){background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;border:0!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
-html[data-theme] .na-cta:not(.alt) svg{color:#fff!important}
-html[data-theme] .na-cta.alt{background:var(--bg)!important;color:var(--gold)!important;box-shadow:var(--raise)!important}
-html[data-theme] .na-cta.alt svg{color:var(--gold)!important}
+html[data-theme] .na-tabs button.on{color:var(--hub-tx)!important;border-bottom-color:#CFF6FF!important}
+html[data-theme] .na-tabs i{background:rgba(255,255,255,.14)!important}
+html[data-theme] body.auth .na .auth-card{background:var(--bg)!important;border-radius:32px 32px 0 0!important;position:relative;
+  margin:calc(var(--u)*2.4) -24px 0!important;padding:40px 24px calc(var(--sa-b) + 24px)!important;
+  box-shadow:0 -14px 34px rgba(7,89,108,.25)!important;flex:1}
+html[data-theme] body.auth .na .auth-card:before{content:"";position:absolute;left:0;right:0;top:-38px;height:40px;
+  background:var(--wave) bottom left/100% 40px no-repeat;transform:scaleY(-1)}
 html[data-theme] .na .auth-card h2,html[data-theme] .na-prompt{color:var(--tx)!important}
 html[data-theme] .na .auth-card p{color:var(--mute)!important}
-html[data-theme] .na-sw{color:var(--mute)!important}
-html[data-theme] .na-foot,html[data-theme] .na-links button,html[data-theme] .na-ver{color:var(--mute)!important}
-html[data-theme] .na-ver svg{color:var(--gold)!important}
+html[data-theme] .na-sw,html[data-theme] .na-foot,html[data-theme] .na-links button{color:var(--hub-mute)!important}
+html[data-theme] .na-ver{color:var(--hub-mute)!important}
+html[data-theme] .na-ver svg{color:#CFF6FF!important}
+
+/* --- fixes --- */
+html[data-theme] body.auth #nav{display:none!important}
+html[data-theme] #view{padding-bottom:150px!important}
+/* home hub S-wave sits right at the teal/white boundary below the balance card */
+html[data-theme] .hm-top:before{height:calc(var(--sa-t) + 298px)}
+html[data-theme] .hm-top:after{top:calc(var(--sa-t) + 258px);height:48px}
