@@ -675,3 +675,7 @@ html[data-theme] body.auth .na-link,html[data-theme] body.auth .back-lnk,html[da
 html[data-theme] body.auth .back-lnk svg{color:#EAFBFF!important}
 html[data-theme] body.auth .otp-lbl,html[data-theme] body.auth .otp-exp,html[data-theme] body.auth .center.mute,html[data-theme] body.auth .mute.sm,html[data-theme] body.auth label.lbl{color:#CDEAF0!important}
 html[data-theme] body.auth .otpBox{background:rgba(255,255,255,.12)!important;border:1.5px solid rgba(255,255,255,.4)!important;color:#fff!important}
+
+/* login must not show the app's teal footer band */
+html[data-theme] body.auth #app:after{display:none!important}
+html[data-theme] body.auth #app:before{display:none!important}
