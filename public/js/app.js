@@ -731,7 +731,7 @@
         </form>
         <button type="button" class="na-link" data-go="/forgot">Forgot Password?</button>
         <button class="na-cta alt" type="button" data-act="faceLogin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>`,
-        foot: `<div class="na-foot"><nav class="na-links" aria-label="More"><button type="button" data-go="/pub/security">Security</button><button type="button" data-go="/pub/contact">Contact</button><button type="button" data-go="/pub/locations">Locations</button></nav><p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p></div>` })
+        foot: `<p class="na-alt">New to Westmark? <button type="button" data-go="/register">Open an account</button></p><div class="na-foot"><nav class="na-links" aria-label="More"><button type="button" data-go="/pub/security">Security</button><button type="button" data-go="/pub/contact">Contact</button><button type="button" data-go="/pub/locations">Locations</button></nav><p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p></div>` })
 
     };
   }, { pub: true });
@@ -905,7 +905,7 @@
         ${ui.field({ name: 'email', label: 'Email address', type: 'email', inputmode: 'email' })}
         ${ui.select({ name: 'type', label: 'Account to open', value: 'checking', options: [['checking', 'Harbor Everyday Checking'], ['savings', 'Harbor High-Yield Savings'], ['both', 'Checking + Savings']] })}
         <div class="fld" data-fld="agree"><label class="chk"><input type="checkbox" name="agree"><span></span>I agree to the terms and privacy policy</label><p class="ferr" role="alert"></p></div>
-        <button class="na-cta" type="submit"><span>GET STARTED</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>` })
+        <button class="na-cta" type="submit"><span>GET STARTED</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>`, foot: `<p class="na-alt">Already have an account? <button type="button" data-go="/login">Sign in</button></p>` })
   }), { pub: true });
   HM.forms.register = (f, d) => {
     if (!ui.need(f, d, [['first', 'Enter your first name.'], ['last', 'Enter your last name.']])) return;

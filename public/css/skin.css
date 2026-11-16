@@ -619,25 +619,49 @@ html[data-theme] #nav .tab.active,html[data-theme] #nav .tab.active span{color:#
 html[data-theme] #nav .tab.active svg{position:relative;color:#063A47!important;background:#fff!important;border-radius:50%!important;
   padding:9px!important;width:40px!important;height:40px!important;box-shadow:0 0 0 5px rgba(255,255,255,.28),0 6px 14px -4px rgba(0,0,0,.3)!important}
 
-/* ---- LOGIN: teal hub + white sheet with wave ---- */
-html[data-theme] body.auth #view,html[data-theme] .na{background:var(--hub-grad)!important}
-html[data-theme] .na-brand h1,html[data-theme] .na-brand .hs-mark{color:var(--hub-tx)!important}
-html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:var(--hub-mute)!important}
-html[data-theme] .na-brand p b{color:#CFF6FF!important}
-html[data-theme] .na-tabs button{color:var(--hub-mute)!important}
-html[data-theme] .na-tabs button.on{color:var(--hub-tx)!important;border-bottom-color:#CFF6FF!important}
-html[data-theme] .na-tabs i{background:rgba(255,255,255,.14)!important}
-html[data-theme] body.auth .na .auth-card{background:var(--bg)!important;border-radius:0!important;position:relative;
-  margin:48px -24px 0!important;padding:34px 24px calc(var(--sa-b) + 24px)!important;
-  box-shadow:0 -14px 34px rgba(7,89,108,.22)!important;flex:1}
-html[data-theme] body.auth .na .auth-card:before{content:"";position:absolute;left:0;right:0;top:-32px;height:34px;
-  background:var(--wave) bottom left/100% 34px no-repeat;z-index:1}
-html[data-theme] body.auth .na-tabs{margin-bottom:8px!important}
-html[data-theme] .na .auth-card h2,html[data-theme] .na-prompt{color:var(--tx)!important}
-html[data-theme] .na .auth-card p{color:var(--mute)!important}
-html[data-theme] .na-sw,html[data-theme] .na-foot,html[data-theme] .na-links button{color:var(--hub-mute)!important}
-html[data-theme] .na-ver{color:var(--hub-mute)!important}
+/* ---- LOGIN: full teal gradient, glassy form, white curved top + bottom ---- */
+html[data-theme] body.auth,html[data-theme] body.auth #view{background:#FFFFFF!important;background-image:none!important}
+html[data-theme] .na{background:var(--hub-grad)!important;position:relative;min-height:100%;display:flex;flex-direction:column;
+  padding:calc(var(--sa-t) + 46px) 26px calc(var(--sa-b) + 54px)!important;overflow:hidden}
+/* white curved top + bottom gutters */
+html[data-theme] .na:before{content:"";position:absolute;left:0;right:0;top:0;height:64px;z-index:2;pointer-events:none;
+  background:var(--wave) top left/100% 64px no-repeat;transform:scaleY(-1)}
+html[data-theme] .na:after{content:"";position:absolute;left:0;right:0;bottom:0;height:72px;z-index:2;pointer-events:none;
+  background:var(--wave) bottom left/100% 72px no-repeat}
+html[data-theme] .na>*{position:relative;z-index:1}
+html[data-theme] .na-top{display:none!important}
+html[data-theme] .na-tabs{display:none!important}
+html[data-theme] .na-brand h1{color:#fff!important}
+html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:#D6F2F7!important}
+/* transparent form directly on the teal */
+html[data-theme] body.auth .na .auth-card{background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;margin:14px 0 0!important;padding:0!important;flex:none}
+/* glassy inputs */
+html[data-theme] .na-in{background:rgba(255,255,255,.1)!important;border:1.5px solid rgba(255,255,255,.4)!important;
+  box-shadow:none!important;border-radius:9999px!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html[data-theme] .na-in input{color:#fff!important}
+html[data-theme] .na-in input::placeholder{color:rgba(255,255,255,.72)!important}
+html[data-theme] .na-in>svg,html[data-theme] .na-in .pwt,html[data-theme] .na-in .pwt svg{color:#fff!important}
+html[data-theme] .na-sw,html[data-theme] .na-sw span{color:#EAFBFF!important}
+/* glassy Sign In with circular arrow */
+html[data-theme] .na-cta:not(.alt){background:rgba(255,255,255,.16)!important;border:1.5px solid rgba(255,255,255,.45)!important;
+  color:#fff!important;box-shadow:none!important;border-radius:9999px!important;position:relative;justify-content:center;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html[data-theme] .na-cta:not(.alt) .arw{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;padding:8px;border-radius:50%;background:rgba(255,255,255,.22)!important;color:#fff!important}
+html[data-theme] .na-cta.alt{background:rgba(255,255,255,.07)!important;border:1.5px solid rgba(255,255,255,.35)!important;
+  color:#fff!important;box-shadow:none!important;border-radius:9999px!important}
+html[data-theme] .na-cta.alt svg{color:#fff!important}
+/* cross-link + footer in white */
+html[data-theme] .na-alt{text-align:center;color:#D6F2F7!important;font-size:13px;margin-top:20px}
+html[data-theme] .na-alt button{color:#fff!important;font-weight:800;text-decoration:underline;background:none;border:0}
+html[data-theme] .na .auth-card h2,html[data-theme] .na-prompt{color:#fff!important}
+html[data-theme] .na .auth-card p,html[data-theme] .na .auth-card .mute{color:#D6F2F7!important}
+html[data-theme] .na-foot,html[data-theme] .na-links button,html[data-theme] .na-ver{color:#BfE6EE!important}
 html[data-theme] .na-ver svg{color:#CFF6FF!important}
+/* OTP / forms on auth stay glassy */
+html[data-theme] body.auth .otpBox,html[data-theme] body.auth .fld input,html[data-theme] body.auth .fld select{
+  background:rgba(255,255,255,.1)!important;border:1.5px solid rgba(255,255,255,.4)!important;color:#fff!important}
 
 /* --- fixes --- */
 html[data-theme] body.auth #nav{display:none!important}
@@ -645,3 +669,9 @@ html[data-theme] #view{padding-bottom:150px!important}
 /* home hub S-wave sits right at the teal/white boundary below the balance card */
 html[data-theme] .hm-top:before{height:calc(var(--sa-t) + 298px)}
 html[data-theme] .hm-top:after{top:calc(var(--sa-t) + 258px);height:48px}
+
+/* auth links visible on teal */
+html[data-theme] body.auth .na-link,html[data-theme] body.auth .back-lnk,html[data-theme] body.auth .na-prompt a{color:#EAFBFF!important;text-decoration:underline}
+html[data-theme] body.auth .back-lnk svg{color:#EAFBFF!important}
+html[data-theme] body.auth .otp-lbl,html[data-theme] body.auth .otp-exp,html[data-theme] body.auth .center.mute,html[data-theme] body.auth .mute.sm,html[data-theme] body.auth label.lbl{color:#CDEAF0!important}
+html[data-theme] body.auth .otpBox{background:rgba(255,255,255,.12)!important;border:1.5px solid rgba(255,255,255,.4)!important;color:#fff!important}
