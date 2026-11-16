@@ -3,31 +3,20 @@
    Neumorphic Dark (default) and Neumorphic White, accented with Champagne Gold.
    Loaded last. Every surface below is built from these tokens.
    ===================================================================== */
-html[data-theme="dark"],:root{
-  --bg:#181A1D;--facet:#1D2024;--hi:#22252A;--lo:#0E1012;
-  --raise:-5px -5px 10px #22252A,5px 5px 12px #0E1012;
-  --raise-s:-3px -3px 6px #22252A,3px 3px 7px #0E1012;
-  --edge:rgba(212,175,55,.25);
-  --inset-bg:#15171A;--inset:inset 4px 4px 8px #0E1012,inset -4px -4px 8px #22252A;
-  --inset-s:inset 2px 2px 5px #0E1012,inset -2px -2px 5px #22252A;
-  --gold:#D4AF37;--gold-hi:#E5C76B;--gold-tint:rgba(212,175,55,.12);--ring:rgba(212,175,55,.34);
-  --tx:#F3F4F6;--mute:#8A8F98;--sep:rgba(255,255,255,.06);
-  --bad:#F08A8A;--bad-tint:rgba(240,138,138,.12);
-  --metal:linear-gradient(135deg,#3A3E44 0%,#23262A 22%,#2E3236 40%,#1A1C1F 62%,#2A2D31 82%,#17191B 100%);
-  --metal-tx:#F3F4F6;--scrim:rgba(8,9,10,.6)
-}
-html[data-theme="light"]{
-  --bg:#EEF0F4;--facet:#E6E9EF;--hi:#FFFFFF;--lo:#D1D5DF;
-  --raise:-6px -6px 12px #FFFFFF,6px 6px 12px #D1D5DF;
-  --raise-s:-3px -3px 7px #FFFFFF,3px 3px 7px #D1D5DF;
-  --edge:rgba(197,155,39,.35);
-  --inset-bg:#E8EBF0;--inset:inset 4px 4px 8px #D1D5DF,inset -4px -4px 8px #FFFFFF;
-  --inset-s:inset 2px 2px 5px #D1D5DF,inset -2px -2px 5px #FFFFFF;
-  --gold:#C59B27;--gold-hi:#D4AF37;--gold-tint:rgba(197,155,39,.13);--ring:rgba(197,155,39,.36);
-  --tx:#181A1D;--mute:#6B7280;--sep:rgba(24,26,29,.07);
-  --bad:#B4372F;--bad-tint:rgba(180,55,47,.1);
-  --metal:linear-gradient(135deg,#FBFBFC 0%,#ECEEF2 24%,#F7F8FA 44%,#E2E5EB 66%,#F2F3F6 84%,#E4E7EC 100%);
-  --metal-tx:#181A1D;--scrim:rgba(120,126,140,.45)
+/* ===== Soft-UI (neumorphic) palette — single scheme, charcoal hub + lavender-white + indigo ===== */
+html[data-theme="dark"],:root,html[data-theme="light"]{
+  --bg:#E8E9F2;--facet:#E2E3EE;--hi:#FFFFFF;--lo:#C6C7DA;
+  --hub:#2B2C48;--hub2:#232439;--hub-tx:#EEF0F8;--hub-mute:#9A9EC4;
+  --raise:-6px -6px 12px #FFFFFF,6px 6px 14px #C6C7DA;
+  --raise-s:-3px -3px 7px #FFFFFF,3px 3px 7px #C6C7DA;
+  --edge:rgba(36,38,58,.09);
+  --inset-bg:#E3E4EF;--inset:inset 4px 4px 8px #C6C7DA,inset -4px -4px 8px #FFFFFF;
+  --inset-s:inset 2px 2px 5px #C6C7DA,inset -2px -2px 5px #FFFFFF;
+  --gold:#4F5BD5;--gold-hi:#7C83FF;--gold-tint:rgba(79,91,213,.12);--ring:rgba(79,91,213,.32);
+  --tx:#2B2C45;--mute:#7E8197;--sep:rgba(36,38,58,.08);
+  --bad:#E0556A;--bad-tint:rgba(224,85,106,.12);
+  --metal:linear-gradient(140deg,#34365A 0%,#2B2C48 46%,#242440 100%);
+  --metal-tx:#EEF0F8;--scrim:rgba(20,21,34,.5)
 }
 html[data-theme]{
   --r-pill:9999px;--r-l:22px;--r-m:16px;--r-s:12px;
@@ -457,8 +446,7 @@ html[data-theme] .hdr-t p{font-weight:500!important}
 html[data-theme] .hdr-t h1{font-weight:800!important}
 html[data-theme] .db-hi b{font-weight:700!important;font-size:17.5px!important}
 html[data-theme] .sec-h h2,html[data-theme] #view .page h2{font-weight:800!important}
-html[data-theme="dark"] .sec-h h2,html[data-theme="dark"] #view .page h2{color:#F3F4F6!important}
-html[data-theme="light"] .sec-h h2,html[data-theme="light"] #view .page h2{color:#181A1D!important}
+html[data-theme] .sec-h h2,html[data-theme] #view .page h2{color:var(--tx)!important}
 /* bottom-nav labels: a touch stronger so Home…More read clearly */
 html[data-theme] #nav .tab span{font-weight:600!important}
 html[data-theme="dark"] #nav .tab:not(.active) span{color:#AEB4BD!important}
@@ -523,125 +511,104 @@ html[data-theme] .dc-lock{position:absolute;inset:0;z-index:3;display:flex;flex-
 html[data-theme] .dc-lock b{color:#fff!important}
 html[data-theme] .dc-lock svg{color:var(--gold)!important}
 
-/* ======================================================================
-   v41 — fintech polish: premium balance card, filled-gold primary actions,
-   warm login glow. (Status-bar strip untouched.)
-   ====================================================================== */
-/* --- Home balance card: same realistic premium-card finish as the debit card --- */
-html[data-theme] .vcard{border:0!important;color:#F4F1E6!important;overflow:hidden;isolation:isolate;
-  background:radial-gradient(135% 130% at 86% -16%,rgba(212,175,55,.30),transparent 46%),radial-gradient(95% 95% at 112% 125%,rgba(212,175,55,.2),transparent 55%),linear-gradient(145deg,#34383d 0%,#202327 42%,#272b30 62%,#131519 100%)!important;
-  box-shadow:0 18px 38px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 0 1px rgba(212,175,55,.45)!important}
-html[data-theme] .vcard:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.5;
-  background:repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 1px,transparent 1px 6px)!important}
-html[data-theme] .vcard:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(108deg,transparent 30%,rgba(255,255,255,.13) 45%,rgba(255,255,255,.03) 52%,transparent 66%)!important}
-html[data-theme] .vc-lbl,html[data-theme] .vc-amt,html[data-theme] .vc-amt small,html[data-theme] .vcard .vc-brand b{color:#F4F1E6!important}
-html[data-theme] .vc-bot span{color:rgba(244,241,230,.82)!important}
-html[data-theme] .vc-bot span:last-child{color:#E6C879!important;font-weight:700}
-html[data-theme] .db-eye{background:rgba(255,255,255,.15)!important;border:1px solid rgba(255,255,255,.3)!important;color:#F4F1E6!important;box-shadow:none!important}
-html[data-theme] .db-eye svg{color:#F4F1E6!important}
-html[data-theme] .vc-nfc svg{color:#E6C879!important}
-/* realistic chip on the balance card (match debit card) */
-html[data-theme] .vc-chip{position:relative;width:46px;height:34px;border-radius:7px!important;border:0!important;
-  background:linear-gradient(135deg,#FBEBB0 0%,#E6C879 38%,#C79A2E 70%,#A87E1C 100%)!important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -2px 3px rgba(120,85,10,.5),0 1px 2px rgba(0,0,0,.35)!important}
-html[data-theme] .vc-chip i{position:absolute;inset:4px 6px;border:1px solid rgba(120,85,10,.65);border-radius:4px;background:transparent;top:4px;right:6px;bottom:4px;left:6px}
-html[data-theme] .vc-chip:after{content:"";position:absolute;left:6px;right:6px;top:50%;height:1px;background:rgba(120,85,10,.6);box-shadow:0 -8px 0 rgba(120,85,10,.5),0 8px 0 rgba(120,85,10,.5)}
-
-/* --- filled-gold primary actions (the fintech "primary" pop) --- */
-html[data-theme] .btn-primary,html[data-theme] .na-cta:not(.alt),html[data-theme] .hm-cta button:first-child{
-  background:linear-gradient(135deg,#FBEBB0 0%,#E6C879 42%,#C9A23A 100%)!important;background-image:linear-gradient(135deg,#FBEBB0 0%,#E6C879 42%,#C9A23A 100%)!important;
-  color:#1b1305!important;border:0!important;
-  box-shadow:0 10px 22px rgba(201,162,58,.34),inset 0 1px 0 rgba(255,255,255,.55)!important;text-shadow:none!important}
-html[data-theme] .btn-primary svg,html[data-theme] .na-cta:not(.alt) svg,html[data-theme] .hm-cta button:first-child svg{color:#1b1305!important}
-html[data-theme] .btn-primary:active,html[data-theme] .na-cta:not(.alt):active,html[data-theme] .hm-cta button:first-child:active{
-  box-shadow:0 4px 12px rgba(201,162,58,.3),inset 0 2px 7px rgba(120,85,10,.4)!important;transform:translateY(1px)}
-html[data-theme] .btn-primary:disabled,html[data-theme] .na-cta:not(.alt):disabled{opacity:.55!important;box-shadow:none!important}
-html[data-theme] .btn-primary .spin{border-color:rgba(27,19,5,.25)!important;border-top-color:#1b1305!important}
-html[data-theme] .hm-cta button:last-child{border:1px solid var(--gold)!important}
-
-/* --- warm brand glow behind the login logo (sits below the status-bar strip) --- */
-html[data-theme] .na{background:radial-gradient(110% 34% at 50% 16%,rgba(201,162,58,.16),transparent 60%)!important}
-
 /* =====================================================================
-   v42 — Modern fintech color system
-   Premium ink-navy surfaces + layered cards + semantic green for money-in.
-   Champagne gold becomes a true accent (brand, primary action), not the
-   colour of every element. Applies from login through every page.
-   The status-bar strip stays seamless with --bg (never gray, never blue).
+   SOFT-UI LAYER — charcoal hub on top, lavender-white body, indigo accent
+   Matches the neumorphic two-tone reference. Loaded last, authoritative.
    ===================================================================== */
-html[data-theme="dark"],:root{
-  --bg:#0E1526;--facet:#141D33;--hi:#1A2540;--lo:#070B14;
-  --surface:#15203A;--surface-2:#1C2A49;--hair:rgba(255,255,255,.08);
-  --inset-bg:#101A30;
-  --tx:#EEF2F9;--mute:#8C98B0;--sep:rgba(255,255,255,.08);
-  --pos:#35C98B;--pos-tint:rgba(53,201,139,.14);
-  --card-sh:0 10px 26px -14px rgba(0,0,0,.75);
-  --edge:rgba(255,255,255,.08);--scrim:rgba(5,8,14,.62)
-}
-html[data-theme="light"]{
-  --bg:#EDF1F8;--facet:#E4E9F3;--hi:#FFFFFF;--lo:#CFD6E6;
-  --surface:#FFFFFF;--surface-2:#F5F8FD;--hair:rgba(14,21,38,.09);
-  --inset-bg:#EEF2F9;
-  --tx:#0E1526;--mute:#5B6678;--sep:rgba(14,21,38,.08);
-  --pos:#0E9E63;--pos-tint:rgba(14,158,99,.12);
-  --card-sh:0 10px 24px -16px rgba(16,24,40,.34);
-  --edge:rgba(14,21,38,.10);--scrim:rgba(120,126,140,.42)
-}
+/* single scheme: no theme toggle */
+html[data-theme] .thm,html[data-theme] .na-top .thm{display:none!important}
 
-/* page texture softened to a quiet cool weave over the navy ground */
-html[data-theme="dark"]{--wv:rgba(255,255,255,.022);--wv2:rgba(255,255,255,.014)}
-html[data-theme="light"]{--wv:rgba(31,41,70,.028);--wv2:rgba(31,41,70,.016)}
+/* ground + status-bar strip */
+html[data-theme] #app{background:var(--bg)!important;background-image:none!important}
+html[data-theme] #app:before{background:var(--hub)!important}
+html[data-theme] #view,html[data-theme] body,html[data-theme] body.auth #view{background:var(--bg)!important;background-image:none!important}
+html[data-theme] .page{background:transparent!important}
 
-/* --- layered surfaces: cards sit above the page, flat + soft shadow --- */
-html[data-theme] .card,html[data-theme] .group,html[data-theme] .tile,html[data-theme] .acct,
-html[data-theme] .db-split,html[data-theme] .hero-card,html[data-theme] .card.hero-card{
-  background:var(--surface)!important;background-image:none!important;
-  border:1px solid var(--hair)!important;border-radius:var(--r-l)!important;
-  box-shadow:var(--card-sh)!important;color:var(--tx)!important}
-html[data-theme] .card .card,html[data-theme] .group .card,html[data-theme] .hero-card .card,
-html[data-theme] .hero-card .tile,html[data-theme] .card .tile,html[data-theme] .hero-card .mini,
-html[data-theme] .card .mini,html[data-theme] .mini-h{
-  background:var(--surface-2)!important;border:1px solid var(--hair)!important;
-  box-shadow:none!important;color:var(--tx)!important;border-radius:var(--r-m)!important}
+/* money-in reads green */
+html[data-theme] .pos,html[data-theme] .big.pos,html[data-theme] b.pos,html[data-theme] .tx-a.pos{color:#1FB37A!important}
+html[data-theme] .db-sp small i{background:var(--gold)!important}
+html[data-theme] .db-sp.c2 small i{background:#1FB37A!important}
 
-/* header + bottom nav read as elevated chrome on the navy page */
-html[data-theme] .hdr{background:var(--bg)!important;border-bottom:1px solid var(--hair)!important;box-shadow:none!important}
-html[data-theme] #nav{background:var(--surface)!important;border-top:1px solid var(--hair)!important;box-shadow:0 -8px 20px -12px rgba(0,0,0,.5)!important}
-html[data-theme="light"] #nav{box-shadow:0 -8px 20px -14px rgba(16,24,40,.22)!important}
-html[data-theme] #nav .tab.active svg{background:var(--gold-tint)!important;box-shadow:none!important;color:var(--gold)!important}
+/* ---- HOME dark hub: greeting + balance on charcoal, body rises below ---- */
+html[data-theme] .hm-top{position:relative;padding-top:calc(var(--sa-t) + 16px)!important}
+html[data-theme] .hm-top:before{content:"";position:absolute;left:-2px;right:-2px;top:0;height:calc(var(--sa-t) + 300px);
+  background:linear-gradient(var(--hub) 60%,var(--hub2));border-radius:0 0 32px 32px;z-index:0;
+  box-shadow:0 16px 30px -16px rgba(16,17,30,.55)}
+html[data-theme] .hm-top>*{position:relative;z-index:1}
+html[data-theme] .db-hi small{color:var(--hub-mute)!important}
+html[data-theme] .db-hi b{color:var(--hub-tx)!important}
+html[data-theme] .hm-top .avatar-btn{box-shadow:0 0 0 2px rgba(255,255,255,.12)!important}
+html[data-theme] .hm-top .avatar-btn img{border-color:var(--gold-hi)!important}
+html[data-theme] .hm-top .db-bell{background:var(--hub2)!important;border:0!important;color:#c7cbf0!important;box-shadow:none!important}
+html[data-theme] .hm-top .db-bell svg{color:#c7cbf0!important}
 
-/* round icon tiles: soft gold-tint chip, flat */
-html[data-theme] .iconbtn,html[data-theme] .hdr .iconbtn,
-html[data-theme] .row-i,html[data-theme] .cat{
-  background:var(--surface-2)!important;border:1px solid var(--hair)!important;box-shadow:none!important;color:var(--gold)!important}
-html[data-theme] .empty-i,html[data-theme] .okring,html[data-theme] .support-fab{
-  background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--card-sh)!important;color:var(--gold)!important}
+/* balance card on the hub — raised dark panel */
+html[data-theme] .vcard{border:1px solid rgba(124,131,255,.3)!important;box-shadow:0 18px 36px -18px rgba(10,10,22,.7),inset 0 1px 0 rgba(255,255,255,.08)!important}
+html[data-theme] .vc-bot span:last-child,html[data-theme] .vc-brand b{color:var(--hub-tx)!important}
+html[data-theme] .vc-bot span:last-child{color:var(--gold-hi)!important}
+html[data-theme] .db-eye{background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.18)!important;color:var(--hub-tx)!important;box-shadow:none!important}
+html[data-theme] .db-eye svg{color:var(--gold-hi)!important}
 
-/* chips / segmented / pills — flat, clear on/off states */
-html[data-theme] .chips button,html[data-theme] .chip,html[data-theme] .svc button{
-  background:var(--surface-2)!important;border:1px solid var(--hair)!important;box-shadow:none!important;color:var(--tx)!important}
-html[data-theme] .chips button.on,html[data-theme] .chip.on,html[data-theme] .seg button.on{
-  background:var(--gold)!important;border-color:var(--gold)!important;color:#15110a!important;box-shadow:none!important}
-html[data-theme] .chips button.on svg,html[data-theme] .chip.on svg,html[data-theme] .seg button.on svg{color:#15110a!important}
-html[data-theme] .seg{background:var(--surface-2)!important;box-shadow:inset 0 0 0 1px var(--hair)!important}
+/* SEND filled indigo, TRANSFER soft outline */
+html[data-theme] .hm-cta button:first-child{background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;border:0!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
+html[data-theme] .hm-cta button:first-child svg{color:#fff!important}
+html[data-theme] .hm-cta button:last-child{background:var(--bg)!important;color:var(--gold)!important;border:0!important;box-shadow:var(--raise)!important}
+html[data-theme] .hm-cta button:last-child svg{color:var(--gold)!important}
 
-/* money-in reads green — the core bank signal (was gold everywhere) */
-html[data-theme] .tx-a.pos,html[data-theme] .pos,html[data-theme] .big.pos,
-html[data-theme] b.pos,html[data-theme] .amt.pos{color:var(--pos)!important}
-html[data-theme] .badge:not(.bad):not(.info):not(.mute){background:var(--pos-tint)!important;color:var(--pos)!important;border-color:transparent!important}
-html[data-theme] .prog i{background:linear-gradient(90deg,var(--pos),#5fe0a8)!important}
-html[data-theme] .tx .cat:after{background:var(--pos)!important;box-shadow:0 0 0 2px var(--surface)!important}
+/* colourful quick-action tiles */
+html[data-theme] .hm-mini .hm-mi{border:0!important;color:#fff!important;box-shadow:-4px -4px 9px #fff,5px 5px 12px #c6c7da!important}
+html[data-theme] .hm-mini button:nth-child(1) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#FF8FC7,#E85BA3)!important}
+html[data-theme] .hm-mini button:nth-child(2) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#FFC661,#F39A2B)!important}
+html[data-theme] .hm-mini button:nth-child(3) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#7FD4FF,#2E9BE6)!important}
+html[data-theme] .hm-mini button:nth-child(4) .hm-mi{background:radial-gradient(120% 120% at 30% 20%,#67E6B0,#1FB37A)!important}
+html[data-theme] .hm-mini .hm-mi svg{color:#fff!important}
+html[data-theme] .hm-mini button{color:var(--tx)!important}
 
-/* fields sit flat inside the layered cards */
-html[data-theme] .fld input,html[data-theme] .fld select,html[data-theme] .fld textarea,
-html[data-theme] .search,html[data-theme] .na-in,html[data-theme] .amount,
-html[data-theme] body.auth .auth-card .fld input,html[data-theme] body.auth .auth-card .fld select{
-  background:var(--inset-bg)!important;box-shadow:inset 0 0 0 1px var(--hair)!important}
-html[data-theme] .fld input:focus,html[data-theme] .na-in:focus-within,
-html[data-theme] .fld select:focus,html[data-theme] .fld textarea:focus{
-  box-shadow:inset 0 0 0 1.5px var(--gold)!important;outline:0}
+/* ---- inner pages: dark hub header, light body ---- */
+html[data-theme] .hdr{background:var(--hub)!important;background-image:none!important;color:var(--hub-tx)!important;
+  border:0!important;border-radius:0 0 26px 26px!important;box-shadow:0 12px 24px -16px rgba(16,17,30,.5)!important;
+  padding:calc(var(--sa-t) + 12px) 18px 18px!important;margin-bottom:18px!important}
+html[data-theme] .hdr-t h1{color:var(--hub-tx)!important}
+html[data-theme] .hdr-t p{color:var(--hub-mute)!important}
+html[data-theme] .hdr .iconbtn{background:var(--hub2)!important;border:0!important;color:#c7cbf0!important;box-shadow:none!important}
+html[data-theme] .hdr .iconbtn svg{color:#c7cbf0!important}
+html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#aab0ff!important}
+html[data-theme] .hdr-sp{min-width:0!important}
 
-/* login brand glow re-tinted to match the navy ground */
-html[data-theme] .na{background:radial-gradient(100% 32% at 50% 13%,rgba(212,175,55,.15),transparent 62%)!important}
-html[data-theme] .toast{background:var(--surface)!important;border:1px solid var(--hair)!important;box-shadow:var(--card-sh)!important}
+/* ---- soft-UI bottom nav with raised centre button (5 icons) ---- */
+html[data-theme] #nav{background:var(--bg)!important;border:0!important;border-top:0!important;
+  box-shadow:0 -8px 20px -12px rgba(28,28,44,.3)!important}
+html[data-theme] #nav .tab,html[data-theme] #nav .tab span{color:#a6a8bf!important}
+html[data-theme] #nav .tab.active,html[data-theme] #nav .tab.active span{color:var(--gold)!important}
+html[data-theme] #nav .tab.active svg{background:transparent!important;box-shadow:none!important}
+html[data-theme] #nav .tab:nth-child(3){position:relative}
+html[data-theme] #nav .tab:nth-child(3) svg{width:54px!important;height:54px!important;margin-top:-10px!important;padding:16px!important;border-radius:50%!important;
+  background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
+html[data-theme] #nav .tab:nth-child(3) span{color:transparent!important;height:0!important;overflow:hidden}
+html[data-theme] #nav .tab:nth-child(3).active svg{color:#fff!important}
+
+/* ---- LOGIN: dark hub top, light sheet with the form ---- */
+html[data-theme] body.auth #view,html[data-theme] .na{background:linear-gradient(var(--hub) 42%,var(--hub2))!important}
+html[data-theme] .na-brand h1,html[data-theme] .na-brand .hs-mark{color:var(--hub-tx)!important}
+html[data-theme] .na-brand h1{color:var(--hub-tx)!important}
+html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:var(--hub-mute)!important}
+html[data-theme] .na-brand p b{color:#c7cbf0!important}
+html[data-theme] .na-tabs button{color:var(--hub-mute)!important}
+html[data-theme] .na-tabs button.on{color:var(--hub-tx)!important;border-bottom-color:var(--gold-hi)!important}
+html[data-theme] .na-tabs i{background:rgba(255,255,255,.12)!important}
+/* the form sits on a raised light sheet rising from the bottom */
+html[data-theme] body.auth .na .auth-card{background:var(--bg)!important;border-radius:34px 34px 0 0!important;
+  margin:calc(var(--u)*2.4) -24px 0!important;padding:30px 24px calc(var(--sa-b) + 24px)!important;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.7),0 -18px 34px rgba(12,12,22,.4)!important;flex:1}
+html[data-theme] .na-in{background:var(--inset-bg)!important;box-shadow:var(--inset)!important}
+html[data-theme] .na-in>svg,html[data-theme] .na-in .pwt,html[data-theme] .na-in .pwt svg{color:var(--gold)!important}
+html[data-theme] .na-cta,html[data-theme] .hm-cta button:first-child{color:#fff}
+html[data-theme] .na-cta:not(.alt){background:linear-gradient(135deg,#7C83FF,#4F5BD5)!important;color:#fff!important;border:0!important;box-shadow:0 12px 22px -8px rgba(79,91,213,.6)!important}
+html[data-theme] .na-cta:not(.alt) svg{color:#fff!important}
+html[data-theme] .na-cta.alt{background:var(--bg)!important;color:var(--gold)!important;box-shadow:var(--raise)!important}
+html[data-theme] .na-cta.alt svg{color:var(--gold)!important}
+html[data-theme] .na .auth-card h2,html[data-theme] .na-prompt{color:var(--tx)!important}
+html[data-theme] .na .auth-card p{color:var(--mute)!important}
+html[data-theme] .na-sw{color:var(--mute)!important}
+html[data-theme] .na-foot,html[data-theme] .na-links button,html[data-theme] .na-ver{color:var(--mute)!important}
+html[data-theme] .na-ver svg{color:var(--gold)!important}
