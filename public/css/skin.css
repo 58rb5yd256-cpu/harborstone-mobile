@@ -603,10 +603,12 @@ html[data-theme] .db-sp.c2 small i{background:#F7A072!important}
 /* ============ HOME ORANGE HEADER ============ */
 html[data-theme] .hm-top{position:relative;padding:0 0 0!important;background:transparent!important}
 html[data-theme] .hm-top:before,html[data-theme] .hm-top:after{display:none!important}
-.oh{position:relative;margin:0;padding:calc(var(--sa-t) + 16px) 20px 0;
-  background:var(--grad);border-radius:0 0 34px 34px;color:#fff;overflow:hidden}
-.oh-glow{position:absolute;width:240px;height:240px;border-radius:50%;top:-70px;right:-24px;
-  background:radial-gradient(circle,rgba(255,190,110,.45),transparent 65%);pointer-events:none}
+.oh{position:relative;margin:calc(var(--sa-t,0px) + 10px) 10px 0;padding:clamp(16px,4.5vw,20px) clamp(16px,5vw,22px) 0;
+  min-height:48dvh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#7C1606 0%,#C62A0E 40%,#F56A1C 84%,#F8833C 100%);
+  border-radius:36px;color:#fff;overflow:hidden}
+.oh-glow{position:absolute;width:260px;height:260px;border-radius:50%;bottom:-40px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(255,180,110,.5),transparent 68%);pointer-events:none}
 .oh-bar{position:relative;z-index:2;display:flex;align-items:center;gap:12px}
 html[data-theme] .oh-id{flex:none;padding:0;border:0!important;background:none!important;width:46px;height:46px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.45)!important}
 html[data-theme] .oh-id img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block}
@@ -625,14 +627,14 @@ html[data-theme] .oh-bell .dot{position:absolute;top:-3px;right:-3px}
 html[data-theme] .oh-pct{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 12px;border-radius:9999px;
   font-size:11.5px;font-weight:700;color:#fff!important;background:rgba(255,255,255,.18)!important;border:1px solid rgba(255,255,255,.22)!important}
 html[data-theme] .oh-pct svg{color:#fff!important;width:13px;height:13px}
-.oh-stack{position:relative;z-index:2;margin:18px -8px 0;height:116px}
+.oh-stack{position:relative;z-index:2;margin:auto -8px 0;height:clamp(104px,30vw,122px)}
 .oh-c{position:absolute;left:0;right:0;background:rgba(255,255,255,.14);
   -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
 .oh-c3{top:0;left:24px;right:24px;height:56px;border-radius:14px;opacity:.5}
 .oh-c2{top:11px;left:12px;right:12px;height:72px;border-radius:15px;opacity:.72}
 .oh-c1{bottom:0;left:0;right:0;height:90px;border-radius:16px 16px 26px 26px;opacity:1;
   padding:12px 16px 0;display:flex;align-items:flex-start;justify-content:space-between;color:#fff;
-  -webkit-mask-image:linear-gradient(to bottom,#000 76%,transparent);mask-image:linear-gradient(to bottom,#000 76%,transparent)}
+  -webkit-mask-image:linear-gradient(to bottom,#000 45%,transparent 100%);mask-image:linear-gradient(to bottom,#000 45%,transparent 100%)}
 .oh-crow{display:flex;align-items:center;gap:16px}
 .oh-n{font-size:15px;letter-spacing:2px;font-weight:700;font-variant-numeric:tabular-nums}
 .oh-e{font-size:12px;opacity:.85;font-variant-numeric:tabular-nums}
@@ -667,62 +669,65 @@ html[data-theme] #nav .tab.active,html[data-theme] #nav .tab.active span{color:#
 html[data-theme] #nav .tab.active svg{position:relative;color:#fff!important;background:#111111!important;border-radius:50%!important;
   padding:11px!important;width:44px!important;height:44px!important;box-shadow:0 8px 18px -6px rgba(0,0,0,.5)!important}
 
-/* ============ LOGIN / AUTH — orange floods status bar, floating white card ============ */
+/* ============ LOGIN / AUTH — light page, orange header band, floating card ============ */
 html[data-theme] body.auth,html[data-theme] body.auth #view{background:var(--bg)!important;background-image:none!important}
 html[data-theme] body.auth #nav{display:none!important}
 html[data-theme] body.auth #app:before,html[data-theme] body.auth #app:after{display:none!important}
-html[data-theme] .na{background:var(--grad)!important;position:relative;min-height:100%;display:flex;flex-direction:column;
-  padding:calc(var(--sa-t) + 26px) 0 calc(var(--sa-b) + 24px)!important;overflow:hidden}
+html[data-theme] .na{background:var(--bg)!important;position:absolute;inset:0;display:flex;flex-direction:column;
+  padding:0 0 calc(var(--sa-b,0px) + 16px)!important;overflow-y:auto;overflow-x:hidden}
 html[data-theme] .na:before,html[data-theme] .na:after{display:none!important}
 html[data-theme] .na-top{display:none!important}
 html[data-theme] .na-tabs{display:none!important}
-html[data-theme] .na-brand{position:relative;z-index:1;align-items:center;margin-top:8px;padding:0 26px}
-html[data-theme] .na-brand .hs-mark{width:66px;height:66px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.3))}
-html[data-theme] .na-brand h1{color:#fff!important;margin-top:14px;font-size:24px}
-html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:rgba(255,243,236,.85)!important}
-/* the floating white card holds the form */
-html[data-theme] body.auth .na .auth-card{background:#fff!important;border:0!important;
-  box-shadow:0 26px 54px -22px rgba(60,10,10,.34)!important;border-radius:28px!important;
-  margin:26px 18px 0!important;padding:24px 20px!important;flex:none;
+html[data-theme] .na-sw{display:none!important}
+/* orange header band */
+html[data-theme] .na-brand{position:relative;z-index:0;margin:0!important;
+  padding:calc(var(--sa-t,0px) + clamp(28px,8vw,52px)) 24px clamp(56px,14vw,76px)!important;
+  min-height:45dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;
+  background:linear-gradient(170deg,#3A0902 0%,#B4280C 52%,#F25513 100%);border-radius:0 0 34px 34px;color:#fff}
+html[data-theme] .na-brand .hs-mark{width:clamp(56px,16vw,72px);height:clamp(56px,16vw,72px);filter:drop-shadow(0 10px 18px rgba(0,0,0,.32))}
+html[data-theme] .na-brand h1{color:#fff!important;margin:6px 0 0;font-size:clamp(26px,7.5vw,34px);font-weight:800;letter-spacing:-.02em}
+html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:rgba(255,238,228,.9)!important;font-size:clamp(14px,3.8vw,15.5px)}
+/* floating white card overlapping the header */
+html[data-theme] body.auth .na .auth-card{background:#fff!important;border:0!important;position:relative;z-index:2;
+  box-shadow:0 26px 54px -22px rgba(60,10,10,.3)!important;border-radius:28px!important;
+  margin:-48px 16px 16px!important;padding:clamp(20px,5.5vw,26px) clamp(16px,5vw,20px)!important;flex:none;
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html[data-theme] body.auth .na .auth-card h2{color:var(--tx)!important;text-align:center}
-html[data-theme] body.auth .na .auth-card p{color:var(--mute)!important}
+html[data-theme] body.auth .na .auth-card p:not(.na-alt):not(.ferr){color:var(--mute)!important}
 html[data-theme] body.auth .na .auth-card p.ferr{color:var(--bad)!important}
 html[data-theme] .na-prompt{color:var(--tx)!important}
-/* soft grey inputs inside the white card */
-html[data-theme] .na-in{background:var(--soft)!important;border:1px solid transparent!important;box-shadow:none!important;
-  border-radius:9999px!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html[data-theme] .na-in:focus-within{border-color:var(--gold)!important}
+/* rounded-rect soft inputs */
+html[data-theme] .na-in{background:var(--soft)!important;border:1.5px solid transparent!important;box-shadow:none!important;
+  border-radius:16px!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-theme] .na-in:focus-within{border-color:var(--gold)!important;background:#fff!important}
 html[data-theme] body.auth .na .na-in input{color:var(--tx)!important;-webkit-text-fill-color:var(--tx)}
 html[data-theme] .na-in input::placeholder{color:var(--mute)!important;-webkit-text-fill-color:var(--mute)}
 html[data-theme] .na-in>svg,html[data-theme] .na-in .pwt,html[data-theme] .na-in .pwt svg{color:var(--gold)!important}
 html[data-theme] .na-ok{background:var(--gold)!important;color:#fff!important}
 html[data-theme] .na-ok svg{color:#fff!important}
-html[data-theme] .na-sw,html[data-theme] .na-sw span{color:var(--mute)!important}
-html[data-theme] .na-sw i{background:var(--soft)!important;box-shadow:inset 0 0 0 1px var(--edge)!important}
-html[data-theme] .na-sw input:checked+i:after{background:var(--gold)!important;border-color:var(--gold)!important}
-/* primary CTA: orange gradient with circular arrow */
+/* Forgot password? — right-aligned orange */
+html[data-theme] .na-link,html[data-theme] body.auth .na-link{color:var(--gold)!important;font-weight:700;background:none;border:0;
+  display:block;width:-moz-fit-content;width:fit-content;margin:2px 2px 16px auto;font-size:13.5px}
+/* LOGIN — gradient rounded-rect, inline arrow */
 html[data-theme] .na-cta:not(.alt){background:var(--btn)!important;border:0!important;color:#fff!important;
-  box-shadow:0 14px 26px -10px rgba(217,56,14,.55)!important;border-radius:9999px!important;position:relative;justify-content:center}
-html[data-theme] .na-cta:not(.alt) .arw{position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  width:36px;height:36px;padding:8px;border-radius:50%;background:rgba(255,255,255,.26)!important;color:#fff!important}
-html[data-theme] .na-cta.alt{background:var(--soft)!important;border:0!important;color:var(--tx)!important;box-shadow:none!important;border-radius:9999px!important}
+  box-shadow:0 14px 26px -10px rgba(217,56,14,.5)!important;border-radius:16px!important;position:relative;justify-content:center;gap:10px;letter-spacing:.04em}
+html[data-theme] .na-cta:not(.alt) .arw{position:static;transform:none;width:20px;height:20px;padding:0;border-radius:0;background:none!important;color:#fff!important}
+html[data-theme] .na-cta.alt{background:var(--soft)!important;border:0!important;color:var(--tx)!important;box-shadow:none!important;border-radius:16px!important;margin-top:12px}
 html[data-theme] .na-cta.alt svg{color:var(--gold)!important}
-/* OTP boxes inside white card */
+/* OTP + register fields (rounded-rect) */
 html[data-theme] body.auth .otp input,html[data-theme] body.auth .auth-card .otp input{
-  background:var(--soft)!important;border:1px solid var(--edge)!important;color:var(--tx)!important;-webkit-text-fill-color:var(--tx)}
+  background:var(--soft)!important;border:1.5px solid var(--edge)!important;color:var(--tx)!important;-webkit-text-fill-color:var(--tx)}
 html[data-theme] body.auth .auth-card .fld input,html[data-theme] body.auth .auth-card .fld select{
-  background:var(--soft)!important;border:1px solid transparent!important;color:var(--tx)!important;-webkit-text-fill-color:var(--tx);box-shadow:none!important}
-/* cross-link + footer: white on orange (outside the card) */
-html[data-theme] .na-alt{text-align:center;color:rgba(255,243,236,.85)!important;font-size:13px;margin-top:20px}
-html[data-theme] .na-alt button{color:#fff!important;font-weight:800;text-decoration:underline;background:none;border:0}
-html[data-theme] .na-foot,html[data-theme] .na-links button,html[data-theme] .na-ver{color:rgba(255,243,236,.78)!important}
-html[data-theme] .na-ver svg{color:#FFE3D0!important}
-html[data-theme] .na-link,html[data-theme] body.auth .na-link{color:#FFE3D0!important}
-html[data-theme] .na-row .na-link{color:#FFE3D0!important}
-html[data-theme] body.auth .back-lnk{color:#FFE3D0!important}
-html[data-theme] body.auth .back-lnk svg{color:#FFE3D0!important}
-/* verified ok-state uses the white card */
+  background:var(--soft)!important;border:1.5px solid transparent!important;color:var(--tx)!important;-webkit-text-fill-color:var(--tx);box-shadow:none!important;border-radius:16px!important}
+/* "New to Westmark?" inside the card */
+html[data-theme] .na-alt{text-align:center;color:var(--mute)!important;font-size:13.5px;margin:18px 0 2px}
+html[data-theme] .na-alt button{color:var(--gold)!important;font-weight:800;text-decoration:none;background:none;border:0}
+/* version line: muted grey, outside the card, pinned to bottom */
+html[data-theme] .na-ver{margin:auto auto 0;padding-top:18px;display:flex;align-items:center;justify-content:center;gap:6px;color:#8E8E93!important;font-size:12px}
+html[data-theme] .na-ver svg{color:#8E8E93!important}
+html[data-theme] .na-row .na-link{color:var(--gold)!important;margin:0}
+html[data-theme] body.auth .back-lnk{color:var(--gold)!important}
+html[data-theme] body.auth .back-lnk svg{color:var(--gold)!important}
 html[data-theme] .na .okring{background:var(--gold-tint)!important;color:var(--gold)!important;border:0!important}
 
 /* ============ BANK CARDS SCREEN — orange gradient card ============ */

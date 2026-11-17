@@ -750,17 +750,18 @@
     clearTimers(); const rem = remembered(); const n = notice();
     return {
       title: 'Sign in',
-      html: naShell({ title: 'Welcome Back!', tabs: 'login', body: `
+      html: naShell({ title: 'Welcome back', sub: 'Sign in to your Westmark account', body: `
         ${n ? `<div class="note warn">${icon('info', 18)}<span>${esc(n)}</span></div>` : ''}
         <form data-form="login" novalidate>
           <div class="fld na-fld" data-fld="email"><div class="na-in">${icon('user', 19)}<input id="f_email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="Username or Email" aria-label="Username or Email" autocapitalize="none" spellcheck="false"><span class="na-ok" aria-hidden="true">${icon('check', 14)}</span></div><p class="ferr" role="alert"></p></div>
           <div class="fld na-fld" data-fld="password"><div class="na-in">${icon('lock', 19)}<input id="f_password" name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required><button type="button" class="pwt" data-act="togglePw" aria-label="Show password">${icon('eye', 19)}</button></div><p class="ferr" role="alert"></p></div>
-          <label class="na-sw"><input type="checkbox" name="remember" ${rem ? 'checked' : ''}><i></i><span>Remember me</span></label>
+          <input type="hidden" name="remember" value="${rem ? '1' : ''}">
+          <button type="button" class="na-link" data-go="/forgot">Forgot password?</button>
           <button class="na-cta" type="submit" data-busy="Signing in…"><span>LOGIN</span><svg class="arw" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </form>
-        <button type="button" class="na-link" data-go="/forgot">Forgot Password?</button>
-        <button class="na-cta alt" type="button" data-act="faceLogin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>`,
-        foot: `<p class="na-alt">New to Westmark? <button type="button" data-go="/register">Open an account</button></p><div class="na-foot"><nav class="na-links" aria-label="More"><button type="button" data-go="/pub/security">Security</button><button type="button" data-go="/pub/contact">Contact</button><button type="button" data-go="/pub/locations">Locations</button></nav><p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p></div>` })
+        <button class="na-cta alt" type="button" data-act="faceLogin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>
+        <p class="na-alt">New to Westmark? <button type="button" data-go="/register">Open an account</button></p>`,
+        foot: `<p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p>` })
 
     };
   }, { pub: true });
