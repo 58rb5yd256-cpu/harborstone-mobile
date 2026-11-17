@@ -681,6 +681,7 @@
   const PKEY = 'hm_pending', RKEY = 'hm_remember';
   const isLocal = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   let creds = null;          // password kept in memory only (never stored) so "Resend code" works
+  let demoOtp = null;        // static demo build: one-time code generated in the browser (no server)
   let timers = [];
   const clearTimers = () => { timers.forEach(clearInterval); timers = []; };
   const getPending = () => { try { return JSON.parse(sessionStorage.getItem(PKEY) || 'null'); } catch (e) { return null; } };
@@ -702,17 +703,20 @@
     let data = null; try { data = await res.json(); } catch (e) { /* not json (e.g. static host 404) */ }
     return { status: res.status, data };
   }
+  // Static demo build: sign-in runs entirely in the browser — no server, no email.
+  // Any valid email + any password is accepted; the 6-digit code is generated here
+  // and shown on the verify screen so anyone can complete the demo sign-in.
   async function requestOtp(email, password) {
-    const r = await api('/api/auth/request-otp', { email, password });
-    if (r.data && (r.data.ok || r.status > 0 && r.status !== 404)) return r;
-    return { status: 0, data: { message: isLocal
-      ? 'The secure sign-in service is not running. Please try again shortly.'
-      : 'Could not reach the secure sign-in service. Check your connection and try again.' } };
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const requestId = 'demo-' + Date.now().toString(36);
+    demoOtp = { code, requestId, email, exp: Date.now() + 300000 };
+    return { status: 200, data: { ok: true, requestId, email: maskEmail(email), expiresIn: 300, delivery: 'demo', devCode: code } };
   }
   async function verifyOtp(email, code, requestId) {
-    const r = await api('/api/auth/verify-otp', { email, code, requestId });
-    if (!r.data) return { status: 0, data: { message: 'Could not reach the verification service. Try again.' } };
-    return r;
+    if (!demoOtp || demoOtp.requestId !== requestId) return { status: 200, data: { message: 'Please request a new code.' } };
+    if (Date.now() > demoOtp.exp) return { status: 200, data: { message: 'This code has expired. Tap “Resend code”.' } };
+    if (String(code) !== demoOtp.code) return { status: 200, data: { message: 'That code is incorrect.' } };
+    return { status: 200, data: { ok: true } };
   }
   const maskEmail = (e) => { const [l, d] = String(e).split('@'); return (l || '').slice(0, 2) + '•'.repeat(Math.max(2, (l || '').length - 2)) + '@' + (d || ''); };
 
@@ -852,7 +856,7 @@
     return {
       title: 'Verify',
       html: naShell({ logo: 64, title: 'Verify Account', sub: p.delivery === 'email' ? `We sent a 6-digit code to <b>${esc(p.masked)}</b>.` : 'Enter the 6-digit code below.', body: `
-        ${p.devCode ? `<div class="note warn dev">${icon('alert', 18)}<span><b>DEVELOPMENT-ONLY OTP MODE.</b> Email delivery is not configured${p.delivery === 'local-simulation' ? ' (local simulation)' : ''}. Your test code is <b class="devcode">${esc(p.devCode)}</b>. This is never shown in production.</span></div>` : ''}
+        ${p.devCode ? `<div class="note warn dev">${icon('info', 18)}<span><b>Demo mode.</b> This is a school-project simulation, so your one-time code is shown here: <b class="devcode">${esc(p.devCode)}</b>. Enter it below to continue.</span></div>` : ''}
         <form data-form="otp" novalidate>
           <p class="na-prompt">Enter OTP Code</p>
           <div class="otp" id="otpBoxes" role="group" aria-label="6-digit verification code">${[0, 1, 2, 3, 4, 5].map((i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="${i === 0 ? 'one-time-code' : 'off'}" aria-label="Digit ${i + 1}" data-i="${i}">`).join('')}</div>

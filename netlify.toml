@@ -1,0 +1,4 @@
+# Westmark Mobile — static PWA (no backend). Serves the public/ folder at the site root.
+[build]
+  publish = "public"
+  command = ""
