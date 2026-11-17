@@ -1011,11 +1011,9 @@
     const colors = ['#0A3340', '#C9A96A', '#3F8F9B', '#8AA7AE'];
     const lPay = HM.limitInfo('payments'), lWd = HM.limitInfo('withdrawal');
     const sec = (title, link, body) => ui.section(title, link, body);
-    /* orange dashboard: balance split, month change, front card */
+    /* orange dashboard: balance split, front card */
     const _amt = money(T.current), _dol = _amt.split('.')[0], _cts = _amt.split('.')[1] || '00';
     const _card = (S.cards && S.cards.find((c) => c.kind === 'debit')) || (S.cards && S.cards[0]) || { last4: '4821', exp: '09/29' };
-    let _pct = 2.46; try { const _mo = ui.monthly ? ui.monthly(6) : null; if (_mo && _mo[5] && T.current) { const _v = (_mo[5].a - _mo[5].b) / T.current * 100; if (_v > 0) _pct = _v; } } catch (e) { /* keep default */ }
-    const _up = _pct >= 0, _pctTxt = (_up ? '+' : '−') + Math.abs(_pct).toFixed(2) + '% this month';
     return {
       title: 'Home',
       html: `
@@ -1030,7 +1028,6 @@
           <div class="oh-blk">
             <small>Total balance</small>
             <div class="oh-amt">${hidden ? '<span class="masked">••••••••</span>' : `${_dol}<u>.${_cts}</u>`}</div>
-            <button class="oh-pct ${_up ? 'up' : 'dn'}" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(_up ? 'arrowUp' : 'arrowDown', 13)}<span>${_pctTxt}</span></button>
           </div>
           <div class="oh-stack">
             <span class="oh-c oh-c3"></span><span class="oh-c oh-c2"></span>
@@ -1038,9 +1035,8 @@
           </div>
         </div>
         <div class="oh-acts" role="group" aria-label="Quick actions">
-          <button data-go="/accounts/deposit"><span class="oh-ai">${icon('download', 18)}</span>Deposit</button>
-          <button class="mid" data-go="/payments" aria-label="Transfer"><span class="oh-ai">${icon('swap', 18)}</span></button>
-          <button data-go="/payments/ach_instant/new"><span class="oh-ai">${icon('arrowUp', 18)}</span>Withdraw</button>
+          <button data-go="/payments/ach_instant/new"><span class="oh-ai">${icon('send', 18)}</span>Send</button>
+          <button data-go="/payments"><span class="oh-ai">${icon('swap', 18)}</span>Transfer</button>
         </div>
         ${(() => { const sav = S.accounts.filter((a) => a.type === 'savings').reduce((x, a) => x + a.current, 0), chk = S.accounts.filter((a) => a.type !== 'savings').reduce((x, a) => x + a.current, 0), tot = Math.max(1, sav + chk); return `<button class="db-split" data-go="/accounts"><span class="db-sp-bar"><i style="width:${Math.max(3, Math.round(chk / tot * 100))}%"></i></span><span class="db-sp-row"><span class="db-sp c1"><small><i></i>Checking</small><b>${hideable(money(chk), hidden)}</b></span><span class="db-sp c2"><small><i></i>Savings</small><b>${hideable(money(sav), hidden)}</b></span></span></button>`; })()}
       </div>
