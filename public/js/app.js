@@ -126,11 +126,11 @@
   HM.icon = (n, s) => `<svg class="ic" width="${s || 22}" height="${s || 22}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n] || IC.info}"/></svg>`;
 
   HM.CATS = {
-    Groceries: { c: '#D4AF37', i: 'cart' }, Dining: { c: '#B59A3C', i: 'cup' }, Transport: { c: '#8A8F98', i: 'car' },
-    Shopping: { c: '#6B7280', i: 'bag' }, Entertainment: { c: '#7D8590', i: 'film' }, Health: { c: '#E5C76B', i: 'heart' },
-    Utilities: { c: '#9A7B1F', i: 'bulb' }, Housing: { c: '#C59B27', i: 'home' }, Travel: { c: '#B8860B', i: 'plane' },
-    Income: { c: '#D4AF37', i: 'arrowDown' }, Transfer: { c: '#A0A6AE', i: 'swap' }, Payments: { c: '#9A7B1F', i: 'send' },
-    Interest: { c: '#B59A3C', i: 'star' }, Deposit: { c: '#B8860B', i: 'camera' }, Cash: { c: '#8A8F98', i: 'atm' }, Fees: { c: '#E5C76B', i: 'receipt' }, Other: { c: '#C9B26A', i: 'dots' }
+    Groceries: { c: '#F4601B', i: 'cart' }, Dining: { c: '#D9380E', i: 'cup' }, Transport: { c: '#F7A072', i: 'car' },
+    Shopping: { c: '#C62A0E', i: 'bag' }, Entertainment: { c: '#E8862E', i: 'film' }, Health: { c: '#F76B1C', i: 'heart' },
+    Utilities: { c: '#A8431A', i: 'bulb' }, Housing: { c: '#7C1606', i: 'home' }, Travel: { c: '#EF5A3C', i: 'plane' },
+    Income: { c: '#F4601B', i: 'arrowDown' }, Transfer: { c: '#F2B28C', i: 'swap' }, Payments: { c: '#D9480E', i: 'send' },
+    Interest: { c: '#E8A05A', i: 'star' }, Deposit: { c: '#B8481E', i: 'camera' }, Cash: { c: '#C9765A', i: 'atm' }, Fees: { c: '#F79A5C', i: 'receipt' }, Other: { c: '#D8A98E', i: 'dots' }
   };
   HM.RAILS = {
     ach_instant: { label: 'Zelle transfer', icon: 'zap', limit: 'ach_instant', fee: 0, settle: 'instant', agg: true },
@@ -451,7 +451,7 @@
   /* ---------- router ---------- */
   const routes = []; HM.stack = [];
   HM.route = (pattern, tab, fn, opts) => routes.push({ pattern, tab, fn, parts: pattern.split('/').filter(Boolean), pub: !!(opts && opts.pub) });
-  const PUBLIC_LOOK = (p) => /^\/(login|otp|register|forgot|welcome|pub)/.test(p);
+  const PUBLIC_LOOK = (p) => /^\/(start|login|otp|register|forgot|welcome|pub)/.test(p);
   const match = (path) => {
     const segs = path.split('/').filter(Boolean);
     for (const r of routes) {
@@ -467,7 +467,7 @@
   HM.refresh = (keepScroll) => render(keepScroll !== false);
   let lastRender = 0;
   function render(keepScroll) {
-    const path = (location.hash || '').replace(/^#/, '') || (HM.session.active() ? '/home' : '/login');
+    const path = (location.hash || '').replace(/^#/, '') || (HM.session.active() ? '/home' : '/start');
     if (!HM.session.active() && !PUBLIC_LOOK(path)) { return HM.go('/login', { replace: true }); }
     if (HM.session.active() && PUBLIC_LOOK(path) && path !== '/welcome') { return HM.go('/home', { replace: true }); }
     const m = match(path.split('#')[0].split('?')[0]) || match('/home');
@@ -570,7 +570,7 @@
   };
   ui.progress = (pct, tone) => `<div class="prog ${tone || (pct >= 90 ? 'hot' : pct >= 70 ? 'warm' : '')}"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div>`;
   ui.seg = (opts, active, act) => `<div class="seg" role="tablist">${opts.map((o) => `<button class="${String(o[0]) === String(active) ? 'on' : ''}" data-act="${act}" data-arg="${esc(o[0])}">${esc(o[1])}</button>`).join('')}</div>`;
-  ui.logo = (s) => `<svg class="logo hs-mark" width="${s || 40}" height="${s || 40}" viewBox="0 0 120 120" role="img" aria-label="Westmark logo"><defs><linearGradient id="wmBg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#2FD3E8"/><stop offset=".5" stop-color="#0E879E"/><stop offset="1" stop-color="#07596C"/></linearGradient><linearGradient id="wmW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#CFF6FF"/></linearGradient><linearGradient id="wmGleam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><clipPath id="wmClip"><rect x="14" y="14" width="92" height="92" rx="27"/></clipPath></defs><g clip-path="url(#wmClip)"><rect x="14" y="14" width="92" height="92" rx="27" fill="url(#wmBg)"/><ellipse cx="60" cy="24" rx="54" ry="24" fill="#fff" opacity=".20"/><ellipse cx="60" cy="104" rx="60" ry="26" fill="#063A47" opacity=".35"/><g class="wm-star"><path d="M30 42 L43 86 L60 57 L77 86 L90 42" fill="none" stroke="#063A47" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".55" transform="translate(0 3)"/><path d="M30 42 L43 86 L60 57 L77 86 L90 42" fill="none" stroke="url(#wmW)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="57" r="4" fill="#fff"/></g><rect class="wm-shine" x="-20" y="0" width="38" height="120" fill="url(#wmGleam)"/></g><rect x="14.8" y="14.8" width="90.4" height="90.4" rx="26" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.6"/></svg>`;
+  ui.logo = (s) => `<svg class="logo hs-mark" width="${s || 40}" height="${s || 40}" viewBox="0 0 120 120" role="img" aria-label="Westmark logo"><defs><linearGradient id="wmBg" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#F7A24B"/><stop offset=".48" stop-color="#F4601B"/><stop offset="1" stop-color="#7C1606"/></linearGradient><linearGradient id="wmW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFE3D0"/></linearGradient><linearGradient id="wmGleam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><clipPath id="wmClip"><rect x="14" y="14" width="92" height="92" rx="27"/></clipPath></defs><g clip-path="url(#wmClip)"><rect x="14" y="14" width="92" height="92" rx="27" fill="url(#wmBg)"/><ellipse cx="60" cy="24" rx="54" ry="24" fill="#fff" opacity=".20"/><ellipse cx="60" cy="104" rx="60" ry="26" fill="#5A1206" opacity=".35"/><g class="wm-star"><path d="M30 42 L43 86 L60 57 L77 86 L90 42" fill="none" stroke="#5A1206" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".55" transform="translate(0 3)"/><path d="M30 42 L43 86 L60 57 L77 86 L90 42" fill="none" stroke="url(#wmW)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="57" r="4" fill="#fff"/></g><rect class="wm-shine" x="-20" y="0" width="38" height="120" fill="url(#wmGleam)"/></g><rect x="14.8" y="14.8" width="90.4" height="90.4" rx="26" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.6"/></svg>`;
 
   /* ---------- forms ---------- */
   ui.field = (o) => {
@@ -715,6 +715,35 @@
     return r;
   }
   const maskEmail = (e) => { const [l, d] = String(e).split('@'); return (l || '').slice(0, 2) + '•'.repeat(Math.max(2, (l || '').length - 2)) + '@' + (d || ''); };
+
+  /* ---------- onboarding / welcome (first screen, swipe → sign in) ---------- */
+  HM.route('/start', 'auth', () => ({
+    title: 'Welcome',
+    html: `<div class="ob">
+      <div class="ob-glow"></div>
+      <div class="ob-brand">${ui.logo(40)}<b>Westmark</b></div>
+      <div class="ob-hero">
+        <div class="ob-card3d">
+          <span class="ob-chip"></span>
+          <span class="ob-mark">W</span>
+          <div class="ob-cnum">•••• •••• •••• 4821</div>
+          <div class="ob-cbot"><span>ELIZABETH MADISON</span><span>VISA</span></div>
+        </div>
+      </div>
+      <div class="ob-copy">
+        <h1>Banking,<br>made effortless.</h1>
+        <p>Your accounts, cards and payments — all in one secure place.</p>
+      </div>
+      <button class="ob-cta" data-go="/login"><span>Get Started</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <button class="ob-swipe" data-go="/login" aria-label="Swipe to sign in">Swipe to sign in</button>
+    </div>`,
+    after(view) {
+      const el = view.querySelector('.ob'); if (!el) return;
+      let x0 = null;
+      el.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+      el.addEventListener('touchend', (e) => { if (x0 == null) return; const dx = x0 - (e.changedTouches[0].clientX); if (dx > 60) HM.go('/login'); x0 = null; }, { passive: true });
+    }
+  }), { pub: true });
 
   /* ---------- login ---------- */
   HM.route('/login', 'auth', () => {
@@ -982,18 +1011,37 @@
     const colors = ['#0A3340', '#C9A96A', '#3F8F9B', '#8AA7AE'];
     const lPay = HM.limitInfo('payments'), lWd = HM.limitInfo('withdrawal');
     const sec = (title, link, body) => ui.section(title, link, body);
+    /* orange dashboard: balance split, month change, front card */
+    const _amt = money(T.current), _dol = _amt.split('.')[0], _cts = _amt.split('.')[1] || '00';
+    const _card = (S.cards && S.cards.find((c) => c.kind === 'debit')) || (S.cards && S.cards[0]) || { last4: '4821', exp: '09/29' };
+    let _pct = 2.46; try { const _mo = ui.monthly ? ui.monthly(6) : null; if (_mo && _mo[5] && T.current) { const _v = (_mo[5].a - _mo[5].b) / T.current * 100; if (_v > 0) _pct = _v; } } catch (e) { /* keep default */ }
+    const _up = _pct >= 0, _pctTxt = (_up ? '+' : '−') + Math.abs(_pct).toFixed(2) + '% this month';
     return {
       title: 'Home',
       html: `
-      <div class="hm-top"><div class="hm-bar"><div class="db-id"><button class="avatar-btn" data-act="zoomPhoto" aria-label="View profile photo">${HM.avatar ? HM.avatar() : ''}</button><div class="db-hi"><small>${greeting()}</small><b>${esc(name)}</b></div></div><div class="hm-acts">${HM.themeBtn()}<button class="iconbtn db-bell" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button></div></div>
-        <div class="vcard"><div class="vc-top"><span class="vc-brand">${ui.logo(34)}<b>Westmark</b></span><button class="db-eye" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(hidden ? 'eye' : 'eyeoff', 15)} ${hidden ? 'Show' : 'Hide'}</button></div>
-          <div class="vc-mid"><span class="vc-chip"><i></i></span><span class="vc-nfc">${icon('contactless', 22)}</span></div>
-          <div class="vc-lbl">Total balance</div>
-          <div class="vc-amt">${hidden ? '<span class="masked">••••••••</span>' : `${money(T.current).split('.')[0]}<small>.${money(T.current).split('.')[1] || '00'}</small>`}</div>
-          <div class="vc-bot"><span>Available ${hideable(money(T.available), hidden)}</span><span>USD</span></div>
+      <div class="hm-top">
+        <div class="oh">
+          <span class="oh-glow"></span>
+          <div class="oh-bar">
+            <button class="oh-id" data-act="zoomPhoto" aria-label="View profile photo">${HM.avatar ? HM.avatar() : ''}</button>
+            <div class="oh-hi"><small>${greeting()}</small><b>${esc(name)}</b></div>
+            <button class="oh-bell" data-go="/notifications" aria-label="Notifications (${unread} unread)">${icon('bell', 20)}${unread ? `<span class="dot">${unread}</span>` : ''}</button>
+          </div>
+          <div class="oh-blk">
+            <small>Total balance</small>
+            <div class="oh-amt">${hidden ? '<span class="masked">••••••••</span>' : `${_dol}<u>.${_cts}</u>`}</div>
+            <button class="oh-pct ${_up ? 'up' : 'dn'}" data-act="toggleHide" aria-label="${hidden ? 'Show' : 'Hide'} balances">${icon(_up ? 'arrowUp' : 'arrowDown', 13)}<span>${_pctTxt}</span></button>
+          </div>
+          <div class="oh-stack">
+            <span class="oh-c oh-c3"></span><span class="oh-c oh-c2"></span>
+            <div class="oh-c oh-c1"><div class="oh-crow"><span class="oh-n">•••• ${esc(_card.last4)}</span><span class="oh-e">${esc(_card.exp)}</span></div><span class="oh-v">VISA</span></div>
+          </div>
         </div>
-        <div class="hm-cta"><button data-go="/payments/ach_instant/new">${icon('send', 18)}<span>SEND</span></button><button data-go="/payments">${icon('swap', 18)}<span>TRANSFER</span></button></div>
-        <div class="hm-mini" role="group" aria-label="Quick actions">${[['bill', 'Pay', '/payments/bills'], ['camera', 'Deposit', '/accounts/deposit'], ['card', 'Cards', '/cards'], ['chart', 'Spending', '/accounts/spending']].map((q) => `<button data-go="${q[2]}"><span class="hm-mi">${icon(q[0], 20)}</span><span>${q[1]}</span></button>`).join('')}</div>
+        <div class="oh-acts" role="group" aria-label="Quick actions">
+          <button data-go="/accounts/deposit"><span class="oh-ai">${icon('download', 18)}</span>Deposit</button>
+          <button class="mid" data-go="/payments" aria-label="Transfer"><span class="oh-ai">${icon('swap', 18)}</span></button>
+          <button data-go="/payments/ach_instant/new"><span class="oh-ai">${icon('arrowUp', 18)}</span>Withdraw</button>
+        </div>
         ${(() => { const sav = S.accounts.filter((a) => a.type === 'savings').reduce((x, a) => x + a.current, 0), chk = S.accounts.filter((a) => a.type !== 'savings').reduce((x, a) => x + a.current, 0), tot = Math.max(1, sav + chk); return `<button class="db-split" data-go="/accounts"><span class="db-sp-bar"><i style="width:${Math.max(3, Math.round(chk / tot * 100))}%"></i></span><span class="db-sp-row"><span class="db-sp c1"><small><i></i>Checking</small><b>${hideable(money(chk), hidden)}</b></span><span class="db-sp c2"><small><i></i>Savings</small><b>${hideable(money(sav), hidden)}</b></span></span></button>`; })()}
       </div>
 
