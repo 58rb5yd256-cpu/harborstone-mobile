@@ -698,7 +698,7 @@ html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:rgba(255,238,2
 /* floating white card overlapping the header */
 html[data-theme] body.auth .na .auth-card{background:#fff!important;border:0!important;position:relative;z-index:2;
   box-shadow:0 30px 60px -20px rgba(60,10,10,.34)!important;border-radius:28px!important;
-  margin:-38px 32px 20px!important;width:auto!important;max-width:none!important;padding:clamp(20px,5.5vw,26px) clamp(16px,5vw,20px)!important;flex:none;
+  margin:-16px 32px 20px!important;width:auto!important;max-width:none!important;padding:clamp(20px,5.5vw,26px) clamp(16px,5vw,20px)!important;flex:none;
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html[data-theme] body.auth .na .auth-card h2{color:var(--tx)!important;text-align:center}
 html[data-theme] body.auth .na .auth-card p:not(.na-alt):not(.ferr){color:var(--mute)!important}
@@ -731,7 +731,10 @@ html[data-theme] body.auth .auth-card .fld input,html[data-theme] body.auth .aut
 html[data-theme] .na-alt{text-align:center;color:var(--mute)!important;font-size:13.5px;margin:18px 0 2px}
 html[data-theme] .na-alt button{color:var(--gold)!important;font-weight:800;text-decoration:none;background:none;border:0}
 /* version line: muted grey, outside the card, pinned to bottom */
-html[data-theme] .na-ver{margin:auto auto 0;padding-top:18px;display:flex;align-items:center;justify-content:center;gap:6px;color:#8E8E93!important;font-size:12px}
+html[data-theme] body.auth .na .login-links{display:flex!important;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;margin:auto 0 0!important;padding:16px 0 0!important;border:0!important}
+html[data-theme] body.auth .na .login-links button{color:#8E8E93!important;font-size:13px;font-weight:600;padding:5px 6px!important;background:none!important;border:0!important}
+html[data-theme] body.auth .na .login-links .ll-dot{color:#CBC5C7;font-size:13px}
+html[data-theme] .na-ver{margin:6px auto 0;padding-top:0;display:flex;align-items:center;justify-content:center;gap:6px;color:#8E8E93!important;font-size:12px}
 html[data-theme] .na-ver svg{color:#8E8E93!important}
 html[data-theme] .na-row .na-link{color:var(--gold)!important;margin:0}
 html[data-theme] body.auth .back-lnk{color:var(--gold)!important}

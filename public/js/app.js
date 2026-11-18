@@ -761,7 +761,7 @@
         </form>
         <button class="na-cta alt" type="button" data-act="faceLogin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V6a3 3 0 013-3h2M16 3h2a3 3 0 013 3v2M21 16v2a3 3 0 01-3 3h-2M8 21H6a3 3 0 01-3-3v-2"/><path d="M9 9v1.5M15 9v1.5M12 9v4h-1M9 16c1.6 1.4 4.4 1.4 6 0"/></svg><span>Sign in with Face ID</span></button>
         <p class="na-alt">New to Westmark? <button type="button" data-go="/register">Open an account</button></p>`,
-        foot: `<p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p>` })
+        foot: `<nav class="login-links" aria-label="More"><button type="button" data-go="/pub/security">Security</button><span class="ll-dot" aria-hidden="true">·</span><button type="button" data-go="/pub/contact">Contact</button><span class="ll-dot" aria-hidden="true">·</span><button type="button" data-go="/pub/locations">Locations</button></nav><p class="na-ver">${icon('lock', 12)}<span>Westmark Mobile · Version 1.0.0</span></p>` })
 
     };
   }, { pub: true });
