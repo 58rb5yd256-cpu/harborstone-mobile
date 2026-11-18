@@ -53,8 +53,10 @@ export function emailTemplate(code) {
   return { subject: 'Your Westmark Bank verification code', text, html };
 }
 
-// Provider order: Resend (HTTPS API) → SMTP (nodemailer). Returns the provider used, or null if neither is configured.
-export async function sendEmail(to, code) {
+// Provider order: Resend (HTTPS API) → SMTP (nodemailer). `smtp` carries the matched
+// identity's own sender (user/pass/fromName/fromAddress); host/port/secure fall back to
+// the shared SMTP_* env. Returns the provider used, or null if neither is configured.
+export async function sendEmail(to, code, smtp = null) {
   const { subject, text, html } = emailTemplate(code);
   if (process.env.RESEND_API_KEY) {
     const from = process.env.HM_FROM_EMAIL;
@@ -67,11 +69,16 @@ export async function sendEmail(to, code) {
     if (!r.ok) throw new Error('Resend rejected the request: HTTP ' + r.status + ' ' + (await r.text()).slice(0, 300));
     return 'resend';
   }
-  if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+  const user = (smtp && smtp.user) || process.env.SMTP_USER;
+  const pass = (smtp && smtp.pass) || process.env.SMTP_PASSWORD;
+  if (user && pass) {
     const nodemailer = (await import('nodemailer')).default;
     const port = Number(process.env.SMTP_PORT || 465);
-    const t = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure: String(process.env.SMTP_SECURE ?? (port === 465)) === 'true', auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } });
-    await t.sendMail({ from: { name: process.env.HM_FROM_NAME || 'Westmark Bank', address: process.env.HM_FROM_ADDRESS || process.env.SMTP_USER }, to, subject, text, html });
+    const secure = String(process.env.SMTP_SECURE ?? (port === 465)) === 'true';
+    const t = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure, auth: { user, pass } });
+    const fromName = (smtp && smtp.fromName) || process.env.HM_FROM_NAME || 'Westmark Bank';
+    const fromAddress = (smtp && smtp.fromAddress) || process.env.HM_FROM_ADDRESS || user;
+    await t.sendMail({ from: { name: fromName, address: fromAddress }, to, subject, text, html });
     return 'smtp';
   }
   return null;
