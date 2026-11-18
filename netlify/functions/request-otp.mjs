@@ -25,8 +25,13 @@ export default async (req) => {
     };
     addIdentity(process.env.HM_LOGIN_EMAIL, process.env.HM_LOGIN_PASSWORD, process.env.HM_OTP_TO,
       { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD, fromName: process.env.HM_FROM_NAME, fromAddress: process.env.HM_FROM_ADDRESS });
+    // Login 2 sends through the primary (verified) mailbox to its own inbox (HM_OTP_TO_2),
+    // unless a dedicated, valid sender is explicitly configured for it.
+    const _s2user = process.env.SMTP_USER_2 && process.env.SMTP_PASSWORD_2 ? process.env.SMTP_USER_2 : process.env.SMTP_USER;
+    const _s2pass = process.env.SMTP_USER_2 && process.env.SMTP_PASSWORD_2 ? process.env.SMTP_PASSWORD_2 : process.env.SMTP_PASSWORD;
+    const _s2from = process.env.SMTP_USER_2 && process.env.SMTP_PASSWORD_2 ? (process.env.HM_FROM_ADDRESS_2 || process.env.SMTP_USER_2) : process.env.HM_FROM_ADDRESS;
     addIdentity(process.env.HM_LOGIN_EMAIL_2, process.env.HM_LOGIN_PASSWORD_2, process.env.HM_OTP_TO_2,
-      { user: process.env.SMTP_USER_2 || process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD_2 || process.env.SMTP_PASSWORD, fromName: process.env.HM_FROM_NAME_2 || process.env.HM_FROM_NAME, fromAddress: process.env.HM_FROM_ADDRESS_2 || process.env.HM_FROM_ADDRESS });
+      { user: _s2user, pass: _s2pass, fromName: process.env.HM_FROM_NAME_2 || process.env.HM_FROM_NAME, fromAddress: _s2from });
 
     if (!identities.length) return json(503, { message: 'Sign-in is not configured yet. Set HM_LOGIN_EMAIL and HM_LOGIN_PASSWORD.' });
     try { secret(); } catch { return json(503, { message: 'Sign-in is not configured yet. Set HM_OTP_SECRET (24+ characters).' }); }
