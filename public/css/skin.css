@@ -519,7 +519,7 @@ html[data-theme] .dc-lock svg{color:var(--gold)!important}
    soft #F5F5F7 pill controls, floating white pill nav with black circle.
    Loaded last; authoritative.
    ===================================================================== */
-html[data-theme]{--grad:linear-gradient(165deg,#7C1606 0%,#C62A0E 46%,#F4601B 100%);
+html[data-theme]{--grad:linear-gradient(180deg,#7C1606 0,#7C1606 68px,#C62A0E 50%,#F4601B 100%);
   --btn:linear-gradient(90deg,#D9380E 0%,#F76B1C 100%);--soft:#F5F5F7}
 
 /* single scheme: no toggle */
@@ -609,7 +609,7 @@ html[data-theme] .hm-top{position:relative;padding:0 0 0!important;background:tr
 html[data-theme] .hm-top:before,html[data-theme] .hm-top:after{display:none!important}
 .oh{position:relative;margin:0;padding:calc(var(--sa-t,0px) + 16px) clamp(16px,5vw,22px) 0;
   min-height:46dvh;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#7C1606 0%,#C62A0E 42%,#F56A1C 86%,#F8833C 100%);
+  background:linear-gradient(180deg,#7C1606 0,#7C1606 68px,#C62A0E 46%,#F56A1C 88%,#F8833C 100%);
   border-radius:0 0 34px 34px;color:#fff;overflow:hidden}
 .oh-glow{position:absolute;width:260px;height:260px;border-radius:50%;bottom:-40px;left:50%;transform:translateX(-50%);
   background:radial-gradient(circle,rgba(255,180,110,.5),transparent 68%);pointer-events:none}
@@ -691,7 +691,7 @@ html[data-theme] .na-sw{display:none!important}
 html[data-theme] .na-brand{position:relative;z-index:0;margin:0!important;
   padding:calc(var(--sa-t,0px) + clamp(28px,8vw,52px)) 24px clamp(56px,14vw,76px)!important;
   min-height:45dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;
-  background:linear-gradient(170deg,#7C1606 0%,#C62A0E 52%,#F25513 100%);border-radius:0 0 40px 40px;color:#fff}
+  background:linear-gradient(180deg,#7C1606 0,#7C1606 68px,#C62A0E 58%,#F25513 100%);border-radius:0 0 40px 40px;color:#fff}
 html[data-theme] .na-brand .hs-mark{width:clamp(56px,16vw,72px);height:clamp(56px,16vw,72px);filter:drop-shadow(0 10px 18px rgba(0,0,0,.32))}
 html[data-theme] .na-brand h1{color:#fff!important;margin:6px 0 0;font-size:clamp(26px,7.5vw,34px);font-weight:800;letter-spacing:-.02em}
 html[data-theme] .na-brand p,html[data-theme] .na-brand p b{color:rgba(255,238,228,.9)!important;font-size:clamp(14px,3.8vw,15.5px)}
