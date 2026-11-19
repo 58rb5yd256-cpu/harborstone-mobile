@@ -607,12 +607,17 @@ html[data-theme] .db-sp.c2 small i{background:#F7A072!important}
 /* ============ HOME ORANGE HEADER ============ */
 html[data-theme] .hm-top{position:relative;padding:0 0 0!important;background:transparent!important}
 html[data-theme] .hm-top:before,html[data-theme] .hm-top:after{display:none!important}
-.oh{position:relative;margin:0;padding:calc(var(--sa-t,0px) + 16px) clamp(16px,5vw,22px) 0;
+.oh{position:relative;margin:6px 6px 0;padding:calc(var(--sa-t,0px) + 10px) clamp(16px,5vw,22px) 0;
   min-height:0;display:flex;flex-direction:column;
   background:linear-gradient(180deg,#7C1606 0,#7C1606 68px,#C62A0E 46%,#F56A1C 88%,#F8833C 100%);
-  border-radius:0 0 34px 34px;color:#fff;overflow:hidden}
-.oh-glow{position:absolute;width:260px;height:260px;border-radius:50%;bottom:-40px;left:50%;transform:translateX(-50%);
-  background:radial-gradient(circle,rgba(255,180,110,.5),transparent 68%);pointer-events:none}
+  border-radius:46px;color:#fff;overflow:hidden}
+/* decorative shapes behind the content */
+.oh::after{content:"";position:absolute;right:-90px;top:-100px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;z-index:0}
+.oh::before{content:"";position:absolute;right:24px;top:calc(var(--sa-t,0px) + 18px);width:130px;height:80px;background:radial-gradient(rgba(255,255,255,.22) 1.6px,transparent 1.6px);background-size:18px 18px;pointer-events:none;z-index:0}
+.oh-glow{position:absolute;width:140px;height:140px;border-radius:50%;top:18%;left:-34px;transform:none;z-index:0;
+  background:transparent;border:22px solid rgba(255,255,255,.06);pointer-events:none}
+/* home only: let the orange block paint under the status bar instead of the flat band, so the inset + rounded top corners show */
+html[data-theme] body:has(.oh) #app:before{display:none!important}
 .oh-bar{position:relative;z-index:2;display:flex;align-items:center;gap:12px}
 html[data-theme] .oh-id{flex:none;padding:0;border:0!important;background:none!important;width:46px;height:46px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.45)!important}
 html[data-theme] .oh-id img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block}
@@ -664,7 +669,7 @@ html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#FFE3D0!import
 
 /* ============ FLOATING WHITE PILL NAV, BLACK ACTIVE CIRCLE ============ */
 html[data-theme] #nav{position:fixed!important;display:flex;align-items:center;justify-content:center;gap:4px;
-  width:max-content!important;max-width:calc(100% - 28px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:calc(var(--sa-b,0px) + 7px)!important;
+  width:max-content!important;max-width:calc(100% - 28px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:max(6px,calc(var(--sa-b,0px) - 6px))!important;
   background:#fff!important;border:0!important;margin:0!important;border-radius:9999px!important;
   box-shadow:0 18px 40px -12px rgba(60,10,10,.36)!important;height:60px!important;padding:0 8px!important}
 /* content scrolls UNDER the floating nav; last items clear it; no overscroll bounce */
