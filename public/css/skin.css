@@ -608,7 +608,7 @@ html[data-theme] .db-sp.c2 small i{background:#F7A072!important}
 html[data-theme] .hm-top{position:relative;padding:0 0 0!important;background:transparent!important}
 html[data-theme] .hm-top:before,html[data-theme] .hm-top:after{display:none!important}
 .oh{position:relative;margin:0;padding:calc(var(--sa-t,0px) + 16px) clamp(16px,5vw,22px) 0;
-  min-height:46dvh;display:flex;flex-direction:column;
+  min-height:0;display:flex;flex-direction:column;
   background:linear-gradient(180deg,#7C1606 0,#7C1606 68px,#C62A0E 46%,#F56A1C 88%,#F8833C 100%);
   border-radius:0 0 34px 34px;color:#fff;overflow:hidden}
 .oh-glow{position:absolute;width:260px;height:260px;border-radius:50%;bottom:-40px;left:50%;transform:translateX(-50%);
@@ -623,15 +623,15 @@ html[data-theme] .oh-bell{flex:none;width:40px;height:40px;border-radius:50%;dis
   background:rgba(0,0,0,.22)!important;border:1px solid rgba(255,255,255,.18)!important;color:#fff!important;position:relative}
 html[data-theme] .oh-bell svg{color:#fff!important}
 html[data-theme] .oh-bell .dot{position:absolute;top:-3px;right:-3px}
-.oh-blk{position:relative;z-index:2;text-align:center;margin-top:14px}
-.oh-blk>small{font-size:12px;font-weight:500;color:rgba(255,243,236,.8)}
-.oh-amt{margin-top:2px;font-size:40px;font-weight:800;letter-spacing:-.03em;color:#fff;font-variant-numeric:tabular-nums}
+.oh-blk{position:relative;z-index:2;text-align:center;margin-top:20px}
+.oh-blk>small{font-size:14px;font-weight:600;letter-spacing:.01em;color:rgba(255,243,236,.92)}
+.oh-amt{margin-top:5px;font-size:clamp(44px,12.5vw,54px);line-height:1.02;font-weight:800;letter-spacing:-.035em;color:#fff;font-variant-numeric:tabular-nums}
 .oh-amt u{color:rgba(255,255,255,.55);text-decoration:none}
 .oh-amt .masked{letter-spacing:4px}
 html[data-theme] .oh-pct{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 12px;border-radius:9999px;
   font-size:11.5px;font-weight:700;color:#fff!important;background:rgba(255,255,255,.18)!important;border:1px solid rgba(255,255,255,.22)!important}
 html[data-theme] .oh-pct svg{color:#fff!important;width:13px;height:13px}
-.oh-stack{position:relative;z-index:2;margin:auto -8px 0;height:clamp(104px,30vw,122px)}
+.oh-stack{position:relative;z-index:2;margin:26px -8px 0;height:clamp(104px,30vw,122px)}
 .oh-c{position:absolute;left:0;right:0;background:rgba(255,255,255,.14);
   -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
 .oh-c3{top:0;left:24px;right:24px;height:56px;border-radius:14px;opacity:.5}
@@ -663,10 +663,15 @@ html[data-theme] .hdr .iconbtn svg{color:#fff!important}
 html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#FFE3D0!important}
 
 /* ============ FLOATING WHITE PILL NAV, BLACK ACTIVE CIRCLE ============ */
-html[data-theme] #nav{position:relative;display:flex;align-items:center;justify-content:center;gap:4px;
-  width:max-content!important;max-width:calc(100% - 32px)!important;left:auto!important;right:auto!important;
-  background:#fff!important;border:0!important;margin:0 auto calc(var(--sa-b,0px) + 12px)!important;border-radius:9999px!important;
-  box-shadow:0 16px 34px -12px rgba(60,10,10,.3)!important;height:60px!important;padding:0 8px!important}
+html[data-theme] #nav{position:fixed!important;display:flex;align-items:center;justify-content:center;gap:4px;
+  width:max-content!important;max-width:calc(100% - 28px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:calc(var(--sa-b,0px) + 7px)!important;
+  background:#fff!important;border:0!important;margin:0!important;border-radius:9999px!important;
+  box-shadow:0 18px 40px -12px rgba(60,10,10,.36)!important;height:60px!important;padding:0 8px!important}
+/* content scrolls UNDER the floating nav; last items clear it; no overscroll bounce */
+html[data-theme] #view{overscroll-behavior:none!important}
+html[data-theme] body:not(.auth) #view{padding-bottom:calc(var(--sa-b,0px) + 100px)!important}
+html[data-theme] .support-fab{bottom:calc(var(--sa-b,0px) + 84px)!important}
+html[data-theme] .toast{bottom:calc(var(--sa-b,0px) + 84px)!important}
 html[data-theme] #nav .tab{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:0;
   flex:none!important;width:auto!important;min-width:0!important;height:46px!important;border-radius:9999px!important;padding:0 13px!important;
   background:none!important;border:0!important;color:#9A9298!important;transition:background .2s,color .2s,gap .2s,padding .2s}
