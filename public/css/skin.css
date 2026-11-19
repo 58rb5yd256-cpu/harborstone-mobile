@@ -648,12 +648,27 @@ html[data-theme] .oh-pct svg{color:#fff!important;width:13px;height:13px}
 .oh-n{font-size:15px;letter-spacing:2px;font-weight:700;font-variant-numeric:tabular-nums}
 .oh-e{font-size:12px;opacity:.85;font-variant-numeric:tabular-nums}
 .oh-v{font-size:15px;font-weight:800;font-style:italic;letter-spacing:1px}
-.oh-acts{display:flex;gap:10px;padding:18px 18px 0}
-html[data-theme] .oh-acts button{flex:1;height:50px;border-radius:16px;border:0;background:var(--soft)!important;
-  display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:700;color:var(--tx)!important;box-shadow:none!important}
-html[data-theme] .oh-acts button.mid{flex:0 0 58px}
-.oh-ai{display:grid;place-items:center}
-html[data-theme] .oh-acts .oh-ai svg{color:var(--gold)!important}
+.oh-acts{display:flex;gap:11px;padding:16px clamp(16px,5vw,22px) 2px}
+html[data-theme] .oh-acts .oh-act{flex:1;min-width:0;display:flex;align-items:center;gap:10px;
+  min-height:62px;padding:11px 13px;border:1px solid var(--line,rgba(124,22,6,.08));border-radius:18px;text-align:left;cursor:pointer;
+  background:#fff!important;box-shadow:0 8px 20px -14px rgba(74,14,4,.45)!important;-webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease}
+html[data-theme] .oh-acts .oh-act:active{transform:scale(.97)}
+html[data-theme] .oh-act .oh-ai{flex:0 0 auto;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#FCE3D6,#F7D0BB)!important}
+html[data-theme] .oh-act .oh-ai svg{color:#C53A10!important}
+html[data-theme] .oh-act .oh-at{min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.12}
+html[data-theme] .oh-act .oh-at b{font-size:14px;font-weight:800;letter-spacing:-.2px;color:var(--tx)!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-theme] .oh-act .oh-at small{font-size:11px;font-weight:500;color:var(--mut)!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* primary = filled orange CTA */
+html[data-theme] .oh-act.primary{border-color:transparent;background:linear-gradient(135deg,#F2690F 0%,#D9380E 100%)!important;
+  box-shadow:0 12px 24px -12px rgba(201,58,16,.7)!important}
+html[data-theme] .oh-act.primary .oh-ai{background:rgba(255,255,255,.22)!important}
+html[data-theme] .oh-act.primary .oh-ai svg{color:#fff!important}
+html[data-theme] .oh-act.primary .oh-at b{color:#fff!important}
+html[data-theme] .oh-act.primary .oh-at small{color:rgba(255,255,255,.82)!important}
 html[data-theme] .db-split{margin:16px 18px 0!important;padding:16px!important}
 
 /* ============ INNER PAGE HEADERS — orange, rounded (no wave) ============ */
@@ -784,4 +799,26 @@ html[data-theme] .ob-copy h1{color:#fff!important}
 html[data-theme] body.auth .na .auth-card .na-link{color:var(--gold)!important}
 html[data-theme] body.auth .na .auth-card .na-row .na-link{color:var(--gold)!important}
 /* dashboard action pills: white, tactile on the soft canvas */
-html[data-theme] .oh-acts button{background:#fff!important;box-shadow:0 6px 16px -8px rgba(124,22,6,.22)!important}
+html[data-theme] .oh-acts .oh-act{background:#fff!important}
+html[data-theme] .oh-acts .oh-act.primary{background:linear-gradient(135deg,#F2690F 0%,#D9380E 100%)!important;box-shadow:0 12px 24px -12px rgba(201,58,16,.7)!important}
+
+/* ============ ADD MONEY — bottom-sheet options & screens ============ */
+html[data-theme] .sh-sub{margin:-2px 0 2px;color:var(--mut)!important;font-size:13px;font-weight:500}
+html[data-theme] .am-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+html[data-theme] .am-opt{display:flex;align-items:center;gap:13px;width:100%;padding:13px 14px;border:0;cursor:pointer;
+  border-radius:16px;text-align:left;background:var(--soft)!important;transition:background .12s ease,transform .12s ease}
+html[data-theme] .am-opt:active{transform:scale(.985);background:var(--soft2,#f3ece8)!important}
+html[data-theme] .am-opt .am-i{flex:0 0 auto;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#FCE3D6,#F8D2BE)!important}
+html[data-theme] .am-opt .am-i svg{color:#C53A10!important}
+html[data-theme] .am-opt .am-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html[data-theme] .am-opt .am-t b{font-size:15px;font-weight:700;color:var(--tx)!important;letter-spacing:-.2px}
+html[data-theme] .am-opt .am-t small{font-size:12.5px;color:var(--mut)!important}
+html[data-theme] .am-opt .am-c{flex:0 0 auto}
+html[data-theme] .am-opt .am-c svg{color:var(--mut)!important;opacity:.6}
+html[data-theme] .am-row{display:flex;gap:12px}
+html[data-theme] .am-row>.fld{flex:1;min-width:0}
+html[data-theme] .lead{margin:2px 0 4px;color:var(--mut)!important;font-size:14px;line-height:1.5}
+
+/* Add-money info pages: text-first, no header overlap */
+html[data-theme] .page>.hdr + .pad.addpg{margin-top:0!important;padding-top:16px!important}

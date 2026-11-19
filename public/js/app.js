@@ -385,7 +385,7 @@
     const a = HM.acct(req.to); req.amount = r2(req.amount);
     if (!a || !(req.amount > 0)) return { ok: false, error: 'Enter a valid deposit amount and account.' };
     const date = new Date().toISOString(), ref = HM.ref('deposit');
-    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'rejected', reason: 'Account frozen — the check was not accepted. No funds were credited.', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, noCredit: true } };
+    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: req.desc || 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'rejected', reason: 'Account frozen — the deposit was not accepted. No funds were credited.', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, noCredit: true } };
     state.txs.unshift(tx); if (req.idem) state.idem[req.idem] = tx.id;
     HM.notify('account', 'Check deposit rejected', `${HM.money(req.amount)} check deposit was not accepted. No funds were credited.`);
     persist(); return { ok: false, blocked: true, code: 'restricted', tx, error: 'The check deposit was rejected because the account is restricted. No funds were credited.' };
@@ -1036,8 +1036,8 @@
           </div>
         </div>
         <div class="oh-acts" role="group" aria-label="Quick actions">
-          <button data-go="/payments/ach_instant/new"><span class="oh-ai">${icon('send', 18)}</span>Send</button>
-          <button data-go="/payments"><span class="oh-ai">${icon('swap', 18)}</span>Transfer</button>
+          <button class="oh-act primary" data-go="/payments"><span class="oh-ai">${icon('send', 18)}</span><span class="oh-at"><b>Send money</b><small>Zelle, wire &amp; more</small></span></button>
+          <button class="oh-act" data-act="addMoney"><span class="oh-ai">${icon('plus', 18)}</span><span class="oh-at"><b>Add money</b><small>Deposit &amp; top up</small></span></button>
         </div>
         ${(() => { const sav = S.accounts.filter((a) => a.type === 'savings').reduce((x, a) => x + a.current, 0), chk = S.accounts.filter((a) => a.type !== 'savings').reduce((x, a) => x + a.current, 0), tot = Math.max(1, sav + chk); return `<button class="db-split" data-go="/accounts"><span class="db-sp-bar"><i style="width:${Math.max(3, Math.round(chk / tot * 100))}%"></i></span><span class="db-sp-row"><span class="db-sp c1"><small><i></i>Checking</small><b>${hideable(money(chk), hidden)}</b></span><span class="db-sp c2"><small><i></i>Savings</small><b>${hideable(money(sav), hidden)}</b></span></span></button>`; })()}
       </div>
@@ -1216,6 +1216,69 @@
   HM.route('/accounts/deposit/review', 'accounts', () => depositReview());
   HM.route('/accounts/deposit/done/:id', 'accounts', ({ id }) => depositDone(id));
   HM.route('/accounts/deposit/history', 'accounts', () => depositHistory());
+
+  /* ---------- Add money (home quick action) ---------- */
+  const addAcct = () => HM.state().accounts.find((a) => a.type === 'checking') || HM.state().accounts[0];
+  HM.acts.addMoney = () => {
+    const a = addAcct();
+    const opt = (ic, t, s, go) => `<button class="am-opt" data-act="sheetGo" data-arg="${go}"><span class="am-i">${icon(ic, 20)}</span><span class="am-t"><b>${t}</b><small>${s}</small></span><span class="am-c">${icon('chevR', 18)}</span></button>`;
+    ui.sheet(`<h3 class="sh-title">Add money</h3><p class="sh-sub">Into ${esc(a.nickname)} ${HM.mask(a.number)}</p>
+      <div class="am-list">
+      ${opt('bank', 'Bank transfer', 'Use your account & routing number', '/add/bank')}
+      ${opt('download', 'Direct deposit', 'Get your pay sent here', '/add/direct')}
+      ${opt('camera', 'Deposit a check', 'Snap a photo of a paper check', '/accounts/deposit')}
+      ${opt('card', 'Debit card', 'Top up from another card', '/add/card')}
+      </div>`);
+  };
+  HM.acts.sheetGo = (b, path) => { ui.closeSheet(); setTimeout(() => HM.go(path), 170); };
+
+  const addNumbers = (a) => `<div class="card mt"><div class="kv"><span>Account holder</span><b>${esc(HM.holder())}</b></div><div class="kv"><span>Bank</span><b>${esc(HM.BANK.name)}</b></div><div class="kv"><span>Routing number</span><b>${a.routing} <button class="cp" data-act="copyTxt" data-arg="${a.routing}|Routing number" aria-label="Copy routing number">${icon('copy', 16)}</button></b></div><div class="kv"><span>Account number</span><b>${a.number} <button class="cp" data-act="copyTxt" data-arg="${a.number}|Account number" aria-label="Copy account number">${icon('copy', 16)}</button></b></div><div class="kv"><span>Account type</span><b>Checking · Individual</b></div></div>`;
+
+  HM.route('/add/bank', 'home', () => {
+    const a = addAcct();
+    return { title: 'Bank transfer', html: `${ui.header('Bank transfer', { back: '/home', sub: 'Add money' })}<div class="pad addpg">
+      <p class="lead">Share these details with another bank or person to transfer money into your ${esc(a.nickname)}. Incoming transfers usually arrive within 1–3 business days.</p>
+      ${addNumbers(a)}
+      <button class="btn btn-ghost mt" data-act="copyTxt" data-arg="${esc(HM.BANK.name)} · Routing ${a.routing} · Account ${a.number}|Account details">${icon('copy', 18)} Copy all details</button>
+      <div class="note mt">${icon('info', 18)}<span>Westmark never charges a fee to receive an incoming transfer.</span></div></div>` };
+  });
+
+  HM.route('/add/direct', 'home', () => {
+    const a = addAcct();
+    return { title: 'Direct deposit', html: `${ui.header('Direct deposit', { back: '/home', sub: 'Add money' })}<div class="pad addpg">
+      <p class="lead">Set up direct deposit to have your paycheck, benefits or tax refund sent straight to ${esc(a.nickname)}. Give these details to your employer or payer.</p>
+      ${addNumbers(a)}
+      <button class="btn btn-ghost mt" data-act="copyTxt" data-arg="${esc(HM.holder())} · ${esc(HM.BANK.name)} · Routing ${a.routing} · Account ${a.number} · Checking|Direct deposit details">${icon('copy', 18)} Copy details for my employer</button>
+      <div class="note mt">${icon('info', 18)}<span>A completed deposit form (with a voided check if required) is available under Documents.</span></div></div>` };
+  });
+
+  HM.route('/add/card', 'home', () => {
+    const a = addAcct();
+    return { title: 'Debit card', html: `${ui.header('Debit card', { back: '/home', sub: 'Add money' })}<div class="pad addpg">
+      <p class="lead">Move money into ${esc(a.nickname)} instantly from a debit card at another bank.</p>
+      <form data-form="cardTopup" novalidate>
+      ${ui.field({ name: 'amt', label: 'Amount', money: true, inputmode: 'decimal', placeholder: '0.00' })}
+      ${ui.field({ name: 'card', label: 'Card number', inputmode: 'numeric', digits: true, maxlength: 16, placeholder: 'Card number', autocomplete: 'off' })}
+      <div class="am-row">${ui.field({ name: 'exp', label: 'Expiry (MM/YY)', inputmode: 'numeric', maxlength: 5, placeholder: 'MM/YY' })}${ui.field({ name: 'cvv', label: 'CVV', inputmode: 'numeric', digits: true, maxlength: 4, placeholder: '•••' })}</div>
+      <button class="btn btn-primary mt2" type="submit">Add money</button></form>
+      <div class="note mt">${icon('lock', 18)}<span>Card details are used only for this top-up and are not stored.</span></div></div>` };
+  });
+  HM.forms.cardTopup = async (f, d, btn) => {
+    const amt = HM.r2(parseFloat(d.amt));
+    const card = String(d.card || '').replace(/\D/g, '');
+    if (!(amt > 0)) return ui.fail(f, 'Enter an amount greater than $0.00.', 'amt');
+    if (card.length < 12) return ui.fail(f, 'Enter a valid card number.', 'card');
+    if (!/^\d{2}\/?\d{2}$/.test(String(d.exp || '').trim())) return ui.fail(f, 'Enter the expiry as MM/YY.', 'exp');
+    if (String(d.cvv || '').replace(/\D/g, '').length < 3) return ui.fail(f, 'Enter the 3- or 4-digit security code.', 'cvv');
+    ui.busy(btn, true, 'Adding…');
+    await new Promise((r) => setTimeout(r, 900));
+    const a = addAcct();
+    const res = HM.executeDeposit({ to: a.id, amount: amt, desc: 'Debit card top-up', payer: 'Debit card ••' + card.slice(-4), idem: HM.uid('card') });
+    ui.busy(btn, false);
+    if (res.tx) return HM.go('/tx/' + res.tx.id, { replace: true });
+    ui.fail(f, res.error || 'This top-up could not be completed.', 'amt');
+  };
+
   HM.route('/accounts/statements', 'accounts', () => statementsHub());
   HM.route('/accounts/spending', 'accounts', () => spendingPage());
   HM.route('/accounts/goals', 'accounts', () => goalsPage());
