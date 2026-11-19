@@ -362,15 +362,11 @@
     if (!R || !a) return { ok: false, error: 'Invalid payment request.' };
     if (!(req.amount > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
     if (req.amount > a.available) return { ok: false, error: `This exceeds your available balance of ${HM.money(a.available)}.` };
-    // Process the payment: funds move and the transaction settles.
-    const instant = ['ach_instant', 'internal', 'withdrawal', 'card'].includes(req.rail);
-    const status = instant ? 'completed' : 'pending';
-    a.available = r2(a.available - req.amount);
-    a.current = r2(a.current - req.amount);
-    const tx = baseTx(req, status, { fee: 0 });
+    // Submit the payment as pending. The displayed balance is NOT changed and no funds actually move.
+    const tx = baseTx(req, 'pending', { fee: 0 });
     state.txs.unshift(tx);
     if (req.idem) state.idem[req.idem] = tx.id;
-    HM.notify('payment', `${R.label} ${status === 'completed' ? 'sent' : 'processing'}`, `${HM.money(req.amount)} ${status === 'completed' ? 'was sent.' : 'is on the way.'}`);
+    HM.notify('payment', `${R.label} submitted`, `${HM.money(req.amount)} is on the way.`);
     persist();
     return { ok: true, tx };
   };
@@ -382,10 +378,10 @@
     const a = HM.acct(req.to); req.amount = r2(req.amount);
     if (!a || !(req.amount > 0)) return { ok: false, error: 'Enter a valid deposit amount and account.' };
     const date = new Date().toISOString(), ref = HM.ref('deposit');
-    a.available = r2(a.available + req.amount); a.current = r2(a.current + req.amount);
-    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'completed', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate } };
+    // Submitted as pending; the displayed balance is NOT changed and no funds actually move.
+    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'pending', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate } };
     state.txs.unshift(tx); if (req.idem) state.idem[req.idem] = tx.id;
-    HM.notify('deposit', 'Check deposited', `${HM.money(req.amount)} was deposited to ${a.nickname}.`);
+    HM.notify('deposit', 'Check submitted', `${HM.money(req.amount)} check was submitted.`);
     persist(); return { ok: true, tx };
   };
 
