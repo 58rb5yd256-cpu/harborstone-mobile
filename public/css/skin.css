@@ -681,7 +681,7 @@ html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#FFE3D0!import
 
 /* ============ FLOATING WHITE PILL NAV, BLACK ACTIVE CIRCLE ============ */
 html[data-theme] #nav{position:fixed!important;display:flex;align-items:center;justify-content:center;gap:4px;
-  width:max-content!important;max-width:calc(100% - 28px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:max(6px,calc(var(--sa-b,0px) - 6px))!important;
+  width:max-content!important;max-width:calc(100% - 28px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;bottom:max(5px,calc(var(--sa-b,0px) - 20px))!important;
   background:#fff!important;border:0!important;margin:0!important;border-radius:9999px!important;
   box-shadow:0 18px 40px -12px rgba(60,10,10,.36)!important;height:60px!important;padding:0 8px!important}
 /* content scrolls UNDER the floating nav; last items clear it; no overscroll bounce */

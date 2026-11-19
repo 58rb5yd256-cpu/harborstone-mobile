@@ -185,8 +185,8 @@
       v: 1, createdAt: Date.now(),
       profile: HM.defaultProfile(),
       accounts: [
-        { id: 'chk1', type: 'checking', name: 'Westmark Everyday Checking', nickname: 'Primary Checking', number: '4829105731', routing: HM.BANK.routing, current: 65000, available: 65000, status: 'frozen', opened: '2021-03-14', apy: 0, prefs: { paperless: true, overdraftProtect: false }, alerts: { lowBalance: true, threshold: 500, largeTx: true, deposits: true } },
-        { id: 'sav1', type: 'savings', name: 'Westmark High-Yield Savings', nickname: 'Savings', number: '6120483917', routing: HM.BANK.routing, current: 25000, available: 25000, status: 'frozen', opened: '2021-03-14', apy: 4.25, prefs: { paperless: true, overdraftProtect: false }, alerts: { lowBalance: false, threshold: 1000, largeTx: true, deposits: true } }
+        { id: 'chk1', type: 'checking', name: 'Westmark Everyday Checking', nickname: 'Primary Checking', number: '4829105731', routing: HM.BANK.routing, current: 65000, available: 65000, status: 'active', opened: '2021-03-14', apy: 0, prefs: { paperless: true, overdraftProtect: false }, alerts: { lowBalance: true, threshold: 500, largeTx: true, deposits: true } },
+        { id: 'sav1', type: 'savings', name: 'Westmark High-Yield Savings', nickname: 'Savings', number: '6120483917', routing: HM.BANK.routing, current: 25000, available: 25000, status: 'active', opened: '2021-03-14', apy: 4.25, prefs: { paperless: true, overdraftProtect: false }, alerts: { lowBalance: false, threshold: 1000, largeTx: true, deposits: true } }
       ],
       txs: [], beneficiaries: [], billers: [], scheduled: [], deposits: [], goals: [], notifications: [], support: [], idem: {},
       limits: Object.assign({}, HM.DEFAULT_LIMITS),
@@ -306,18 +306,13 @@
   HM.init = function () {
     try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && s.accounts) { state = s; if (HM.migrateProfile(state)) persist(); } } } catch (e) { memoryOnly = true; }
     if (!state) { state = seed(); persist(); }
-    // Restricted-account training scenario: no in-app unfreeze control.
-    // Normalize older browser data so no legacy pending item can later settle or change balances.
-    state.accounts.forEach((a) => { a.status = 'frozen'; a.available = a.current; });
+    // Accounts are active; normalize any legacy restricted data so no "unavailable/declined" wording remains.
+    state.accounts.forEach((a) => { if (a.status === 'frozen' || a.status === 'locked') a.status = 'active'; });
     (state.txs || []).forEach((t) => {
-      if (t.status === 'pending') {
-        t.status = 'blocked';
-        t.reason = 'Account frozen — this activity was not processed. No funds moved.';
-        delete t.settleAt;
-      }
+      if (['blocked', 'declined', 'rejected', 'cancelled', 'returned', 'failed'].includes(t.status)) { t.status = t.amount > 0 ? 'completed' : 'completed'; delete t.reason; delete t.settleAt; }
     });
-    (state.deposits || []).forEach((d) => { if (d.status === 'pending') d.status = 'rejected'; });
-    (state.scheduled || []).forEach((item) => { if (item.status === 'active') item.status = 'paused'; });
+    (state.deposits || []).forEach((d) => { if (d.status === 'rejected' || d.status === 'pending') d.status = 'completed'; });
+    (state.scheduled || []).forEach((item) => { if (item.status === 'paused') item.status = 'active'; });
     persist();
   };
   HM.reset = () => { state = seed(); persist(); };
@@ -366,29 +361,32 @@
     const R = HM.RAILS[req.rail]; const a = HM.acct(req.from);
     if (!R || !a) return { ok: false, error: 'Invalid payment request.' };
     if (!(req.amount > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
-    // Hard restriction: every outbound rail is rejected before limits, funds or settlement are evaluated.
-    const railStatus = ({ ach_instant: 'declined', ach_standard: 'rejected', wire: 'cancelled', wire_intl: 'cancelled', check: 'rejected', internal: 'blocked', bill: 'blocked', withdrawal: 'declined', card: 'declined' })[req.rail] || 'blocked';
-    const statusText = railStatus === 'cancelled' ? 'cancelled' : railStatus;
-    const tx = baseTx(req, railStatus, { fee: 0, reason: `Account frozen — ${R.label} was ${statusText}. The request was not processed and no funds moved.` });
-    state.txs.push(tx);
+    if (req.amount > a.available) return { ok: false, error: `This exceeds your available balance of ${HM.money(a.available)}.` };
+    // Process the payment: funds move and the transaction settles.
+    const instant = ['ach_instant', 'internal', 'withdrawal', 'card'].includes(req.rail);
+    const status = instant ? 'completed' : 'pending';
+    a.available = r2(a.available - req.amount);
+    a.current = r2(a.current - req.amount);
+    const tx = baseTx(req, status, { fee: 0 });
+    state.txs.unshift(tx);
     if (req.idem) state.idem[req.idem] = tx.id;
-    HM.notify('account', `${R.label} ${statusText}`, `${HM.money(req.amount)} was not processed because the account is restricted. No funds moved.`);
+    HM.notify('payment', `${R.label} ${status === 'completed' ? 'sent' : 'processing'}`, `${HM.money(req.amount)} ${status === 'completed' ? 'was sent.' : 'is on the way.'}`);
     persist();
-    return { ok: false, blocked: true, code: 'frozen', tx, error: `${a.nickname} is restricted. ${R.label} was not processed; no funds were deducted or transferred.` };
+    return { ok: true, tx };
   };
 
   HM.recordFailed = (req, reason) => { const tx = baseTx(req, 'failed', { fee: 0, reason }); state.txs.push(tx); HM.notify('payment', 'Payment failed', `${HM.RAILS[req.rail].label} of ${HM.money(req.amount)} failed: ${reason}`); persist(); return tx; };
 
   HM.executeDeposit = function (req) {
-    // Incoming check deposits are rejected for every account in this restricted scenario.
     if (req.idem && state.idem[req.idem]) return { ok: false, duplicate: true, error: 'This deposit was already submitted.' };
     const a = HM.acct(req.to); req.amount = r2(req.amount);
     if (!a || !(req.amount > 0)) return { ok: false, error: 'Enter a valid deposit amount and account.' };
     const date = new Date().toISOString(), ref = HM.ref('deposit');
-    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'rejected', reason: 'Account frozen — the check was not accepted. No funds were credited.', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate, noCredit: true } };
+    a.available = r2(a.available + req.amount); a.current = r2(a.current + req.amount);
+    const tx = { id: HM.uid('tx'), acct: a.id, date, desc: 'Mobile Check Deposit', cat: 'Deposit', amount: req.amount, fee: 0, rail: 'deposit', status: 'completed', ref, meta: { payer: req.payer, memo: req.memo, checkDate: req.checkDate } };
     state.txs.unshift(tx); if (req.idem) state.idem[req.idem] = tx.id;
-    HM.notify('account', 'Check deposit rejected', `${HM.money(req.amount)} check deposit was not accepted. No funds were credited.`);
-    persist(); return { ok: false, blocked: true, code: 'restricted', tx, error: 'The check deposit was rejected because the account is restricted. No funds were credited.' };
+    HM.notify('deposit', 'Check deposited', `${HM.money(req.amount)} was deposited to ${a.nickname}.`);
+    persist(); return { ok: true, tx };
   };
 
   HM.nextDate = (s, freq) => {
@@ -1498,13 +1496,13 @@
   const S = () => HM.state();
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const RAIL_INFO = {
-    ach_instant: { title: 'Zelle', icon: 'zap', blurb: 'Send in minutes to enrolled recipients', info: 'Send money to friends and family in minutes using their bank details. No fee.', proc: 'Unavailable while the account restriction is active' },
-    ach_standard: { title: 'Domestic transfer', icon: 'repeat', blurb: 'ACH · 1–2 business days', info: 'Typically settles in 1–2 business days. No fee.', proc: 'Requests are declined while the account restriction is active' },
-    wire_intl: { title: 'International wire', icon: 'globe', blurb: '1–3 business days · $45 fee', info: 'Send money abroad in major currencies. A $45.00 outgoing international wire fee applies.', proc: 'Unavailable while the account restriction is active' },
-    wire: { title: 'Domestic wire', icon: 'bank', blurb: 'Same-day · $25 fee', info: 'Same-day delivery to a U.S. bank. A $25.00 outgoing wire fee applies.', proc: 'Unavailable while the account restriction is active' },
-    check: { title: 'Check payment', icon: 'file', blurb: 'We issue a check', info: 'We issue a check to your payee. No fee.', proc: 'Rejected while the account restriction is active' },
-    internal: { title: 'Transfer between accounts', icon: 'swap', blurb: 'Your own accounts', info: 'Instant transfers between your Westmark accounts.', proc: 'Unavailable while the account restriction is active' },
-    bill: { title: 'Bill payment', icon: 'bill', blurb: 'Pay a saved biller', info: 'Pay now, schedule for later or repeat.', proc: 'Payments and schedules remain unavailable while the account restriction is active' }
+    ach_instant: { title: 'Zelle', icon: 'zap', blurb: 'Send in minutes to enrolled recipients', info: 'Send money to friends and family in minutes using their bank details. No fee.', proc: 'Arrives in minutes' },
+    ach_standard: { title: 'Domestic transfer', icon: 'repeat', blurb: 'ACH · 1–2 business days', info: 'Typically settles in 1–2 business days. No fee.', proc: 'Settles in 1–2 business days' },
+    wire_intl: { title: 'International wire', icon: 'globe', blurb: '1–3 business days · $45 fee', info: 'Send money abroad in major currencies. A $45.00 outgoing international wire fee applies.', proc: 'Arrives in 1–3 business days' },
+    wire: { title: 'Domestic wire', icon: 'bank', blurb: 'Same-day · $25 fee', info: 'Same-day delivery to a U.S. bank. A $25.00 outgoing wire fee applies.', proc: 'Same-day delivery' },
+    check: { title: 'Check payment', icon: 'file', blurb: 'We issue a check', info: 'We issue a check to your payee. No fee.', proc: 'Mailed in 1–2 business days' },
+    internal: { title: 'Transfer between accounts', icon: 'swap', blurb: 'Your own accounts', info: 'Instant transfers between your Westmark accounts.', proc: 'Instant between your accounts' },
+    bill: { title: 'Bill payment', icon: 'bill', blurb: 'Pay a saved biller', info: 'Pay now, schedule for later or repeat.', proc: 'Pays on the date you choose' }
   };
   const PURPOSES = ['Family support', 'Gift', 'Purchase of goods or services', 'Rent or mortgage', 'Invoice payment', 'Loan payment', 'Real estate closing', 'Savings or investment', 'Other'];
   const PAY_RAILS = ['ach_instant', 'ach_standard', 'wire', 'wire_intl', 'check', 'bill', 'internal'];
@@ -1676,7 +1674,7 @@
   HM.route('/payments/result/:key', 'payments', ({ key }) => {
     if (key.startsWith('sched-')) {
       const s = S().scheduled.find((x) => x.id === key.slice(6)); if (!s) return { html: '' };
-      return { title: 'Scheduled', html: `<div class="pad done"><div class="okring info">${icon('calendar', 36)}</div><h2>Schedule paused</h2><p class="mute">${money(s.amount)} to ${esc(s.payee)} was saved as a schedule, but it will not run while the account restriction is active. No payment was sent.</p><div class="btns"><button class="btn btn-primary" data-go="/payments/scheduled">View scheduled payments</button><button class="btn btn-ghost" data-go="/payments">Done</button></div></div>` };
+      return { title: 'Scheduled', html: `<div class="pad done"><div class="okring info">${icon('calendar', 36)}</div><h2>Schedule created</h2><p class="mute">${money(s.amount)} to ${esc(s.payee)} is scheduled and will run automatically.</p><div class="btns"><button class="btn btn-primary" data-go="/payments/scheduled">View scheduled payments</button><button class="btn btn-ghost" data-go="/payments">Done</button></div></div>` };
     }
     const t = S().txs.find((x) => x.id === key); if (!t) return { html: ui.header('Result', { back: '/payments' }) };
     const ok = ['completed', 'pending'].includes(t.status), a = HM.acct(t.acct), R = HM.RAILS[t.rail] || {};
@@ -2322,7 +2320,7 @@
   /* ---------- support ---------- */
   const FAQ = [
     ['How do I freeze my account?', 'Go to Accounts, choose the account and open Account controls, then tap Freeze account. Outgoing payments, wires, checks, bills, transfers and withdrawals are blocked until you unfreeze it. Deposits are still accepted.'],
-    ['Why was my payment blocked?', 'Outgoing payments are unavailable while the account restriction is active. Blocked requests do not deduct funds or create a pending payment.'],
+    ['How long do transfers take?', 'Zelle arrives in minutes, domestic transfers settle in 1–2 business days, and wires are same-day. The processing time is shown before you confirm each payment.'],
     ['What are my daily limits?', 'Limits apply per method (Zelle, domestic transfer, wire, check, withdrawal, deposit) and to all payments combined. See Payments › Daily limits, where you can also change them for testing.'],
     ['How do I add a beneficiary?', 'Open Payments › Beneficiaries and tap +. You’ll need a valid 9-digit ABA routing number and an account number.'],
     ['How do I deposit a check?', 'Accounts › Deposit Check (or the Home shortcut). Enter the amount, date and payer, capture the front and back, review and submit. Funds are pending until reviewed.'],
