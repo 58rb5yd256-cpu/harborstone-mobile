@@ -657,12 +657,24 @@ html[data-theme] .oh-acts .oh-ai svg{color:var(--gold)!important}
 html[data-theme] .db-split{margin:16px 18px 0!important;padding:16px!important}
 
 /* ============ INNER PAGE HEADERS — orange, rounded (no wave) ============ */
-html[data-theme] .hdr{background:linear-gradient(180deg,#7C1606 0%,#7C1606 54%,#9f1f0b 100%)!important;background-image:linear-gradient(180deg,#7C1606 0%,#7C1606 54%,#9f1f0b 100%)!important;color:var(--hub-tx)!important;
-  border:0!important;border-radius:0 0 26px 26px!important;box-shadow:0 14px 30px -18px rgba(124,22,6,.5)!important;
-  position:relative;padding:calc(var(--sa-t) + 14px) 18px 20px!important;margin-bottom:18px!important}
+/* Inset header block (Activity, Pay, Cards, More and other inner pages) — matches the Home inset style */
+html[data-theme] .hdr{position:relative!important;overflow:hidden!important;margin:6px 6px 0!important;
+  padding:calc(var(--sa-t,0px) + 14px) 24px 52px!important;border:0!important;border-bottom:0!important;border-radius:46px!important;
+  background:linear-gradient(165deg,#7A2406 0%,#B93C0A 52%,#E0600F 100%)!important;background-image:linear-gradient(165deg,#7A2406 0%,#B93C0A 52%,#E0600F 100%)!important;
+  color:#fff!important;box-shadow:none!important;top:auto!important;z-index:0!important}
 html[data-theme] .hdr:after{display:none!important}
-html[data-theme] .hdr-t h1{color:#fff!important}
-html[data-theme] .hdr-t p{color:rgba(255,243,236,.82)!important}
+html[data-theme] .hdr .hdr-dec{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;border-radius:inherit}
+html[data-theme] .hdr .hdr-dec i{position:absolute;display:block;pointer-events:none}
+html[data-theme] .hdr .hdr-dec i:nth-child(1){right:-80px;top:-90px;width:290px;height:290px;border-radius:50%;background:rgba(255,255,255,.10)}
+html[data-theme] .hdr .hdr-dec i:nth-child(2){right:50px;bottom:-20px;width:120px;height:120px;border-radius:50%;border:20px solid rgba(255,255,255,.07);box-sizing:border-box;background:transparent}
+html[data-theme] .hdr .hdr-dec i:nth-child(3){left:-60px;bottom:-90px;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.06)}
+html[data-theme] .hdr>.hdr-sp,html[data-theme] .hdr>.iconbtn,html[data-theme] .hdr>.hdr-t,html[data-theme] .hdr>.hdr-r{position:relative;z-index:2}
+html[data-theme] .hdr-t h1{color:#fff!important;font-size:34px!important;font-weight:800!important;letter-spacing:-.6px!important;line-height:1.05!important}
+html[data-theme] .hdr-t p{color:#fff!important;font-size:15px!important;font-weight:500!important;margin-top:6px!important}
+/* overlap the tab switcher / profile card that sits right under the header */
+html[data-theme] .page>.hdr + *{margin-top:-28px!important;position:relative;z-index:5}
+/* let the inset header paint under the status bar (no flat band) so its rounded top + frame show */
+html[data-theme] body:has(.hdr) #app:before{display:none!important}
 html[data-theme] .hdr .iconbtn{background:rgba(0,0,0,.2)!important;border:1px solid rgba(255,255,255,.18)!important;color:#fff!important;border-radius:50%!important;box-shadow:none!important}
 html[data-theme] .hdr .iconbtn svg{color:#fff!important}
 html[data-theme] .hdr .lnk,html[data-theme] .hdr button.lnk{color:#FFE3D0!important}

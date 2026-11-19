@@ -549,7 +549,7 @@
   /* ---------- building blocks ---------- */
   ui.header = (title, o) => {
     o = o || {};
-    return `<header class="hdr">${o.back === false ? '<span class="hdr-sp"></span>' : `<button class="iconbtn" data-back="${esc(o.back || '/home')}" aria-label="Back">${icon('chevL', 22)}</button>`}<div class="hdr-t"><h1>${esc(title)}</h1>${o.sub ? `<p>${esc(o.sub)}</p>` : ''}</div><div class="hdr-r">${o.right || ''}</div></header>`;
+    return `<header class="hdr"><div class="hdr-dec" aria-hidden="true"><i></i><i></i><i></i></div>${o.back === false ? '<span class="hdr-sp"></span>' : `<button class="iconbtn" data-back="${esc(o.back || '/home')}" aria-label="Back">${icon('chevL', 22)}</button>`}<div class="hdr-t"><h1>${esc(title)}</h1>${o.sub ? `<p>${esc(o.sub)}</p>` : ''}</div><div class="hdr-r">${o.right || ''}</div></header>`;
   };
   ui.section = (title, right, body) => `<section class="sec"><div class="sec-h"><h2>${esc(title)}</h2>${right || ''}</div>${body}</section>`;
   ui.link = (label, path) => `<button class="lnk" data-go="${esc(path)}">${esc(label)}</button>`;
