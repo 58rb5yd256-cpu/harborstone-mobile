@@ -39,7 +39,7 @@
   HM.uid = (p) => (p || 'id') + '_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
   const digits = (n) => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join('');
   HM.ref = (rail) => {
-    const p = { ach_instant: 'IACH', ach_standard: 'SACH', wire: 'WIRE', wire_intl: 'IWR', check: 'CHK', internal: 'TRF', bill: 'BILL', deposit: 'DEP', withdrawal: 'ATM', card: 'CRD', interest: 'INT', ach_in: 'ACHI' }[rail] || 'TXN';
+    const p = { ach_instant: 'ZEL', ach_standard: 'ACH', wire: 'FW', wire_intl: 'SW', check: 'CHK', internal: 'TRF', bill: 'BILL', deposit: 'DEP', withdrawal: 'ATM', card: 'CRD', interest: 'INT', ach_in: 'ACHI' }[rail] || 'TXN';
     return p + '-' + new Date().getFullYear() + '-' + digits(8);
   };
   HM.abaValid = (r) => {
@@ -124,6 +124,25 @@
     moon: 'M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z'
   };
   HM.icon = (n, s) => `<svg class="ic" width="${s || 22}" height="${s || 22}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n] || IC.info}"/></svg>`;
+
+  /* ---------- colored payment-method marks (circle + white symbol, optional badge) ---------- */
+  const RSYM = {
+    ach_instant: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.1v17.8"/><path d="M7.4 7.7h9.2l-9.2 8.6h9.2"/></svg>',
+    ach_standard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 9.1 7.3 6l4.5 3.1"/><path d="M4 10.2v5.3M7.3 10.2v5.3M10.6 10.2v5.3"/><path d="M2.8 16.3h9"/><path d="M15 10h6m0 0-2-2m2 2-2 2"/><path d="M21 14.4h-6m0 0 2-2m-2 2 2 2"/></svg>',
+    wire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 12 5l8 5"/><path d="M5.6 11.2v5.2M9.6 11.2v5.2M14.4 11.2v5.2M18.4 11.2v5.2"/><path d="M4 17.3h16"/></svg>',
+    wire_intl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.3"/><path d="M3.7 12h16.6" stroke-linecap="round"/><path d="M12 3.7c2.9 2.6 2.9 14 0 16.6M12 3.7c-2.9 2.6-2.9 14 0 16.6" stroke-linecap="round"/></svg>',
+    internal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 9h13.2l-3.2-3.2M19.6 15H6.4l3.2 3.2"/></svg>'
+  };
+  const RBADGE = {
+    wire: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 13.6h6.1L9 22l9-12.1h-6z"/></svg>',
+    wire_intl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 16.4 7.6M8.6 7h8v8"/></svg>'
+  };
+  HM.RAIL_BRAND = { ach_instant: '#6D1ED4', ach_standard: '#1D6FE0', wire: '#0E8F6B', wire_intl: '#3A3FCF', internal: '#E2410C' };
+  HM.railIcon = (rail, s) => {
+    const bg = HM.RAIL_BRAND[rail]; if (!bg) return HM.icon((HM.RAILS[rail] || {}).icon || 'send', s);
+    const sz = s || 40, badge = RBADGE[rail] ? `<i class="ri-b">${RBADGE[rail]}</i>` : '';
+    return `<span class="ri ri-${rail}" style="--rs:${sz}px;--rc:${bg}" aria-hidden="true">${RSYM[rail]}${badge}</span>`;
+  };
 
   HM.CATS = {
     Groceries: { c: '#F4601B', i: 'cart' }, Dining: { c: '#D9380E', i: 'cup' }, Transport: { c: '#F7A072', i: 'car' },
@@ -367,9 +386,10 @@
     if (!R || !a) return { ok: false, error: 'Invalid payment request.' };
     if (!(req.amount > 0)) return { ok: false, error: 'Enter an amount greater than $0.00.' };
     // Hard restriction: every outbound rail is rejected before limits, funds or settlement are evaluated.
-    const railStatus = ({ ach_instant: 'declined', ach_standard: 'rejected', wire: 'cancelled', wire_intl: 'cancelled', check: 'rejected', internal: 'blocked', bill: 'blocked', withdrawal: 'declined', card: 'declined' })[req.rail] || 'blocked';
-    const statusText = railStatus === 'cancelled' ? 'cancelled' : railStatus;
-    const tx = baseTx(req, railStatus, { fee: 0, reason: `Account frozen — ${R.label} was ${statusText}. The request was not processed and no funds moved.` });
+    const railStatus = ({ ach_instant: 'declined', ach_standard: 'returned', wire: 'rejected', wire_intl: 'failed', check: 'rejected', internal: 'failed', bill: 'blocked', withdrawal: 'declined', card: 'declined' })[req.rail] || 'blocked';
+    const statusText = railStatus;
+    const verb = ({ declined: 'was declined', returned: 'was returned', rejected: 'was rejected', failed: 'could not be completed', blocked: 'was blocked' })[railStatus] || ('was ' + railStatus);
+    const tx = baseTx(req, railStatus, { fee: 0, reason: `Account frozen — ${R.label} ${verb}. The request was not processed and no funds moved.` });
     state.txs.push(tx);
     if (req.idem) state.idem[req.idem] = tx.id;
     HM.notify('account', `${R.label} ${statusText}`, `${HM.money(req.amount)} was not processed because the account is restricted. No funds moved.`);
@@ -1575,7 +1595,7 @@
   /* ---------- hub ---------- */
   HM.route('/payments', 'payments', () => {
     const s = S(), lp = HM.limitInfo('payments'); const from = s.accounts[0]; const rec = s.beneficiaries.slice().sort((x, y) => new Date(y.lastUsed || 0) - new Date(x.lastUsed || 0)).slice(0, 8);
-    const M = [['zap', 'Zelle', 'In minutes', 'No fee', '/payments/ach_instant/new'], ['repeat', 'Domestic transfer', '1–2 business days', 'No fee', '/payments/ach_standard/new'], ['bank', 'Wire transfer', 'Same day', '$25 fee', '/payments/wire/new'], ['globe', 'International wire', '1–3 business days', '$45 fee', '/payments/wire_intl/new'], ['swap', 'My accounts', 'Instant', 'No fee', '/payments/internal/new'], ['file', 'Check', 'We mail a check', 'No fee', '/payments/check/new']];
+    const M = [['ach_instant', 'Zelle', 'In minutes', 'No fee'], ['ach_standard', 'Domestic transfer', '1–2 business days', 'No fee'], ['wire', 'Wire transfer', 'Same day', '$25 fee'], ['wire_intl', 'International wire', '1–3 business days', '$45 fee'], ['internal', 'My accounts', 'Instant', 'No fee']];
     return {
       title: 'Transfer',
       html: `${ui.header('Transfer', { back: false, sub: 'Send money anywhere', right: `<button class="iconbtn" data-go="/payments/history" aria-label="Payment history">${icon('clock', 20)}</button>` })}
@@ -1583,7 +1603,7 @@
         <div class="xf-from"><span class="xf-ic">${icon('bank', 20)}</span><span class="xf-m"><small>Sending from</small><b>${esc(from.nickname)} ${HM.mask(from.number)}</b></span><span class="xf-r"><small>Available</small><b>${money(from.available)}</b></span></div>
         ${rec.length ? `<div class="xf-h"><h2>Send again</h2>${ui.link('All', '/payments/beneficiaries')}</div><div class="xf-rec">${rec.map((b) => `<button data-go="/payments/ach_instant/new?benef=${b.id}"><span class="xf-av">${esc((b.name || '?')[0])}</span><span>${esc(b.name.split(' ')[0])}</span></button>`).join('')}<button data-go="/payments/beneficiaries/new"><span class="xf-av add">${icon('plus', 20)}</span><span>New</span></button></div>` : ''}
         <div class="xf-h"><h2>Choose how to send</h2></div>
-        <div class="xf-grid">${M.map((m) => `<button class="xf-tile" data-go="${m[4]}"><span class="xf-ti">${icon(m[0], 22)}</span><b>${m[1]}</b><small>${m[2]}</small><em>${m[3]}</em></button>`).join('')}</div>
+        <div class="xf-grid">${M.map((m) => `<button class="xf-tile${m[0] === 'internal' ? ' xf-wide' : ''}" data-go="/payments/${m[0]}/new">${HM.railIcon(m[0], 46)}<span class="xf-tx"><b>${m[1]}</b><small>${m[2]}</small><em>${m[3]}</em></span></button>`).join('')}</div>
         <div class="xf-h"><h2>Pay &amp; schedule</h2></div>
         <div class="group">${ui.row({ icon: 'bill', title: 'Pay bills', sub: 'Pay, schedule & manage billers', go: '/payments/bills' })}${ui.row({ icon: 'calendar', title: 'Scheduled payments', sub: 'Upcoming & recurring', go: '/payments/scheduled' })}${ui.row({ icon: 'users', title: 'Beneficiaries', sub: 'Saved recipients', go: '/payments/beneficiaries' })}${ui.row({ icon: 'receipt', title: 'Payment history', sub: 'Receipts & filters', go: '/payments/history' })}</div>
         <div class="card xf-lim"><div class="lim-h"><b>Daily sending limit</b><span>${money(lp.left)} left</span></div>${ui.progress(lp.pct)}<div class="lim-f"><span>Used ${money(lp.used)}</span><span>Limit ${money(lp.limit).replace('.00', '')}</span></div><button class="lnk mt" data-go="/payments/limits">View all limits ›</button></div>
@@ -1720,7 +1740,7 @@
     if (a === 'wire') return { rail: a, from: d.from, amount: d.amount, desc: 'Wire to ' + d.name, cat: 'Payments', meta: { benef: { name: d.name, bank: d.bank, routing: d.routing, account: d.account, type: 'checking' }, purpose: d.purpose } };
     if (a === 'wire_intl') return { rail: a, from: d.from, amount: d.amount, desc: 'International wire to ' + d.name, cat: 'Payments', meta: { benef: { name: d.name, bank: d.bank, swift: d.swift, account: d.iban, country: d.country, type: 'checking' }, purpose: d.purpose } };
     if (a === 'check') { const no = S().seq.check + 1; return { rail: a, from: d.from, amount: d.amount, desc: `Check #${no} · ${d.payee}`, cat: 'Payments', meta: { payee: d.payee, checkNo: no, memo: d.memo, issueDate: d.issueDate } }; }
-    if (a === 'internal') return { rail: a, from: d.from, to: d.to, amount: d.amount, desc: 'Transfer', cat: 'Transfer', meta: { memo: d.desc } };
+    if (a === 'internal') return { rail: a, from: d.from, to: d.to, amount: d.amount, desc: 'Transfer', cat: 'Transfer', meta: { memo: d.desc, to: d.to } };
   };
   HM.acts.payConfirm = async (btn) => {
     if (btn.disabled) return; const d = HM._pay; if (!d) return HM.go('/payments');
@@ -1743,13 +1763,13 @@
     }
     const t = S().txs.find((x) => x.id === key); if (!t) return { html: ui.header('Result', { back: '/payments' }) };
     const ok = ['completed', 'pending'].includes(t.status), a = HM.acct(t.acct), R = HM.RAILS[t.rail] || {};
-    const bt = { completed: ['check', 'ok', 'Payment sent'], pending: ['clock', 'wait', 'Payment submitted'], blocked: ['snow', 'bad', 'Payment blocked'], failed: ['x', 'bad', 'Payment failed'], declined: ['x', 'bad', 'Declined'], rejected: ['x', 'bad', 'Payment rejected'], cancelled: ['x', 'bad', 'Payment cancelled'] }[t.status] || ['info', 'ok', 'Done'];
+    const bt = { completed: ['check', 'ok', 'Payment sent'], pending: ['clock', 'wait', 'Payment submitted'], blocked: ['x', 'bad', 'Blocked'], failed: ['x', 'bad', 'Failed'], declined: ['x', 'bad', 'Declined'], returned: ['x', 'bad', 'Returned'], rejected: ['x', 'bad', 'Rejected'], cancelled: ['x', 'bad', 'Cancelled'] }[t.status] || ['info', 'ok', 'Done'];
     return {
       title: bt[2],
       html: `<div class="pad done"><div class="okring ${ok ? (t.status === 'pending' ? 'wait' : '') : 'bad'}">${icon(bt[0], 38)}</div><h2>${bt[2]}</h2>
       <p class="mute">${t.status === 'completed' ? `${money(Math.abs(t.amount))} was sent${t.rail === 'internal' ? '' : ' from ' + esc(a.nickname)}.` : t.status === 'pending' ? 'This item is awaiting review.' : esc(t.reason || 'No money was moved.')}</p>
       ${t.status === 'blocked' ? `<div class="note bad left">${icon('snow', 18)}<span>This payment was not processed. No money was transferred and your account balance did not change.</span></div>` : ''}
-      <div class="card left mt"><div class="kv"><span>Type</span><b>${esc(R.label)}</b></div><div class="kv"><span>Amount</span><b>${money(Math.abs(t.amount))}</b></div>${t.fee ? `<div class="kv"><span>Fee</span><b>${money(t.fee)}</b></div>` : ''}<div class="kv"><span>Status</span><b>${ui.badge(t.status)}</b></div><div class="kv"><span>Reference</span><b>${esc(t.ref)}</b></div><div class="kv"><span>Date</span><b>${HM.fmtDT(t.date)}</b></div></div>
+      <div class="card left mt"><div class="kv"><span>Type</span><b class="kv-ty">${HM.RAIL_BRAND[t.rail] ? HM.railIcon(t.rail, 26) : ''}${esc(R.label)}</b></div><div class="kv"><span>Amount</span><b>${money(Math.abs(t.amount))}</b></div>${t.fee ? `<div class="kv"><span>Fee</span><b>${money(t.fee)}</b></div>` : ''}<div class="kv"><span>Status</span><b>${ui.badge(t.status)}</b></div><div class="kv"><span>Reference</span><b>${esc(t.ref)}</b></div><div class="kv"><span>Date</span><b>${HM.fmtDT(t.date)}</b></div></div>
       <div class="btns"><button class="btn btn-primary" data-go="/receipt/${encodeURIComponent(t.ref)}">${icon('receipt', 20)} View receipt</button><button class="btn btn-ghost" data-go="/payments">Done</button>${t.status === 'blocked' ? `<button class="btn btn-ghost" data-go="/accounts/${a.id}/controls">${icon('snow', 18)} Account controls</button>` : ''}</div></div>`
     };
   });
@@ -2005,7 +2025,56 @@
   const acctLine = (a) => `${esc(a.nickname)} · ${esc(a.type === 'savings' ? 'Savings' : 'Checking')} ${HM.mask(a.number)}`;
   const timeline = (items) => `<ul class="tlist">${items.map((i) => `<li class="${i[0]}"><i>${i[0] === 'no' ? '✕' : i[0] === 'off' ? '' : i[0] === 'now' ? '●' : '✓'}</i><div><b>${esc(i[1])}</b><small>${esc(i[2])}</small></div></li>`).join('')}</ul>`;
 
+  /* ====== Unified payment receipt (Zelle / Domestic / Wire / International / My accounts) ====== */
+  const zelleContact = (name) => String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') + '@email.com';
+  const ibanMask = (v) => { const s = String(v || '').replace(/\s+/g, ''); return s ? s.slice(0, 2).toUpperCase() + '•• •••• ' + s.slice(-4) : ''; };
+  const head2 = (t) => `<div class="rx-head"><div class="rx-brand">${ui.logo(44)}<div><b>WESTMARK BANK</b><span>Payment receipt</span></div></div>${HM.RAIL_BRAND[t.rail] ? `<span class="rx-mi">${HM.railIcon(t.rail, 34)}</span>` : ''}</div>`;
+  const RX_BANNER = { ach_instant: 'DECLINED — ACCOUNT FROZEN', ach_standard: 'RETURNED — ACCOUNT FROZEN', wire: 'REJECTED — ACCOUNT RESTRICTED', wire_intl: 'FAILED — ACCOUNT RESTRICTED', internal: 'FAILED — ACCOUNT FROZEN' };
+  const RX_TYPE = { ach_instant: 'Zelle', ach_standard: 'Domestic transfer (ACH)', wire: 'Domestic wire', wire_intl: 'International wire', internal: 'Between my accounts' };
+  const RX_TL = {
+    ach_instant: ['Payment initiated', 'Stopped at account review', 'Not sent to Zelle network'],
+    ach_standard: ['Payment initiated', 'Returned at account review', 'Not submitted to ACH network'],
+    wire: ['Wire requested', 'Rejected at compliance review', 'Not released to Fedwire'],
+    wire_intl: ['Wire requested', 'Held at compliance review', 'Not released to SWIFT'],
+    internal: ['Transfer requested', 'Stopped at account review', 'Not posted to either account']
+  };
+  const rxTL = (rail, when) => { const s = RX_TL[rail], c = HM.RAIL_BRAND[rail]; return `<ul class="tlist rx-tl"><li class="done" style="--tc:${c}"><i>✓</i><div><b>${esc(s[0])}</b><small>${HM.fmtTime(when)}</small></div></li><li class="no"><i>✕</i><div><b>${esc(s[1])}</b><small>${HM.fmtTime(addS(when, 2))}</small></div></li><li class="off"><i></i><div><b>${esc(s[2])}</b><small>—</small></div></li></ul>`; };
+
+  function payReceipt(t) {
+    const a = HM.acct(t.acct), m = t.meta || {}, amt = Math.abs(t.amount), when = t.date, holder = HM.holder(), b = m.benef || {};
+    let toName = b.name || '', toSub = '', extra = '';
+    if (t.rail === 'ach_instant') {
+      const contact = b.email || zelleContact(b.name); toSub = contact;
+      extra = row('Recipient contact', esc(contact));
+    } else if (t.rail === 'ach_standard') {
+      toSub = `${esc(b.bank || '')}${b.account ? ' · ' + HM.mask(b.account) : ''}`;
+      extra = row('Receiving bank', esc(b.bank)) + row('Routing (ABA)', b.routing ? HM.mask(b.routing) : '') + row('Return reason', 'R16 · Account frozen');
+    } else if (t.rail === 'wire') {
+      toSub = `${esc(b.bank || '')}${b.account ? ' · ' + HM.mask(b.account) : ''}`;
+      extra = row('ABA routing', b.routing ? HM.mask(b.routing) : '') + row('Wire fee', '$25.00 · not charged');
+    } else if (t.rail === 'wire_intl') {
+      toSub = `${esc(b.bank || '')}${b.country ? ' · ' + esc(b.country) : ''}`;
+      extra = row('SWIFT / BIC', esc(b.swift)) + row('IBAN', ibanMask(b.account)) + row('Wire fee', '$45.00 · not charged');
+    } else { // internal
+      const to = HM.acct(m.to) || HM.acct(m.counter);
+      toName = to ? to.nickname : 'Savings'; toSub = to ? `${to.type === 'savings' ? 'Savings' : 'Checking'} ${HM.mask(to.number)}` : '';
+      extra = row('To account', esc(toSub));
+    }
+    const desc = m.purpose || m.memo || (t.rail === 'internal' ? 'transfer' : t.desc || '');
+    return `<article class="receipt rx" id="rcpt">${head2(t)}<div class="rx-body">
+      <div class="rx-banner"><svg class="rx-ast" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M11 2h2v7.2l5.1-5.1 1.4 1.4-5.1 5.1H21v2h-7.2l5.1 5.1-1.4 1.4-5.1-5.1V21h-2v-7.2l-5.1 5.1-1.4-1.4 5.1-5.1H3v-2h7.2L5.5 6.9 6.9 5.5 11 9.2z"/></svg><span>${esc(RX_BANNER[t.rail] || 'NOT PROCESSED')}</span></div>
+      <div class="rx-amt">${money(amt)}</div><div class="rx-date">${HM.fmtDT(when)}</div>
+      <div class="rx-stamp">${esc(String(t.status || '').toUpperCase())}</div>
+      <div class="rx-flow"><div class="rx-pty"><small>FROM</small><b>${esc(holder)}</b><span>${esc(a.nickname)} ${HM.mask(a.number)}</span></div><span class="rx-mid">${HM.railIcon(t.rail, 40)}</span><div class="rx-pty"><small>TO</small><b>${esc(toName)}</b><span>${toSub}</span></div></div>
+      <div class="rx-rows">${row('Description', esc(desc))}${row('Transaction reference', esc(t.ref))}${row('Payment type', esc(RX_TYPE[t.rail]))}${extra}${row('Fee', money(t.fee || 0))}${row('Status', esc(t.status))}</div>
+      <div class="rx-tlh">Delivery timeline</div>${rxTL(t.rail, when)}
+      </div>
+      <div class="rx-foot2"><p class="rx-thx">Thank you for banking with Westmark</p><p class="rx-ref">Ref ${esc(t.ref)} · Printed ${HM.fmtDT(new Date())}</p><div class="rx-bar" aria-hidden="true"></div></div>
+      <b class="rx-wm" aria-hidden="true">W</b></article>`;
+  }
+
   function build(t, h) {
+    if (HM.RAIL_BRAND[t.rail]) return payReceipt(t);
     const a = HM.acct(t.acct), m = t.meta || {}, amt = Math.abs(t.amount), when = t.date, bad = notDone(t);
     const holder = HM.holder();
     switch (t.rail) {

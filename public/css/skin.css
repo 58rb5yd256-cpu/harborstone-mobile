@@ -822,3 +822,70 @@ html[data-theme] .lead{margin:2px 0 4px;color:var(--mut)!important;font-size:14p
 
 /* Add-money info pages: text-first, no header overlap */
 html[data-theme] .page>.hdr + .pad.addpg{margin-top:0!important;padding-top:16px!important}
+
+/* ============ COLORED PAYMENT-METHOD MARKS ============ */
+.ri{position:relative;display:inline-grid;place-items:center;width:var(--rs);height:var(--rs);min-width:var(--rs);border-radius:50%;background:var(--rc);vertical-align:middle;flex:0 0 auto}
+.ri>svg{width:56%;height:56%;display:block;color:#fff!important;stroke:#fff!important}
+.ri-ach_standard>svg,.ri-wire_intl>svg{width:62%;height:62%}
+.ri-internal>svg{width:60%;height:60%}
+.ri .ri-b{position:absolute;right:-7%;bottom:-7%;width:46%;height:46%;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.28)}
+.ri .ri-b>svg{width:66%;height:66%;display:block}
+.ri-wire .ri-b>svg{color:#0E8F6B!important;stroke:#0E8F6B!important;fill:#0E8F6B}
+.ri-wire_intl .ri-b>svg{color:#3A3FCF!important;stroke:#3A3FCF!important}
+
+/* ============ PAY PAGE — colored method tiles ============ */
+html[data-theme] .xf-tile{align-items:flex-start;overflow:visible}
+html[data-theme] .xf-tile:before{display:none!important}
+.xf-tx{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.xf-tile .ri{margin-bottom:11px}
+html[data-theme] .xf-tile em{color:var(--gold)!important;background:var(--soft)!important;margin-top:7px}
+.xf-tile.xf-wide{grid-column:1 / -1;flex-direction:row;align-items:center;gap:15px;padding:16px 16px}
+.xf-tile.xf-wide .ri{margin-bottom:0}
+.xf-tile.xf-wide .xf-tx{gap:2px}
+
+/* Result screen: colored mark inside the Type row */
+.kv-ty{display:inline-flex;align-items:center;gap:9px}
+
+/* ============ UNIFIED PAYMENT RECEIPT (rx) ============ */
+.receipt.rx{color:#201a16;background:#F3EFEC}
+body.rc-full .receipt.rx{background:#F3EFEC}
+body.rc-full .receipt .rx-body{flex:1;display:flex;flex-direction:column}
+.rx-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid #E7DED8;background:#F3EFEC}
+body.rc-full .rx-head{padding-top:calc(var(--sa-t,0px) + 20px)}
+.rx-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.rx-brand>div{display:flex;flex-direction:column;line-height:1.16;min-width:0}
+.rx-brand b{font-size:17px;font-weight:800;letter-spacing:.11em;color:#1F1510}
+.rx-brand span{font-size:12.5px;color:#8A7D74;font-weight:500;letter-spacing:0}
+.rx-mi{flex:0 0 auto}
+.rx-body{position:relative;padding:2px 0 6px}
+.rx-body>.rx-banner,.rx-body>.rx-amt,.rx-body>.rx-date,.rx-body>.rx-flow,.rx-body>.rx-rows,.rx-body>.rx-tlh,.rx-body>.rx-tl{position:relative;z-index:1}
+.rx-banner{display:flex;align-items:center;justify-content:center;gap:9px;margin:16px 18px 0;padding:12px 16px;border-radius:14px;background:#F6DEDA;color:#C13A2C;font-weight:800;font-size:13.5px;letter-spacing:.03em;text-align:center}
+.rx-ast{color:#D83A28;flex:0 0 auto}
+.rx-amt{text-align:center;font-size:clamp(40px,12vw,52px);font-weight:800;letter-spacing:-.02em;margin:20px 0 0;color:#1C1410;font-variant-numeric:tabular-nums;line-height:1}
+.rx-date{text-align:center;color:#8A7D74;font-size:13.5px;font-weight:600;margin-top:6px}
+.rx-stamp{position:absolute;right:50%;top:158px;transform:translateX(50%) rotate(-7deg);padding:5px 16px;border:2.5px solid #C64230;border-radius:8px;color:#C64230;font-weight:800;font-size:18px;letter-spacing:.14em;opacity:.86;pointer-events:none;z-index:3;white-space:nowrap}
+.rx-flow{display:flex;align-items:stretch;margin:64px 18px 0}
+.rx-pty{flex:1;min-width:0;background:#EAE3DD;border-radius:16px;padding:13px 15px;display:flex;flex-direction:column;gap:3px}
+.rx-pty small{font-size:11px;font-weight:700;letter-spacing:.11em;color:#9A8D83;text-transform:uppercase}
+.rx-pty b{font-size:15.5px;font-weight:800;color:#1F1510;line-height:1.2}
+.rx-pty span{font-size:12.5px;color:#8A7D74;word-break:break-word;line-height:1.3}
+.rx-mid{flex:0 0 auto;align-self:center;margin:0 -9px;z-index:2}
+.rx-rows{margin:24px 0 0;padding:0 18px}
+.rx-rows .rk{border-bottom:1px dashed rgba(0,0,0,.14);padding:9px 0}
+.rx-rows .rk:last-child{border-bottom:0}
+.rx-rows .rk span{color:#9A8D83}
+.rx-rows .rk b{color:#241c17}
+.rx-tlh{margin:24px 18px 0;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#9A8D83}
+.rx-tl{margin:12px 18px 0}
+.rx-tl li:before,.rx-tl li:after{display:none!important}
+.rx-tl li i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;flex:0 0 auto;border:0}
+.receipt.rx .rx-tl li.done i{background:var(--tc,#6D1ED4)!important;color:#fff!important}
+.receipt.rx .rx-tl li.no i{background:#C9372A!important;color:#fff!important}
+.receipt.rx .rx-tl li.off i{background:#DCD4CD!important;color:#DCD4CD!important}
+.rx-tl li b{color:#2A211B}
+.rx-tl li small{color:#9A8D83}
+.rx-foot2{margin-top:auto;padding:18px 18px calc(var(--sa-b,0px) + 18px);text-align:center;position:relative;z-index:1}
+.rx-thx{font-weight:800;font-style:italic;color:#4A3F38;font-size:15px}
+.rx-ref{margin-top:3px;font-size:12px;color:#9A8D83;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.rx-bar{height:34px;margin:14px auto 0;max-width:260px;background:repeating-linear-gradient(90deg,#1d1715 0 2px,transparent 2px 4px,#1d1715 4px 5px,transparent 5px 8px,#1d1715 8px 11px,transparent 11px 13px,#1d1715 13px 14px,transparent 14px 18px)}
+.receipt.rx .rx-wm{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);font-size:220px;font-weight:900;color:rgba(124,22,6,.045)!important;pointer-events:none;z-index:0;line-height:1;font-family:-apple-system,Inter,Arial,sans-serif;-webkit-text-fill-color:rgba(124,22,6,.045)}
